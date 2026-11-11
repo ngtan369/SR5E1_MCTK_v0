@@ -1,0 +1,983 @@
+   1              		.cpu cortex-m7
+   2              		.arch armv7e-m
+   3              		.fpu fpv5-d16
+   4              		.eabi_attribute 28, 1
+   5              		.eabi_attribute 20, 1
+   6              		.eabi_attribute 21, 1
+   7              		.eabi_attribute 23, 3
+   8              		.eabi_attribute 24, 1
+   9              		.eabi_attribute 25, 1
+  10              		.eabi_attribute 26, 1
+  11              		.eabi_attribute 30, 6
+  12              		.eabi_attribute 34, 1
+  13              		.eabi_attribute 18, 4
+  14              		.file	"ramp_ext_mngr.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.file 1 ".sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c"
+  19              		.section	.rodata.OFFSET_TAB_CCMRx,"a"
+  20              		.align	2
+  23              	OFFSET_TAB_CCMRx:
+  24 0000 00000000 		.ascii	"\000\000\000\000\004\004\004\00488"
+  24      04040404 
+  24      3838
+  25              		.section	.rodata.SHIFT_TAB_OCxx,"a"
+  26              		.align	2
+  29              	SHIFT_TAB_OCxx:
+  30 0000 00000800 		.ascii	"\000\000\010\000\000\000\010\000\000\010"
+  30      00000800 
+  30      0008
+  31              		.section	.rodata.SHIFT_TAB_ICxx,"a"
+  32              		.align	2
+  35              	SHIFT_TAB_ICxx:
+  36 0000 00000800 		.ascii	"\000\000\010\000\000\000\010\000\000\000"
+  36      00000800 
+  36      0000
+  37              		.section	.rodata.SHIFT_TAB_CCxP,"a"
+  38              		.align	2
+  41              	SHIFT_TAB_CCxP:
+  42 0000 00020406 		.ascii	"\000\002\004\006\010\012\014\016\020\024"
+  42      080A0C0E 
+  42      1014
+  43              		.section	.rodata.SHIFT_TAB_OISx,"a"
+  44              		.align	2
+  47              	SHIFT_TAB_OISx:
+  48 0000 00010203 		.ascii	"\000\001\002\003\004\005\006\007\010\012"
+  48      04050607 
+  48      080A
+  49              		.section	.rodata.USART_PRESCALER_TAB,"a"
+  50              		.align	2
+  53              	USART_PRESCALER_TAB:
+  54 0000 01000000 		.word	1
+  55 0004 02000000 		.word	2
+  56 0008 04000000 		.word	4
+  57 000c 06000000 		.word	6
+  58 0010 08000000 		.word	8
+  59 0014 0A000000 		.word	10
+  60 0018 0C000000 		.word	12
+  61 001c 10000000 		.word	16
+  62 0020 20000000 		.word	32
+  63 0024 40000000 		.word	64
+  64 0028 80000000 		.word	128
+  65 002c 00010000 		.word	256
+  66              		.section	.rodata.LL_DMA_STR_OFFSET_TAB,"a"
+  67              		.align	2
+  70              	LL_DMA_STR_OFFSET_TAB:
+  71 0000 10284058 		.ascii	"\020(@Xp\210\240\270"
+  71      7088A0B8 
+  72              		.section	.text.REMNG_Init,"ax",%progbits
+  73              		.align	1
+  74              		.p2align 4,,15
+  75              		.global	REMNG_Init
+  76              		.syntax unified
+  77              		.thumb
+  78              		.thumb_func
+  80              	REMNG_Init:
+  81              	.LFB1248:
+   1:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** /****************************************************************************
+   2:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** *
+   3:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** * Copyright (c) 2023 STMicroelectronics - All Rights Reserved
+   4:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** *
+   5:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** * License terms: STMicroelectronics Proprietary in accordance with licensing
+   6:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** * terms SLA0098 at www.st.com.
+   7:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** *
+   8:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** * THIS SOFTWARE IS DISTRIBUTED "AS IS," AND ALL WARRANTIES ARE DISCLAIMED,
+   9:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** * INCLUDING MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+  10:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** *****************************************************************************/
+  11:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** /**
+  12:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** *   @file    ramp_ext_mngr.c
+  13:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** *   @version M4_VERSION
+  14:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** *   @brief   This file provides firmware functions that implement the features
+  15:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** *            of the Ramp Extended Manager component of the Stellar Motor Control.
+  16:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** *
+  17:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** *   @details This file provides firmware functions that implement the features
+  18:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** *            of the Ramp Extended Manager component of the Stellar Motor Control.
+  19:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** *
+  20:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****  */
+  21:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** 
+  22:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** /* Includes ------------------------------------------------------------------*/
+  23:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** #include "ramp_ext_mngr.h"
+  24:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** #include "mc_config.h"
+  25:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** /** @addtogroup STELLAR_PMSM_MC_FOC_LIBRARY
+  26:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   * @{
+  27:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   */
+  28:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** 
+  29:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** /** @defgroup RampExtMngr Ramp Manager
+  30:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   * @brief Ramp Extended Manager component of the Stellar Motor Control
+  31:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   *
+  32:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   * @todo Document the Ramp Extended Manager "module".
+  33:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   *
+  34:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   * @{
+  35:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   */
+  36:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** /* Private function prototypes -----------------------------------------------*/
+  37:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** uint32_t getScalingFactor( int32_t Target );
+  38:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** 
+  39:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** /**
+  40:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   * @brief  It reset the state variable to zero.
+  41:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   * @param  pHandle related Handle of struct RampMngr_Handle_t
+  42:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   * @retval none.
+  43:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   */
+  44:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** void REMNG_Init( RampExtMngr_Handle_t * pHandle )
+  45:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** {
+  82              		.loc 1 45 1
+  83              		.cfi_startproc
+  84              		@ args = 0, pretend = 0, frame = 8
+  85              		@ frame_needed = 0, uses_anonymous_args = 0
+  86              		@ link register save eliminated.
+  87 0000 82B0     		sub	sp, sp, #8
+  88              		.cfi_def_cfa_offset 8
+  89 0002 0190     		str	r0, [sp, #4]
+  46:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   pHandle->Ext = 0;
+  90              		.loc 1 46 16
+  91 0004 019B     		ldr	r3, [sp, #4]
+  92 0006 0022     		movs	r2, #0
+  93 0008 9A60     		str	r2, [r3, #8]
+  47:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   pHandle->TargetFinal = 0;
+  94              		.loc 1 47 24
+  95 000a 019B     		ldr	r3, [sp, #4]
+  96 000c 0022     		movs	r2, #0
+  97 000e 5A60     		str	r2, [r3, #4]
+  48:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   pHandle->RampRemainingStep = 0u;
+  98              		.loc 1 48 30
+  99 0010 019B     		ldr	r3, [sp, #4]
+ 100 0012 0022     		movs	r2, #0
+ 101 0014 DA60     		str	r2, [r3, #12]
+  49:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   pHandle->IncDecAmount = 0;
+ 102              		.loc 1 49 25
+ 103 0016 019B     		ldr	r3, [sp, #4]
+ 104 0018 0022     		movs	r2, #0
+ 105 001a 1A61     		str	r2, [r3, #16]
+  50:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   pHandle->ScalingFactor = 1u;
+ 106              		.loc 1 50 26
+ 107 001c 019B     		ldr	r3, [sp, #4]
+ 108 001e 0122     		movs	r2, #1
+ 109 0020 5A61     		str	r2, [r3, #20]
+  51:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** 
+  52:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** #ifdef FASTDIV
+  53:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   FD_Init( & ( pHandle->fd ) );
+  54:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** #endif
+  55:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** 
+  56:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** }
+ 110              		.loc 1 56 1
+ 111 0022 00BF     		nop
+ 112 0024 02B0     		add	sp, sp, #8
+ 113              		.cfi_def_cfa_offset 0
+ 114              		@ sp needed
+ 115 0026 7047     		bx	lr
+ 116              		.cfi_endproc
+ 117              	.LFE1248:
+ 119              		.section	.itcm,"ax",%progbits
+ 120              		.align	1
+ 121              		.p2align 4,,15
+ 122              		.weak	REMNG_Calc
+ 123              		.syntax unified
+ 124              		.thumb
+ 125              		.thumb_func
+ 127              	REMNG_Calc:
+ 128              	.LFB1249:
+  57:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** 
+  58:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** /**
+  59:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   * @brief  Exec the ramp calculations and returns the current value of the
+  60:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****             state variable.
+  61:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****             It must be called at fixed interval defined in the hExecFreq.
+  62:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   * @param  pHandle related Handle of struct RampMngr_Handle_t
+  63:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   * @retval int32_t value of the state variable
+  64:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   */
+  65:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** #if defined (MCTK_ITCM)
+  66:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** __weak int32_t __attribute__((section(".itcm"))) REMNG_Calc( RampExtMngr_Handle_t * pHandle )
+  67:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** #else
+  68:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** __weak int32_t REMNG_Calc( RampExtMngr_Handle_t * pHandle )
+  69:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** #endif
+  70:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** {
+ 129              		.loc 1 70 1
+ 130              		.cfi_startproc
+ 131              		@ args = 0, pretend = 0, frame = 16
+ 132              		@ frame_needed = 0, uses_anonymous_args = 0
+ 133              		@ link register save eliminated.
+ 134 0000 84B0     		sub	sp, sp, #16
+ 135              		.cfi_def_cfa_offset 16
+ 136 0002 0190     		str	r0, [sp, #4]
+  71:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   int32_t ret_val;
+  72:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   int32_t current_ref;
+  73:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** 
+  74:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   current_ref = pHandle->Ext;
+ 137              		.loc 1 74 15
+ 138 0004 019B     		ldr	r3, [sp, #4]
+ 139 0006 9B68     		ldr	r3, [r3, #8]
+ 140 0008 0393     		str	r3, [sp, #12]
+  75:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** 
+  76:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   /* Update the variable and terminates the ramp if needed. */
+  77:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   if ( pHandle->RampRemainingStep > 1u )
+ 141              		.loc 1 77 15
+ 142 000a 019B     		ldr	r3, [sp, #4]
+ 143 000c DB68     		ldr	r3, [r3, #12]
+ 144              		.loc 1 77 6
+ 145 000e 012B     		cmp	r3, #1
+ 146 0010 0AD9     		bls	.L3
+  78:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   {
+  79:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****     /* Increment/decrement the reference value. */
+  80:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****     current_ref += pHandle->IncDecAmount;
+ 147              		.loc 1 80 27
+ 148 0012 019B     		ldr	r3, [sp, #4]
+ 149 0014 1B69     		ldr	r3, [r3, #16]
+ 150              		.loc 1 80 17
+ 151 0016 039A     		ldr	r2, [sp, #12]
+ 152 0018 1344     		add	r3, r3, r2
+ 153 001a 0393     		str	r3, [sp, #12]
+  81:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** 
+  82:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****     /* Decrement the number of remaining steps */
+  83:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****     pHandle->RampRemainingStep --;
+ 154              		.loc 1 83 12
+ 155 001c 019B     		ldr	r3, [sp, #4]
+ 156 001e DB68     		ldr	r3, [r3, #12]
+ 157              		.loc 1 83 32
+ 158 0020 5A1E     		subs	r2, r3, #1
+ 159 0022 019B     		ldr	r3, [sp, #4]
+ 160 0024 DA60     		str	r2, [r3, #12]
+ 161 0026 0DE0     		b	.L4
+ 162              	.L3:
+  84:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   }
+  85:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   else if ( pHandle->RampRemainingStep == 1u )
+ 163              		.loc 1 85 20
+ 164 0028 019B     		ldr	r3, [sp, #4]
+ 165 002a DB68     		ldr	r3, [r3, #12]
+ 166              		.loc 1 85 11
+ 167 002c 012B     		cmp	r3, #1
+ 168 002e 09D1     		bne	.L4
+  86:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   {
+  87:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****     /* Set the backup value of TargetFinal. */
+  88:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****     current_ref = pHandle->TargetFinal * ( int32_t )( pHandle->ScalingFactor );
+ 169              		.loc 1 88 26
+ 170 0030 019B     		ldr	r3, [sp, #4]
+ 171 0032 5B68     		ldr	r3, [r3, #4]
+ 172              		.loc 1 88 62
+ 173 0034 019A     		ldr	r2, [sp, #4]
+ 174 0036 5269     		ldr	r2, [r2, #20]
+ 175              		.loc 1 88 17
+ 176 0038 02FB03F3 		mul	r3, r2, r3
+ 177 003c 0393     		str	r3, [sp, #12]
+  89:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****     pHandle->RampRemainingStep = 0u;
+ 178              		.loc 1 89 32
+ 179 003e 019B     		ldr	r3, [sp, #4]
+ 180 0040 0022     		movs	r2, #0
+ 181 0042 DA60     		str	r2, [r3, #12]
+ 182              	.L4:
+  90:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   }
+  91:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   else
+  92:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   {
+  93:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****     /* Do nothing. */
+  94:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   }
+  95:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** 
+  96:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   pHandle->Ext = current_ref;
+ 183              		.loc 1 96 16
+ 184 0044 019B     		ldr	r3, [sp, #4]
+ 185 0046 039A     		ldr	r2, [sp, #12]
+ 186 0048 9A60     		str	r2, [r3, #8]
+  97:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** 
+  98:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** #ifdef FASTDIV
+  99:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   ret_val = FD_FastDiv( & ( pHandle->fd ), pHandle->Ext, ( int32_t )( pHandle->ScalingFactor ) );
+ 100:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** #else
+ 101:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   ret_val = pHandle->Ext / ( int32_t )( pHandle->ScalingFactor );
+ 187              		.loc 1 101 20
+ 188 004a 019B     		ldr	r3, [sp, #4]
+ 189 004c 9B68     		ldr	r3, [r3, #8]
+ 190              		.loc 1 101 48
+ 191 004e 019A     		ldr	r2, [sp, #4]
+ 192 0050 5269     		ldr	r2, [r2, #20]
+ 193              		.loc 1 101 11
+ 194 0052 93FBF2F3 		sdiv	r3, r3, r2
+ 195 0056 0293     		str	r3, [sp, #8]
+ 102:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** #endif
+ 103:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** 
+ 104:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   return ret_val;
+ 196              		.loc 1 104 10
+ 197 0058 029B     		ldr	r3, [sp, #8]
+ 105:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** }
+ 198              		.loc 1 105 1
+ 199 005a 1846     		mov	r0, r3
+ 200 005c 04B0     		add	sp, sp, #16
+ 201              		.cfi_def_cfa_offset 0
+ 202              		@ sp needed
+ 203 005e 7047     		bx	lr
+ 204              		.cfi_endproc
+ 205              	.LFE1249:
+ 207              		.section	.text.REMNG_ExecRamp,"ax",%progbits
+ 208              		.align	1
+ 209              		.p2align 4,,15
+ 210              		.weak	REMNG_ExecRamp
+ 211              		.syntax unified
+ 212              		.thumb
+ 213              		.thumb_func
+ 215              	REMNG_ExecRamp:
+ 216              	.LFB1250:
+ 106:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** 
+ 107:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** /**
+ 108:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   * @brief  Setup the ramp to be executed
+ 109:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   * @param  pHandle related Handle of struct RampMngr_Handle_t
+ 110:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   * @param  hTargetFinal (signed 32bit) final value of state variable at the end
+ 111:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   *         of the ramp.
+ 112:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   * @param  hDurationms (unsigned 32bit) the duration of the ramp expressed in
+ 113:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   *         milliseconds. It is possible to set 0 to perform an instantaneous
+ 114:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   *         change in the value.
+ 115:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   * @retval bool It returns true is command is valid, false otherwise
+ 116:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   */
+ 117:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** __weak bool REMNG_ExecRamp( RampExtMngr_Handle_t * pHandle, int32_t TargetFinal, uint32_t Durationm
+ 118:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** {
+ 217              		.loc 1 118 1
+ 218              		.cfi_startproc
+ 219              		@ args = 0, pretend = 0, frame = 48
+ 220              		@ frame_needed = 0, uses_anonymous_args = 0
+ 221 0000 00B5     		push	{lr}
+ 222              		.cfi_def_cfa_offset 4
+ 223              		.cfi_offset 14, -4
+ 224 0002 8DB0     		sub	sp, sp, #52
+ 225              		.cfi_def_cfa_offset 56
+ 226 0004 0390     		str	r0, [sp, #12]
+ 227 0006 0291     		str	r1, [sp, #8]
+ 228 0008 0192     		str	r2, [sp, #4]
+ 119:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   uint32_t aux;
+ 120:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   int32_t aux1;
+ 121:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   int32_t current_ref;
+ 122:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   bool retVal = true;
+ 229              		.loc 1 122 8
+ 230 000a 0123     		movs	r3, #1
+ 231 000c 8DF82B30 		strb	r3, [sp, #43]
+ 123:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** 
+ 124:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   /* Get current state */
+ 125:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** #ifdef FASTDIV
+ 126:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   current_ref = FD_FastDiv( &( pHandle->fd ), pHandle->Ext, ( int32_t )( pHandle->ScalingFactor ) )
+ 127:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** #else
+ 128:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   current_ref = pHandle->Ext / ( int32_t )( pHandle->ScalingFactor );
+ 232              		.loc 1 128 24
+ 233 0010 039B     		ldr	r3, [sp, #12]
+ 234 0012 9B68     		ldr	r3, [r3, #8]
+ 235              		.loc 1 128 52
+ 236 0014 039A     		ldr	r2, [sp, #12]
+ 237 0016 5269     		ldr	r2, [r2, #20]
+ 238              		.loc 1 128 15
+ 239 0018 93FBF2F3 		sdiv	r3, r3, r2
+ 240 001c 0993     		str	r3, [sp, #36]
+ 129:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** #endif
+ 130:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** 
+ 131:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   if ( Durationms == 0u )
+ 241              		.loc 1 131 6
+ 242 001e 019B     		ldr	r3, [sp, #4]
+ 243 0020 002B     		cmp	r3, #0
+ 244 0022 14D1     		bne	.L7
+ 132:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   {
+ 133:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****     pHandle->ScalingFactor = getScalingFactor( TargetFinal );
+ 245              		.loc 1 133 30
+ 246 0024 0298     		ldr	r0, [sp, #8]
+ 247 0026 FFF7FEFF 		bl	getScalingFactor
+ 248 002a 0246     		mov	r2, r0
+ 249              		.loc 1 133 28 discriminator 1
+ 250 002c 039B     		ldr	r3, [sp, #12]
+ 251 002e 5A61     		str	r2, [r3, #20]
+ 134:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****     pHandle->Ext = TargetFinal * ( int32_t )( pHandle->ScalingFactor );
+ 252              		.loc 1 134 54
+ 253 0030 039B     		ldr	r3, [sp, #12]
+ 254 0032 5B69     		ldr	r3, [r3, #20]
+ 255              		.loc 1 134 34
+ 256 0034 1A46     		mov	r2, r3
+ 257              		.loc 1 134 32
+ 258 0036 029B     		ldr	r3, [sp, #8]
+ 259 0038 03FB02F2 		mul	r2, r3, r2
+ 260              		.loc 1 134 18
+ 261 003c 039B     		ldr	r3, [sp, #12]
+ 262 003e 9A60     		str	r2, [r3, #8]
+ 135:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****     pHandle->RampRemainingStep = 0u;
+ 263              		.loc 1 135 32
+ 264 0040 039B     		ldr	r3, [sp, #12]
+ 265 0042 0022     		movs	r2, #0
+ 266 0044 DA60     		str	r2, [r3, #12]
+ 136:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****     pHandle->IncDecAmount = 0;
+ 267              		.loc 1 136 27
+ 268 0046 039B     		ldr	r3, [sp, #12]
+ 269 0048 0022     		movs	r2, #0
+ 270 004a 1A61     		str	r2, [r3, #16]
+ 271 004c 59E0     		b	.L8
+ 272              	.L7:
+ 273              	.LBB2:
+ 137:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   }
+ 138:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   else
+ 139:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   {
+ 140:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****     uint32_t wScalingFactor = getScalingFactor( TargetFinal - current_ref );
+ 274              		.loc 1 140 31
+ 275 004e 029A     		ldr	r2, [sp, #8]
+ 276 0050 099B     		ldr	r3, [sp, #36]
+ 277 0052 D31A     		subs	r3, r2, r3
+ 278 0054 1846     		mov	r0, r3
+ 279 0056 FFF7FEFF 		bl	getScalingFactor
+ 280 005a 0890     		str	r0, [sp, #32]
+ 141:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****     uint32_t wScalingFactor2 = getScalingFactor( current_ref );
+ 281              		.loc 1 141 32
+ 282 005c 0998     		ldr	r0, [sp, #36]
+ 283 005e FFF7FEFF 		bl	getScalingFactor
+ 284 0062 0790     		str	r0, [sp, #28]
+ 142:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****     uint32_t wScalingFactor3 = getScalingFactor( TargetFinal );
+ 285              		.loc 1 142 32
+ 286 0064 0298     		ldr	r0, [sp, #8]
+ 287 0066 FFF7FEFF 		bl	getScalingFactor
+ 288 006a 0690     		str	r0, [sp, #24]
+ 143:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****     uint32_t wScalingFactorMin;
+ 144:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** 
+ 145:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****     if ( wScalingFactor <  wScalingFactor2 )
+ 289              		.loc 1 145 8
+ 290 006c 089A     		ldr	r2, [sp, #32]
+ 291 006e 079B     		ldr	r3, [sp, #28]
+ 292 0070 9A42     		cmp	r2, r3
+ 293 0072 09D2     		bcs	.L9
+ 146:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****     {
+ 147:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****       if ( wScalingFactor < wScalingFactor3 )
+ 294              		.loc 1 147 10
+ 295 0074 089A     		ldr	r2, [sp, #32]
+ 296 0076 069B     		ldr	r3, [sp, #24]
+ 297 0078 9A42     		cmp	r2, r3
+ 298 007a 02D2     		bcs	.L10
+ 148:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****       {
+ 149:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****         wScalingFactorMin = wScalingFactor;
+ 299              		.loc 1 149 27
+ 300 007c 089B     		ldr	r3, [sp, #32]
+ 301 007e 0B93     		str	r3, [sp, #44]
+ 302 0080 0BE0     		b	.L11
+ 303              	.L10:
+ 150:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****       }
+ 151:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****       else
+ 152:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****       {
+ 153:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****         wScalingFactorMin = wScalingFactor3;
+ 304              		.loc 1 153 27
+ 305 0082 069B     		ldr	r3, [sp, #24]
+ 306 0084 0B93     		str	r3, [sp, #44]
+ 307 0086 08E0     		b	.L11
+ 308              	.L9:
+ 154:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****       }
+ 155:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****     }
+ 156:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****     else
+ 157:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****     {
+ 158:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****       if ( wScalingFactor2 < wScalingFactor3 )
+ 309              		.loc 1 158 10
+ 310 0088 079A     		ldr	r2, [sp, #28]
+ 311 008a 069B     		ldr	r3, [sp, #24]
+ 312 008c 9A42     		cmp	r2, r3
+ 313 008e 02D2     		bcs	.L12
+ 159:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****       {
+ 160:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****         wScalingFactorMin = wScalingFactor2;
+ 314              		.loc 1 160 27
+ 315 0090 079B     		ldr	r3, [sp, #28]
+ 316 0092 0B93     		str	r3, [sp, #44]
+ 317 0094 01E0     		b	.L11
+ 318              	.L12:
+ 161:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****       }
+ 162:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****       else
+ 163:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****       {
+ 164:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****         wScalingFactorMin = wScalingFactor3;
+ 319              		.loc 1 164 27
+ 320 0096 069B     		ldr	r3, [sp, #24]
+ 321 0098 0B93     		str	r3, [sp, #44]
+ 322              	.L11:
+ 165:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****       }
+ 166:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****     }
+ 167:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** 
+ 168:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****     pHandle->ScalingFactor = wScalingFactorMin;
+ 323              		.loc 1 168 28
+ 324 009a 039B     		ldr	r3, [sp, #12]
+ 325 009c 0B9A     		ldr	r2, [sp, #44]
+ 326 009e 5A61     		str	r2, [r3, #20]
+ 169:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****     pHandle->Ext = current_ref * ( int32_t )( pHandle->ScalingFactor );
+ 327              		.loc 1 169 54
+ 328 00a0 039B     		ldr	r3, [sp, #12]
+ 329 00a2 5B69     		ldr	r3, [r3, #20]
+ 330              		.loc 1 169 34
+ 331 00a4 1A46     		mov	r2, r3
+ 332              		.loc 1 169 32
+ 333 00a6 099B     		ldr	r3, [sp, #36]
+ 334 00a8 03FB02F2 		mul	r2, r3, r2
+ 335              		.loc 1 169 18
+ 336 00ac 039B     		ldr	r3, [sp, #12]
+ 337 00ae 9A60     		str	r2, [r3, #8]
+ 170:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** 
+ 171:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****     /* Store the TargetFinal to be applied in the last step */
+ 172:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****     pHandle->TargetFinal = TargetFinal;
+ 338              		.loc 1 172 26
+ 339 00b0 039B     		ldr	r3, [sp, #12]
+ 340 00b2 029A     		ldr	r2, [sp, #8]
+ 341 00b4 5A60     		str	r2, [r3, #4]
+ 173:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** 
+ 174:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****     /* Compute the (wRampRemainingStep) number of steps remaining to complete
+ 175:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****     the ramp. */
+ 176:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****     aux = Durationms * ( uint32_t )pHandle->FrequencyHz; /* Check for overflow and use prescaler */
+ 342              		.loc 1 176 43
+ 343 00b6 039B     		ldr	r3, [sp, #12]
+ 344 00b8 1A68     		ldr	r2, [r3]
+ 345              		.loc 1 176 9
+ 346 00ba 019B     		ldr	r3, [sp, #4]
+ 347 00bc 02FB03F3 		mul	r3, r2, r3
+ 348 00c0 0593     		str	r3, [sp, #20]
+ 177:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****     aux /= 1000u;
+ 349              		.loc 1 177 9
+ 350 00c2 059B     		ldr	r3, [sp, #20]
+ 351 00c4 124A     		ldr	r2, .L14
+ 352 00c6 A2FB0323 		umull	r2, r3, r2, r3
+ 353 00ca 9B09     		lsrs	r3, r3, #6
+ 354 00cc 0593     		str	r3, [sp, #20]
+ 178:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****     pHandle->RampRemainingStep = aux;
+ 355              		.loc 1 178 32
+ 356 00ce 039B     		ldr	r3, [sp, #12]
+ 357 00d0 059A     		ldr	r2, [sp, #20]
+ 358 00d2 DA60     		str	r2, [r3, #12]
+ 179:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****     pHandle->RampRemainingStep++;
+ 359              		.loc 1 179 12
+ 360 00d4 039B     		ldr	r3, [sp, #12]
+ 361 00d6 DB68     		ldr	r3, [r3, #12]
+ 362              		.loc 1 179 31
+ 363 00d8 5A1C     		adds	r2, r3, #1
+ 364 00da 039B     		ldr	r3, [sp, #12]
+ 365 00dc DA60     		str	r2, [r3, #12]
+ 180:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** 
+ 181:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****     /* Compute the increment/decrement amount (wIncDecAmount) to be applied to
+ 182:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****     the reference value at each CalcTorqueReference. */
+ 183:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****     aux1 = ( TargetFinal - current_ref ) * ( int32_t )( pHandle->ScalingFactor );
+ 366              		.loc 1 183 26
+ 367 00de 029A     		ldr	r2, [sp, #8]
+ 368 00e0 099B     		ldr	r3, [sp, #36]
+ 369 00e2 D31A     		subs	r3, r2, r3
+ 370              		.loc 1 183 64
+ 371 00e4 039A     		ldr	r2, [sp, #12]
+ 372 00e6 5269     		ldr	r2, [r2, #20]
+ 373              		.loc 1 183 10
+ 374 00e8 02FB03F3 		mul	r3, r2, r3
+ 375 00ec 0493     		str	r3, [sp, #16]
+ 184:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****     aux1 /= ( int32_t )( pHandle->RampRemainingStep );
+ 376              		.loc 1 184 33
+ 377 00ee 039B     		ldr	r3, [sp, #12]
+ 378 00f0 DB68     		ldr	r3, [r3, #12]
+ 379              		.loc 1 184 13
+ 380 00f2 1A46     		mov	r2, r3
+ 381              		.loc 1 184 10
+ 382 00f4 049B     		ldr	r3, [sp, #16]
+ 383 00f6 93FBF2F3 		sdiv	r3, r3, r2
+ 384 00fa 0493     		str	r3, [sp, #16]
+ 185:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****     pHandle->IncDecAmount = aux1;
+ 385              		.loc 1 185 27
+ 386 00fc 039B     		ldr	r3, [sp, #12]
+ 387 00fe 049A     		ldr	r2, [sp, #16]
+ 388 0100 1A61     		str	r2, [r3, #16]
+ 389              	.L8:
+ 390              	.LBE2:
+ 186:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   }
+ 187:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** 
+ 188:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   return retVal;
+ 391              		.loc 1 188 10
+ 392 0102 9DF82B30 		ldrb	r3, [sp, #43]	@ zero_extendqisi2
+ 189:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** }
+ 393              		.loc 1 189 1
+ 394 0106 1846     		mov	r0, r3
+ 395 0108 0DB0     		add	sp, sp, #52
+ 396              		.cfi_def_cfa_offset 4
+ 397              		@ sp needed
+ 398 010a 5DF804FB 		ldr	pc, [sp], #4
+ 399              	.L15:
+ 400 010e 00BF     		.align	2
+ 401              	.L14:
+ 402 0110 D34D6210 		.word	274877907
+ 403              		.cfi_endproc
+ 404              	.LFE1250:
+ 406              		.section	.text.REMNG_GetValue,"ax",%progbits
+ 407              		.align	1
+ 408              		.p2align 4,,15
+ 409              		.weak	REMNG_GetValue
+ 410              		.syntax unified
+ 411              		.thumb
+ 412              		.thumb_func
+ 414              	REMNG_GetValue:
+ 415              	.LFB1251:
+ 190:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** 
+ 191:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** /**
+ 192:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   * @brief  Returns the current value of the state variable.
+ 193:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   * @param  pHandle related Handle of struct RampMngr_Handle_t
+ 194:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   * @retval int32_t value of the state variable
+ 195:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   */
+ 196:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** __weak int32_t REMNG_GetValue( RampExtMngr_Handle_t * pHandle )
+ 197:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** {
+ 416              		.loc 1 197 1
+ 417              		.cfi_startproc
+ 418              		@ args = 0, pretend = 0, frame = 16
+ 419              		@ frame_needed = 0, uses_anonymous_args = 0
+ 420              		@ link register save eliminated.
+ 421 0000 84B0     		sub	sp, sp, #16
+ 422              		.cfi_def_cfa_offset 16
+ 423 0002 0190     		str	r0, [sp, #4]
+ 198:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   int32_t ret_val;
+ 199:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   ret_val = pHandle->Ext / ( int32_t )( pHandle->ScalingFactor );
+ 424              		.loc 1 199 20
+ 425 0004 019B     		ldr	r3, [sp, #4]
+ 426 0006 9B68     		ldr	r3, [r3, #8]
+ 427              		.loc 1 199 48
+ 428 0008 019A     		ldr	r2, [sp, #4]
+ 429 000a 5269     		ldr	r2, [r2, #20]
+ 430              		.loc 1 199 11
+ 431 000c 93FBF2F3 		sdiv	r3, r3, r2
+ 432 0010 0393     		str	r3, [sp, #12]
+ 200:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   return ret_val;
+ 433              		.loc 1 200 10
+ 434 0012 039B     		ldr	r3, [sp, #12]
+ 201:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** }
+ 435              		.loc 1 201 1
+ 436 0014 1846     		mov	r0, r3
+ 437 0016 04B0     		add	sp, sp, #16
+ 438              		.cfi_def_cfa_offset 0
+ 439              		@ sp needed
+ 440 0018 7047     		bx	lr
+ 441              		.cfi_endproc
+ 442              	.LFE1251:
+ 444 001a 00BF     		.section	.itcm
+ 445              		.align	1
+ 446              		.p2align 4,,15
+ 447              		.weak	REMNG_RampCompleted
+ 448              		.syntax unified
+ 449              		.thumb
+ 450              		.thumb_func
+ 452              	REMNG_RampCompleted:
+ 453              	.LFB1252:
+ 202:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** 
+ 203:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** /**
+ 204:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   * @brief  Check if the settled ramp has been completed.
+ 205:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   * @param  pHandle related Handle of struct RampMngr_Handle_t.
+ 206:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   * @retval bool It returns true if the ramp is completed, false otherwise.
+ 207:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   */
+ 208:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** #if defined (MCTK_ITCM)
+ 209:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** __weak bool __attribute__((section(".itcm"))) REMNG_RampCompleted( RampExtMngr_Handle_t * pHandle )
+ 210:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** #else
+ 211:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** __weak bool REMNG_RampCompleted( RampExtMngr_Handle_t * pHandle )
+ 212:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** #endif
+ 213:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** {
+ 454              		.loc 1 213 1
+ 455              		.cfi_startproc
+ 456              		@ args = 0, pretend = 0, frame = 16
+ 457              		@ frame_needed = 0, uses_anonymous_args = 0
+ 458              		@ link register save eliminated.
+ 459 0060 84B0     		sub	sp, sp, #16
+ 460              		.cfi_def_cfa_offset 16
+ 461 0062 0190     		str	r0, [sp, #4]
+ 214:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   bool retVal = false;
+ 462              		.loc 1 214 8
+ 463 0064 0023     		movs	r3, #0
+ 464 0066 8DF80F30 		strb	r3, [sp, #15]
+ 215:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   if ( pHandle->RampRemainingStep == 0u )
+ 465              		.loc 1 215 15
+ 466 006a 019B     		ldr	r3, [sp, #4]
+ 467 006c DB68     		ldr	r3, [r3, #12]
+ 468              		.loc 1 215 6
+ 469 006e 002B     		cmp	r3, #0
+ 470 0070 02D1     		bne	.L19
+ 216:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   {
+ 217:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****     retVal = true;
+ 471              		.loc 1 217 12
+ 472 0072 0123     		movs	r3, #1
+ 473 0074 8DF80F30 		strb	r3, [sp, #15]
+ 474              	.L19:
+ 218:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   }
+ 219:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   return retVal;
+ 475              		.loc 1 219 10
+ 476 0078 9DF80F30 		ldrb	r3, [sp, #15]	@ zero_extendqisi2
+ 220:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** }
+ 477              		.loc 1 220 1
+ 478 007c 1846     		mov	r0, r3
+ 479 007e 04B0     		add	sp, sp, #16
+ 480              		.cfi_def_cfa_offset 0
+ 481              		@ sp needed
+ 482 0080 7047     		bx	lr
+ 483              		.cfi_endproc
+ 484              	.LFE1252:
+ 486 0082 00BF     		.section	.text.REMNG_StopRamp,"ax",%progbits
+ 487              		.align	1
+ 488              		.p2align 4,,15
+ 489              		.weak	REMNG_StopRamp
+ 490              		.syntax unified
+ 491              		.thumb
+ 492              		.thumb_func
+ 494              	REMNG_StopRamp:
+ 495              	.LFB1253:
+ 221:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** 
+ 222:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** /**
+ 223:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   * @brief  Stop the execution of the ramp keeping the last reached value.
+ 224:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   * @param  pHandle related Handle of struct RampMngr_Handle_t.
+ 225:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   * @retval none
+ 226:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   */
+ 227:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** __weak void REMNG_StopRamp( RampExtMngr_Handle_t * pHandle )
+ 228:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** {
+ 496              		.loc 1 228 1
+ 497              		.cfi_startproc
+ 498              		@ args = 0, pretend = 0, frame = 8
+ 499              		@ frame_needed = 0, uses_anonymous_args = 0
+ 500              		@ link register save eliminated.
+ 501 0000 82B0     		sub	sp, sp, #8
+ 502              		.cfi_def_cfa_offset 8
+ 503 0002 0190     		str	r0, [sp, #4]
+ 229:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   pHandle->RampRemainingStep = 0u;
+ 504              		.loc 1 229 30
+ 505 0004 019B     		ldr	r3, [sp, #4]
+ 506 0006 0022     		movs	r2, #0
+ 507 0008 DA60     		str	r2, [r3, #12]
+ 230:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   pHandle->IncDecAmount = 0;
+ 508              		.loc 1 230 25
+ 509 000a 019B     		ldr	r3, [sp, #4]
+ 510 000c 0022     		movs	r2, #0
+ 511 000e 1A61     		str	r2, [r3, #16]
+ 231:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** }
+ 512              		.loc 1 231 1
+ 513 0010 00BF     		nop
+ 514 0012 02B0     		add	sp, sp, #8
+ 515              		.cfi_def_cfa_offset 0
+ 516              		@ sp needed
+ 517 0014 7047     		bx	lr
+ 518              		.cfi_endproc
+ 519              	.LFE1253:
+ 521 0016 00BF     		.section	.text.getScalingFactor,"ax",%progbits
+ 522              		.align	1
+ 523              		.p2align 4,,15
+ 524              		.weak	getScalingFactor
+ 525              		.syntax unified
+ 526              		.thumb
+ 527              		.thumb_func
+ 529              	getScalingFactor:
+ 530              	.LFB1254:
+ 232:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** 
+ 233:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** /**
+ 234:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   * @brief  Calculating the scaling factor to maximixe the resolution. It
+ 235:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   *         perform the 2^int(31-log2(Target)) with an iterative approach.
+ 236:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   *         It allows to keep Target * Scaling factor inside int32_t type.
+ 237:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   * @param  Target Input data.
+ 238:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   * @retval uint32_t It returns the optimized scaling factor.
+ 239:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   */
+ 240:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** __weak uint32_t getScalingFactor( int32_t Target )
+ 241:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** {
+ 531              		.loc 1 241 1
+ 532              		.cfi_startproc
+ 533              		@ args = 0, pretend = 0, frame = 24
+ 534              		@ frame_needed = 0, uses_anonymous_args = 0
+ 535              		@ link register save eliminated.
+ 536 0000 86B0     		sub	sp, sp, #24
+ 537              		.cfi_def_cfa_offset 24
+ 538 0002 0190     		str	r0, [sp, #4]
+ 242:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   uint8_t i;
+ 243:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   uint32_t TargetAbs;
+ 244:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   int32_t aux;
+ 245:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** 
+ 246:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   if ( Target < 0 )
+ 539              		.loc 1 246 6
+ 540 0004 019B     		ldr	r3, [sp, #4]
+ 541 0006 002B     		cmp	r3, #0
+ 542 0008 05DA     		bge	.L23
+ 247:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   {
+ 248:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****     aux = -Target;
+ 543              		.loc 1 248 9
+ 544 000a 019B     		ldr	r3, [sp, #4]
+ 545 000c 5B42     		rsbs	r3, r3, #0
+ 546 000e 0393     		str	r3, [sp, #12]
+ 249:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****     TargetAbs = ( uint32_t )( aux );
+ 547              		.loc 1 249 15
+ 548 0010 039B     		ldr	r3, [sp, #12]
+ 549 0012 0493     		str	r3, [sp, #16]
+ 550 0014 01E0     		b	.L24
+ 551              	.L23:
+ 250:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   }
+ 251:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   else
+ 252:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   {
+ 253:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****     TargetAbs = ( uint32_t )( Target );
+ 552              		.loc 1 253 15
+ 553 0016 019B     		ldr	r3, [sp, #4]
+ 554 0018 0493     		str	r3, [sp, #16]
+ 555              	.L24:
+ 254:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   }
+ 255:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   for ( i = 1u; i < 32u; i++ )
+ 556              		.loc 1 255 11
+ 557 001a 0123     		movs	r3, #1
+ 558 001c 8DF81730 		strb	r3, [sp, #23]
+ 559              		.loc 1 255 3
+ 560 0020 0FE0     		b	.L25
+ 561              	.L28:
+ 562              	.LBB3:
+ 256:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   {
+ 257:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****     uint32_t limit = ( ( uint32_t )( 1 ) << ( 31u - i ) );
+ 563              		.loc 1 257 42
+ 564 0022 9DF81730 		ldrb	r3, [sp, #23]	@ zero_extendqisi2
+ 565              		.loc 1 257 14
+ 566 0026 4FF00042 		mov	r2, #-2147483648
+ 567 002a 22FA03F3 		lsr	r3, r2, r3
+ 568 002e 0293     		str	r3, [sp, #8]
+ 258:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****     if ( TargetAbs >= limit )
+ 569              		.loc 1 258 8
+ 570 0030 049A     		ldr	r2, [sp, #16]
+ 571 0032 029B     		ldr	r3, [sp, #8]
+ 572 0034 9A42     		cmp	r2, r3
+ 573 0036 09D2     		bcs	.L30
+ 574              	.LBE3:
+ 255:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   {
+ 575              		.loc 1 255 27 discriminator 2
+ 576 0038 9DF81730 		ldrb	r3, [sp, #23]	@ zero_extendqisi2
+ 577 003c 0133     		adds	r3, r3, #1
+ 578 003e 8DF81730 		strb	r3, [sp, #23]
+ 579              	.L25:
+ 255:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   {
+ 580              		.loc 1 255 19 discriminator 1
+ 581 0042 9DF81730 		ldrb	r3, [sp, #23]	@ zero_extendqisi2
+ 582 0046 1F2B     		cmp	r3, #31
+ 583 0048 EBD9     		bls	.L28
+ 584 004a 00E0     		b	.L27
+ 585              	.L30:
+ 586              	.LBB4:
+ 259:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****     {
+ 260:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****       break;
+ 587              		.loc 1 260 7
+ 588 004c 00BF     		nop
+ 589              	.L27:
+ 590              	.LBE4:
+ 261:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****     }
+ 262:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   }
+ 263:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c ****   return ( ( uint32_t )( 1u ) << ( i - 1u ) );
+ 591              		.loc 1 263 38
+ 592 004e 9DF81730 		ldrb	r3, [sp, #23]	@ zero_extendqisi2
+ 593 0052 013B     		subs	r3, r3, #1
+ 594              		.loc 1 263 31
+ 595 0054 0122     		movs	r2, #1
+ 596 0056 02FA03F3 		lsl	r3, r2, r3
+ 264:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/ramp_ext_mngr.c **** }
+ 597              		.loc 1 264 1
+ 598 005a 1846     		mov	r0, r3
+ 599 005c 06B0     		add	sp, sp, #24
+ 600              		.cfi_def_cfa_offset 0
+ 601              		@ sp needed
+ 602 005e 7047     		bx	lr
+ 603              		.cfi_endproc
+ 604              	.LFE1254:
+ 606              		.text
+ 607              	.Letext0:
+ 608              		.file 2 "C:/StellarStudio-9.2/SDKS/TOOLS/Toolchain/ARM/MINGW64_NT/13.3.1-2024.06/arm-none-eabi/inc
+ 609              		.file 3 "C:/StellarStudio-9.2/SDKS/TOOLS/Toolchain/ARM/MINGW64_NT/13.3.1-2024.06/arm-none-eabi/inc
+ 610              		.file 4 ".sdk/SR5E1_MCTK-1.3.0/include/LL_Library/sr5e1_ll_tim.h"
+ 611              		.file 5 ".sdk/SR5E1_MCTK-1.3.0/include/LL_Library/sr5e1_ll_usart.h"
+ 612              		.file 6 ".sdk/SR5E1_MCTK-1.3.0/include/LL_Library/sr5e1_ll_dma.h"
+ 613              		.file 7 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/ramp_ext_mngr.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 ramp_ext_mngr.c
+C:\Users\ttqpe\AppData\Local\Temp\ccNoDvib.s:20     .rodata.OFFSET_TAB_CCMRx:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccNoDvib.s:23     .rodata.OFFSET_TAB_CCMRx:00000000 OFFSET_TAB_CCMRx
+C:\Users\ttqpe\AppData\Local\Temp\ccNoDvib.s:26     .rodata.SHIFT_TAB_OCxx:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccNoDvib.s:29     .rodata.SHIFT_TAB_OCxx:00000000 SHIFT_TAB_OCxx
+C:\Users\ttqpe\AppData\Local\Temp\ccNoDvib.s:32     .rodata.SHIFT_TAB_ICxx:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccNoDvib.s:35     .rodata.SHIFT_TAB_ICxx:00000000 SHIFT_TAB_ICxx
+C:\Users\ttqpe\AppData\Local\Temp\ccNoDvib.s:38     .rodata.SHIFT_TAB_CCxP:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccNoDvib.s:41     .rodata.SHIFT_TAB_CCxP:00000000 SHIFT_TAB_CCxP
+C:\Users\ttqpe\AppData\Local\Temp\ccNoDvib.s:44     .rodata.SHIFT_TAB_OISx:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccNoDvib.s:47     .rodata.SHIFT_TAB_OISx:00000000 SHIFT_TAB_OISx
+C:\Users\ttqpe\AppData\Local\Temp\ccNoDvib.s:50     .rodata.USART_PRESCALER_TAB:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccNoDvib.s:53     .rodata.USART_PRESCALER_TAB:00000000 USART_PRESCALER_TAB
+C:\Users\ttqpe\AppData\Local\Temp\ccNoDvib.s:67     .rodata.LL_DMA_STR_OFFSET_TAB:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccNoDvib.s:70     .rodata.LL_DMA_STR_OFFSET_TAB:00000000 LL_DMA_STR_OFFSET_TAB
+C:\Users\ttqpe\AppData\Local\Temp\ccNoDvib.s:73     .text.REMNG_Init:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccNoDvib.s:80     .text.REMNG_Init:00000000 REMNG_Init
+C:\Users\ttqpe\AppData\Local\Temp\ccNoDvib.s:120    .itcm:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccNoDvib.s:127    .itcm:00000000 REMNG_Calc
+C:\Users\ttqpe\AppData\Local\Temp\ccNoDvib.s:208    .text.REMNG_ExecRamp:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccNoDvib.s:215    .text.REMNG_ExecRamp:00000000 REMNG_ExecRamp
+C:\Users\ttqpe\AppData\Local\Temp\ccNoDvib.s:529    .text.getScalingFactor:00000000 getScalingFactor
+C:\Users\ttqpe\AppData\Local\Temp\ccNoDvib.s:402    .text.REMNG_ExecRamp:00000110 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccNoDvib.s:407    .text.REMNG_GetValue:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccNoDvib.s:414    .text.REMNG_GetValue:00000000 REMNG_GetValue
+C:\Users\ttqpe\AppData\Local\Temp\ccNoDvib.s:452    .itcm:00000060 REMNG_RampCompleted
+C:\Users\ttqpe\AppData\Local\Temp\ccNoDvib.s:487    .text.REMNG_StopRamp:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccNoDvib.s:494    .text.REMNG_StopRamp:00000000 REMNG_StopRamp
+C:\Users\ttqpe\AppData\Local\Temp\ccNoDvib.s:522    .text.getScalingFactor:00000000 $t
+                           .group:00000000 wm4.0.6093079fab0af1ca2c5a0ad5709343e3
+                           .group:00000000 wm4._newlib_version.h.4.411db44ea2338a62eca2f0777f81481b
+                           .group:00000000 wm4.features.h.33.5ea28ceb8be6621901b9d58b4c3ee651
+                           .group:00000000 wm4._default_types.h.15.247e5cd201eca3442cbf5404108c4935
+                           .group:00000000 wm4._intsup.h.10.48bafbb683905c4daa4565a85aeeb264
+                           .group:00000000 wm4._stdint.h.10.c24fa3af3bc1706662bb5593a907e841
+                           .group:00000000 wm4.stdint.h.23.d53047a68f4a85177f80b422d52785ed
+                           .group:00000000 wm4.stdbool.h.29.c08aa3eec75cf5b9b5003883f43253f0
+                           .group:00000000 wm4.mc_stm_types.h.20.2d7d6ac163527ff5d1947d422c918f78
+                           .group:00000000 wm4.sr5e1xx.h.22.e5c808533cc52ed19fb0830cd7d98924
+                           .group:00000000 wm4.cmsis_version.h.32.0f826810625204eca22a19868bdc7586
+                           .group:00000000 wm4.core_cm7.h.66.8ab2de36917d6fcae18019067fda13e0
+                           .group:00000000 wm4.cmsis_gcc.h.26.498d0ad17a45fc9ef20fdc01caf02259
+                           .group:00000000 wm4.core_cm7.h.174.43edb295ecdaadad738f48ba6011ffad
+                           .group:00000000 wm4.mpu_armv7.h.32.83326921a797fa9d6f70449916b4b839
+                           .group:00000000 wm4.cachel1_armv7.h.32.abd77761a989e008b0c60891114a33c7
+                           .group:00000000 wm4.SR5E1_ADC.h.14.21608e6aff125ba995dd767d6d8dc311
+                           .group:00000000 wm4.SR5E1_CEM.h.14.01fe5742c8f1ae35b1f3af05932f702e
+                           .group:00000000 wm4.SR5E1_CMU.h.14.2617b38b159abe38028862394531e06d
+                           .group:00000000 wm4.SR5E1_COMP.h.14.4b6fdfe4f5f7fd9bedf3a99b98bdf4cd
+                           .group:00000000 wm4.SR5E1_CORDIC.h.14.354fbf7c9eaf6963d38eaa25cf28ffe8
+                           .group:00000000 wm4.SR5E1_CRC.h.14.c64d0f7767671ddb92e9ead0a1162100
+                           .group:00000000 wm4.SR5E1_DAC.h.14.8c26a0ff04b0cfeb55306cc3f22187b8
+                           .group:00000000 wm4.SR5E1_DBGMCU.h.14.427df893d53a8044654f017ba01c25ed
+                           .group:00000000 wm4.SR5E1_DMA.h.14.a7f9a92f844b40a86965798c2e64240b
+                           .group:00000000 wm4.SR5E1_DMAMUX.h.14.471b3b4dfd4d41515f1df49493698866
+                           .group:00000000 wm4.SR5E1_EXTI.h.14.a325ea3fe89cd84894660551c33241ea
+                           .group:00000000 wm4.SR5E1_FCCU.h.14.0ebf0f0f36e079d28613ad2c80e17e23
+                           .group:00000000 wm4.SR5E1_FDCAN.h.14.ac57101fad5dbc798bfb93f34c899de7
+                           .group:00000000 wm4.SR5E1_FLASH_REG_ITF.h.14.d23d1d44923f9b20b8c8fdb51d66aefd
+                           .group:00000000 wm4.SR5E1_GPIO.h.14.1c84071e130d7c64b62470ab0e18a1f1
+                           .group:00000000 wm4.SR5E1_HRTIM.h.24.03932387d2522e6bd5c772a4edaf2f5d
+                           .group:00000000 wm4.SR5E1_HSEM.h.14.cbe70eee519f01b16452c3f8c99d8df1
+                           .group:00000000 wm4.SR5E1_I2C.h.14.350ba3e0f4fd57828457efa80135c36c
+                           .group:00000000 wm4.SR5E1_IMA.h.14.62b7088985ab2b7ce9b030a02daa1f7d
+                           .group:00000000 wm4.SR5E1_IWDG.h.14.20b7c5f05cf7ae94464c360d7af3660d
+                           .group:00000000 wm4.SR5E1_MEMU.h.14.04bad7ae4c52ce334a4fc900aad2ae5b
+                           .group:00000000 wm4.SR5E1_NVM_CTRL.h.14.5f442617f0628d4f16258f211c614ef9
+                           .group:00000000 wm4.SR5E1_PLLDIG.h.14.bd87a8e6917eee17dae2f312c8e5fa53
+                           .group:00000000 wm4.SR5E1_PMC_DIG.h.14.54173b566c6656344766ec4ef46c9281
+                           .group:00000000 wm4.SR5E1_RCC.h.14.56734803c71534de286e793a53649740
+                           .group:00000000 wm4.SR5E1_RTC.h.14.47037cbc7d8175dbf2be1dc0bb955e3f
+                           .group:00000000 wm4.SR5E1_SD_ADC.h.14.552b97d0b8f3c1fd4df6d8964b2f1a80
+                           .group:00000000 wm4.SR5E1_SMPU.h.14.8ce5bb6d5d7c579cd725f492f46e9085
+                           .group:00000000 wm4.SR5E1_SPI.h.14.42d52112e540f85ade4d9135f8b87d72
+                           .group:00000000 wm4.SR5E1_SSCM.h.14.8e6a2ad0ce5fca422fc3d69939b6125b
+                           .group:00000000 wm4.SR5E1_SYSCFG.h.14.02b969490118ce4069914b5e94f7ca65
+                           .group:00000000 wm4.SR5E1_TDM.h.14.a40ed7928cad243a57fd233fccf01ad2
+                           .group:00000000 wm4.SR5E1_TIM.h.14.05b8efc5395873619642d61a4b0b5a54
+                           .group:00000000 wm4.SR5E1_UART.h.14.eec3ab82b02b3bdb3de500483675b83f
+                           .group:00000000 wm4.SR5E1_WWDG.h.14.59b45efc70e442cc6ef03702aad4ad88
+                           .group:00000000 wm4.stddef.h.39.38eb7ec030421799c657b13be5aa21c7
+                           .group:00000000 wm4.typedefs.h.36.07fe3956b4e751037cfee70edcd0b397
+                           .group:00000000 wm4.irq_numbers.h.38.6294b95aed1bf7b3a2cda0eed8ce8f57
+                           .group:00000000 wm4.regs.h.23.2ac145b4f57126d16daed5fbd86d99c6
+                           .group:00000000 wm4.sr5e1_wrapper.h.20.64eb3ae8ac9b19f101ec010f065b27e0
+                           .group:00000000 wm4.sr5e1_macros.h.48.23238fd8be149bfd93a4b06f4d1d3e48
+                           .group:00000000 wm4.sr5e1_ll_system.h.75.323fef6699ff2ef93649a75fbc3b9dc0
+                           .group:00000000 wm4.sr5e1_ll_tim.h.21.35d0409c49249d40ffa0621f7fd1e49f
+                           .group:00000000 wm4.sr5e1_ll_adc.h.21.a09418770aae8e8540b1ce15e5fd6881
+                           .group:00000000 wm4.sr5e1_ll_dac.h.21.e617f768d26181c75ac38760d82ada91
+                           .group:00000000 wm4.sr5e1_ll_cordic.h.21.601660824250c93d03fb6b7dd46d0750
+                           .group:00000000 wm4.sr5e1_ll_usart.h.21.edc232fc61ffb518b3051f74f786aac1
+                           .group:00000000 wm4.sr5e1_ll_dmamux.h.21.e0f20dc23ecc4be39502f49d8383668f
+                           .group:00000000 wm4.sr5e1_ll_dma.h.74.155fcc98e704261e48b273dd9cbd510c
+                           .group:00000000 wm4.mc_stm_types.h.52.4cccb248a2fcd7dfda158e1610af49bf
+                           .group:00000000 wm4.mc_type.h.47.50da95e050e3bfbddab14d990c2d05af
+                           .group:00000000 wm4.pwm_curr_fdbk.h.25.8b72d58784715ceca81111ec103a103d
+                           .group:00000000 wm4.motor_power_measurement.h.29.8342149da3785e7815d1120573fd9cfb
+                           .group:00000000 wm4.digital_output.h.25.02fba90b0f6ba87331476d93a103f49e
+                           .group:00000000 wm4.mp_self_com_ctrl.h.49.e6dcc6aedc61e25d555994ebab97d8b3
+                           .group:00000000 wm4.mc_math.h.24.97493115228829e070d95a4855b66df8
+                           .group:00000000 wm4.pmsm_motor_parameters.h.23.867a6fd3770391a9f66bba183e9e75b3
+                           .group:00000000 wm4.drive_parameters.h.23.dbf96a4337bbb9088dab9827bb0ccc4b
+                           .group:00000000 wm4.power_stage_parameters.h.22.736335d2c78f651593d5c3a7eabd2f7e
+                           .group:00000000 wm4.parameters_conversion_SR5E1.h.29.eabcdfadd7af4fdc121c865f8fc2acbd
+                           .group:00000000 wm4.parameters_conversion.h.29.c695296455e156423051d03c26fc218c
+                           .group:00000000 wm4.encoder_speed_pos_fdbk.h.54.a7b391f390958238bafe12d9ec286eba
+                           .group:00000000 wm4.trajectory_ctrl.h.36.88ccddbc168ae81030ff0d853fd72660
+                           .group:00000000 wm4.user_interface.h.220.79f4987d3bb68b2ddc49cbd0ba2c5f63
+                           .group:00000000 wm4.frame_communication_protocol.h.23.41250e506dcaa9b3bb0fb3b62addffac
+                           .group:00000000 wm4.dac_common_ui.h.26.3857a0f796702d55fc08b1c9fba1ab0f
+                           .group:00000000 wm4.dac_ui.h.48.4302a85d070412e322de9cfee8982dc0
+                           .group:00000000 wm4.can_frame_communication_protocol.h.22.33ba1ca3757fdb135afcb321b74128f5
+                           .group:00000000 wm4.dac_rctimer_ui.h.26.502751ff603279109795a0a74dd8775c
+                           .group:00000000 wm4.ics_SR5E1_pwm_curr_fdbk.h.25.0077b176383d68ec03d55e3ef8c6c349
+                           .group:00000000 wm4.gpio.h.25.d41a0c19fda8c2de42e666afb48ec15a
+                           .group:00000000 wm4.hall_speed_pos_fdbk.h.47.c079bfc346ef7d5d51093236881f5a4c
+                           .group:00000000 wm4.mc_config.h.84.9f66d495ae5fdd9c09aa66372a42b3d9
+
+NO UNDEFINED SYMBOLS

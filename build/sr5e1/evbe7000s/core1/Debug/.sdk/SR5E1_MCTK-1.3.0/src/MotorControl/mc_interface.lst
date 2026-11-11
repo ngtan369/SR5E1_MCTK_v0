@@ -1,0 +1,2745 @@
+   1              		.cpu cortex-m7
+   2              		.arch armv7e-m
+   3              		.fpu fpv5-d16
+   4              		.eabi_attribute 28, 1
+   5              		.eabi_attribute 20, 1
+   6              		.eabi_attribute 21, 1
+   7              		.eabi_attribute 23, 3
+   8              		.eabi_attribute 24, 1
+   9              		.eabi_attribute 25, 1
+  10              		.eabi_attribute 26, 1
+  11              		.eabi_attribute 30, 6
+  12              		.eabi_attribute 34, 1
+  13              		.eabi_attribute 18, 4
+  14              		.file	"mc_interface.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.file 1 ".sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c"
+  19              		.section	.rodata.OFFSET_TAB_CCMRx,"a"
+  20              		.align	2
+  23              	OFFSET_TAB_CCMRx:
+  24 0000 00000000 		.ascii	"\000\000\000\000\004\004\004\00488"
+  24      04040404 
+  24      3838
+  25              		.section	.rodata.SHIFT_TAB_OCxx,"a"
+  26              		.align	2
+  29              	SHIFT_TAB_OCxx:
+  30 0000 00000800 		.ascii	"\000\000\010\000\000\000\010\000\000\010"
+  30      00000800 
+  30      0008
+  31              		.section	.rodata.SHIFT_TAB_ICxx,"a"
+  32              		.align	2
+  35              	SHIFT_TAB_ICxx:
+  36 0000 00000800 		.ascii	"\000\000\010\000\000\000\010\000\000\000"
+  36      00000800 
+  36      0000
+  37              		.section	.rodata.SHIFT_TAB_CCxP,"a"
+  38              		.align	2
+  41              	SHIFT_TAB_CCxP:
+  42 0000 00020406 		.ascii	"\000\002\004\006\010\012\014\016\020\024"
+  42      080A0C0E 
+  42      1014
+  43              		.section	.rodata.SHIFT_TAB_OISx,"a"
+  44              		.align	2
+  47              	SHIFT_TAB_OISx:
+  48 0000 00010203 		.ascii	"\000\001\002\003\004\005\006\007\010\012"
+  48      04050607 
+  48      080A
+  49              		.section	.rodata.USART_PRESCALER_TAB,"a"
+  50              		.align	2
+  53              	USART_PRESCALER_TAB:
+  54 0000 01000000 		.word	1
+  55 0004 02000000 		.word	2
+  56 0008 04000000 		.word	4
+  57 000c 06000000 		.word	6
+  58 0010 08000000 		.word	8
+  59 0014 0A000000 		.word	10
+  60 0018 0C000000 		.word	12
+  61 001c 10000000 		.word	16
+  62 0020 20000000 		.word	32
+  63 0024 40000000 		.word	64
+  64 0028 80000000 		.word	128
+  65 002c 00010000 		.word	256
+  66              		.section	.rodata.LL_DMA_STR_OFFSET_TAB,"a"
+  67              		.align	2
+  70              	LL_DMA_STR_OFFSET_TAB:
+  71 0000 10284058 		.ascii	"\020(@Xp\210\240\270"
+  71      7088A0B8 
+  72              		.section	.text.MCI_Init,"ax",%progbits
+  73              		.align	1
+  74              		.p2align 4,,15
+  75              		.weak	MCI_Init
+  76              		.syntax unified
+  77              		.thumb
+  78              		.thumb_func
+  80              	MCI_Init:
+  81              	.LFB1225:
+   1:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** /****************************************************************************
+   2:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** *
+   3:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** * Copyright (c) 2023 STMicroelectronics - All Rights Reserved
+   4:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** *
+   5:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** * License terms: STMicroelectronics Proprietary in accordance with licensing
+   6:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** * terms SLA0098 at www.st.com.
+   7:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** *
+   8:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** * THIS SOFTWARE IS DISTRIBUTED "AS IS," AND ALL WARRANTIES ARE DISCLAIMED,
+   9:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** * INCLUDING MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+  10:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** *****************************************************************************/
+  11:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** /**
+  12:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** *   @file    mc_interface.c
+  13:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** *   @version M4_VERSION
+  14:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** *   @brief   This file provides firmware functions that implement the features
+  15:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** *            of the MC Interface component of the Stellar Motor Control.
+  16:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** *
+  17:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** *   @details This file provides firmware functions that implement the features
+  18:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** *             of the MC Interface component of the Stellar Motor Control.
+  19:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** *
+  20:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****  */
+  21:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+  22:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** /* Includes ------------------------------------------------------------------*/
+  23:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** #include "mc_math.h"
+  24:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** #include "speed_torq_ctrl.h"
+  25:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+  26:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** #include "mc_interface.h"
+  27:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+  28:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** #define FUNCTIONAL_SOFTWARE_RESET             0xF41B84D1UL 
+  29:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+  30:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** /** @addtogroup STELLAR_PMSM_MC_APPLICATION
+  31:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @{
+  32:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   */
+  33:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+  34:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** /** @defgroup MCInterface Motor Control Interface
+  35:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @brief MC Interface component of the Stellar Motor Control
+  36:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *
+  37:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @todo Document the MC Interface "module".
+  38:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *
+  39:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @{
+  40:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   */
+  41:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+  42:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** /* Private macros ------------------------------------------------------------*/
+  43:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** /**
+  44:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @brief This macro converts the exported enum from the state machine to the corresponding bit fi
+  45:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   */
+  46:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** #define BC(state) (1u<<((uint16_t)((uint8_t)(state))))
+  47:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+  48:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** /* Functions -----------------------------------------------*/
+  49:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+  50:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** /**
+  51:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @brief  Initializes all the object variables, usually it has to be called
+  52:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         once right after object creation. It is also used to assign the
+  53:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         state machine object, the speed and torque controller, and the FOC
+  54:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         drive object to be used by MC Interface.
+  55:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @param  pHandle pointer on the component instance to initialize.
+  56:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @param  pSTM the state machine object used by the MCI.
+  57:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @param  pSTC the speed and torque controller used by the MCI.
+  58:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @param  pFOCVars pointer to FOC vars to be used by MCI.
+  59:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @retval none.
+  60:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   */
+  61:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** __weak void MCI_Init( MCI_Handle_t * pHandle, STM_Handle_t * pSTM, SpeednTorqCtrl_Handle_t * pSTC, 
+  62:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** {
+  82              		.loc 1 62 1
+  83              		.cfi_startproc
+  84              		@ args = 0, pretend = 0, frame = 16
+  85              		@ frame_needed = 0, uses_anonymous_args = 0
+  86              		@ link register save eliminated.
+  87 0000 84B0     		sub	sp, sp, #16
+  88              		.cfi_def_cfa_offset 16
+  89 0002 0390     		str	r0, [sp, #12]
+  90 0004 0291     		str	r1, [sp, #8]
+  91 0006 0192     		str	r2, [sp, #4]
+  92 0008 0093     		str	r3, [sp]
+  63:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   pHandle->pSTM = pSTM;
+  93              		.loc 1 63 17
+  94 000a 039B     		ldr	r3, [sp, #12]
+  95 000c 029A     		ldr	r2, [sp, #8]
+  96 000e 1A60     		str	r2, [r3]
+  64:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   pHandle->pSTC = pSTC;
+  97              		.loc 1 64 17
+  98 0010 039B     		ldr	r3, [sp, #12]
+  99 0012 019A     		ldr	r2, [sp, #4]
+ 100 0014 5A60     		str	r2, [r3, #4]
+  65:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   pHandle->pFOCVars = pFOCVars;
+ 101              		.loc 1 65 21
+ 102 0016 039B     		ldr	r3, [sp, #12]
+ 103 0018 009A     		ldr	r2, [sp]
+ 104 001a 9A60     		str	r2, [r3, #8]
+  66:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+  67:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   /* Buffer related initialization */
+  68:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   pHandle->lastCommand = MCI_NOCOMMANDSYET;
+ 105              		.loc 1 68 24
+ 106 001c 039B     		ldr	r3, [sp, #12]
+ 107 001e 0022     		movs	r2, #0
+ 108 0020 1A73     		strb	r2, [r3, #12]
+  69:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   pHandle->hFinalSpeed = 0;
+ 109              		.loc 1 69 24
+ 110 0022 039B     		ldr	r3, [sp, #12]
+ 111 0024 0022     		movs	r2, #0
+ 112 0026 DA81     		strh	r2, [r3, #14]	@ movhi
+  70:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   pHandle->hFinalTorque = 0;
+ 113              		.loc 1 70 25
+ 114 0028 039B     		ldr	r3, [sp, #12]
+ 115 002a 0022     		movs	r2, #0
+ 116 002c 1A82     		strh	r2, [r3, #16]	@ movhi
+  71:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   pHandle->hDurationms = 0;
+ 117              		.loc 1 71 24
+ 118 002e 039B     		ldr	r3, [sp, #12]
+ 119 0030 0022     		movs	r2, #0
+ 120 0032 DA82     		strh	r2, [r3, #22]	@ movhi
+  72:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   pHandle->CommandState = MCI_BUFFER_EMPTY;
+ 121              		.loc 1 72 25
+ 122 0034 039B     		ldr	r3, [sp, #12]
+ 123 0036 0022     		movs	r2, #0
+ 124 0038 1A76     		strb	r2, [r3, #24]
+  73:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** }
+ 125              		.loc 1 73 1
+ 126 003a 00BF     		nop
+ 127 003c 04B0     		add	sp, sp, #16
+ 128              		.cfi_def_cfa_offset 0
+ 129              		@ sp needed
+ 130 003e 7047     		bx	lr
+ 131              		.cfi_endproc
+ 132              	.LFE1225:
+ 134              		.section	.text.MCI_ExecSpeedRamp,"ax",%progbits
+ 135              		.align	1
+ 136              		.p2align 4,,15
+ 137              		.weak	MCI_ExecSpeedRamp
+ 138              		.syntax unified
+ 139              		.thumb
+ 140              		.thumb_func
+ 142              	MCI_ExecSpeedRamp:
+ 143              	.LFB1226:
+  74:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+  75:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** /**
+  76:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @brief  This is a buffered command to set a motor speed ramp. This commands
+  77:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         don't become active as soon as it is called but it will be executed
+  78:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         when the pSTM state is START_RUN or RUN. User can check the status
+  79:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         of the command calling the MCI_IsCommandAcknowledged method.
+  80:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @param  pHandle Pointer on the component instance to operate on.
+  81:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @param  hFinalSpeed is the value of mechanical rotor speed reference at the
+  82:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         end of the ramp expressed in tenths of HZ.
+  83:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @param  hDurationms the duration of the ramp expressed in milliseconds. It
+  84:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         is possible to set 0 to perform an instantaneous change in the
+  85:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         value.
+  86:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @retval none.
+  87:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   */
+  88:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** __weak void MCI_ExecSpeedRamp( MCI_Handle_t * pHandle,  int16_t hFinalSpeed, uint16_t hDurationms )
+  89:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** {
+ 144              		.loc 1 89 1
+ 145              		.cfi_startproc
+ 146              		@ args = 0, pretend = 0, frame = 8
+ 147              		@ frame_needed = 0, uses_anonymous_args = 0
+ 148              		@ link register save eliminated.
+ 149 0000 82B0     		sub	sp, sp, #8
+ 150              		.cfi_def_cfa_offset 8
+ 151 0002 0190     		str	r0, [sp, #4]
+ 152 0004 0B46     		mov	r3, r1
+ 153 0006 ADF80230 		strh	r3, [sp, #2]	@ movhi
+ 154 000a 1346     		mov	r3, r2	@ movhi
+ 155 000c ADF80030 		strh	r3, [sp]	@ movhi
+  90:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   pHandle->lastCommand = MCI_EXECSPEEDRAMP;
+ 156              		.loc 1 90 24
+ 157 0010 019B     		ldr	r3, [sp, #4]
+ 158 0012 0122     		movs	r2, #1
+ 159 0014 1A73     		strb	r2, [r3, #12]
+  91:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   pHandle->hFinalSpeed = hFinalSpeed;
+ 160              		.loc 1 91 24
+ 161 0016 019B     		ldr	r3, [sp, #4]
+ 162 0018 BDF80220 		ldrh	r2, [sp, #2]	@ movhi
+ 163 001c DA81     		strh	r2, [r3, #14]	@ movhi
+  92:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   pHandle->hDurationms = hDurationms;
+ 164              		.loc 1 92 24
+ 165 001e 019B     		ldr	r3, [sp, #4]
+ 166 0020 BDF80020 		ldrh	r2, [sp]	@ movhi
+ 167 0024 DA82     		strh	r2, [r3, #22]	@ movhi
+  93:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   pHandle->CommandState = MCI_COMMAND_NOT_ALREADY_EXECUTED;
+ 168              		.loc 1 93 25
+ 169 0026 019B     		ldr	r3, [sp, #4]
+ 170 0028 0122     		movs	r2, #1
+ 171 002a 1A76     		strb	r2, [r3, #24]
+  94:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   pHandle->LastModalitySetByUser = STC_SPEED_MODE;
+ 172              		.loc 1 94 34
+ 173 002c 019B     		ldr	r3, [sp, #4]
+ 174 002e 0122     		movs	r2, #1
+ 175 0030 5A76     		strb	r2, [r3, #25]
+  95:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** }
+ 176              		.loc 1 95 1
+ 177 0032 00BF     		nop
+ 178 0034 02B0     		add	sp, sp, #8
+ 179              		.cfi_def_cfa_offset 0
+ 180              		@ sp needed
+ 181 0036 7047     		bx	lr
+ 182              		.cfi_endproc
+ 183              	.LFE1226:
+ 185              		.section	.text.MCI_ExecTorqueRamp,"ax",%progbits
+ 186              		.align	1
+ 187              		.p2align 4,,15
+ 188              		.weak	MCI_ExecTorqueRamp
+ 189              		.syntax unified
+ 190              		.thumb
+ 191              		.thumb_func
+ 193              	MCI_ExecTorqueRamp:
+ 194              	.LFB1227:
+  96:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+  97:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** /**
+  98:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @brief  This is a buffered command to set a motor torque ramp. This commands
+  99:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         don't become active as soon as it is called but it will be executed
+ 100:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         when the pSTM state is START_RUN or RUN. User can check the status
+ 101:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         of the command calling the MCI_IsCommandAcknowledged method.
+ 102:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @param  pHandle Pointer on the component instance to work on.
+ 103:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @param  hFinalTorque is the value of motor torque reference at the end of
+ 104:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         the ramp. This value represents actually the Iq current expressed in
+ 105:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         digit.
+ 106:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         To convert current expressed in Amps to current expressed in digit
+ 107:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         is possible to use the formula:
+ 108:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         Current (digit) = [Current(Amp) * 65536 * Rshunt * Aop] / Vdd micro.
+ 109:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @param  hDurationms the duration of the ramp expressed in milliseconds. It
+ 110:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         is possible to set 0 to perform an instantaneous change in the
+ 111:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         value.
+ 112:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @retval none.
+ 113:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   */
+ 114:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** __weak void MCI_ExecTorqueRamp( MCI_Handle_t * pHandle,  int16_t hFinalTorque, uint16_t hDurationms
+ 115:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** {
+ 195              		.loc 1 115 1
+ 196              		.cfi_startproc
+ 197              		@ args = 0, pretend = 0, frame = 8
+ 198              		@ frame_needed = 0, uses_anonymous_args = 0
+ 199              		@ link register save eliminated.
+ 200 0000 82B0     		sub	sp, sp, #8
+ 201              		.cfi_def_cfa_offset 8
+ 202 0002 0190     		str	r0, [sp, #4]
+ 203 0004 0B46     		mov	r3, r1
+ 204 0006 ADF80230 		strh	r3, [sp, #2]	@ movhi
+ 205 000a 1346     		mov	r3, r2	@ movhi
+ 206 000c ADF80030 		strh	r3, [sp]	@ movhi
+ 116:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   pHandle->lastCommand = MCI_EXECTORQUERAMP;
+ 207              		.loc 1 116 24
+ 208 0010 019B     		ldr	r3, [sp, #4]
+ 209 0012 0222     		movs	r2, #2
+ 210 0014 1A73     		strb	r2, [r3, #12]
+ 117:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   pHandle->hFinalTorque = hFinalTorque;
+ 211              		.loc 1 117 25
+ 212 0016 019B     		ldr	r3, [sp, #4]
+ 213 0018 BDF80220 		ldrh	r2, [sp, #2]	@ movhi
+ 214 001c 1A82     		strh	r2, [r3, #16]	@ movhi
+ 118:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   pHandle->hDurationms = hDurationms;
+ 215              		.loc 1 118 24
+ 216 001e 019B     		ldr	r3, [sp, #4]
+ 217 0020 BDF80020 		ldrh	r2, [sp]	@ movhi
+ 218 0024 DA82     		strh	r2, [r3, #22]	@ movhi
+ 119:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   pHandle->CommandState = MCI_COMMAND_NOT_ALREADY_EXECUTED;
+ 219              		.loc 1 119 25
+ 220 0026 019B     		ldr	r3, [sp, #4]
+ 221 0028 0122     		movs	r2, #1
+ 222 002a 1A76     		strb	r2, [r3, #24]
+ 120:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   pHandle->LastModalitySetByUser = STC_TORQUE_MODE;
+ 223              		.loc 1 120 34
+ 224 002c 019B     		ldr	r3, [sp, #4]
+ 225 002e 0022     		movs	r2, #0
+ 226 0030 5A76     		strb	r2, [r3, #25]
+ 121:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** }
+ 227              		.loc 1 121 1
+ 228 0032 00BF     		nop
+ 229 0034 02B0     		add	sp, sp, #8
+ 230              		.cfi_def_cfa_offset 0
+ 231              		@ sp needed
+ 232 0036 7047     		bx	lr
+ 233              		.cfi_endproc
+ 234              	.LFE1227:
+ 236              		.section	.text.MCI_ExecCurrentRamps,"ax",%progbits
+ 237              		.align	1
+ 238              		.p2align 4,,15
+ 239              		.weak	MCI_ExecCurrentRamps
+ 240              		.syntax unified
+ 241              		.thumb
+ 242              		.thumb_func
+ 244              	MCI_ExecCurrentRamps:
+ 245              	.LFB1228:
+ 122:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+ 123:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** /**
+ 124:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @brief  This is a buffered command to set a motor current ramp. This commands
+ 125:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         don't become active as soon as it is called but it will be executed
+ 126:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         when the pSTM state is START_RUN or RUN. User can check the status
+ 127:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         of the command calling the MCI_IsCommandAcknowledged method.
+ 128:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @param  pHandle Pointer on the component instance to work on.
+ 129:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @param  Iqdref current references on qd reference frame in qd_t
+ 130:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         format.
+ 131:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @param  hDurationms the duration of the ramp expressed in milliseconds. It
+ 132:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         is possible to set 0 to perform an instantaneous change in the
+ 133:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         value.
+ 134:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @retval none.
+ 135:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   */
+ 136:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** __weak void MCI_ExecCurrentRamps( MCI_Handle_t * pHandle, qd_t Iqdref, uint16_t hDurationms) {
+ 246              		.loc 1 136 94
+ 247              		.cfi_startproc
+ 248              		@ args = 0, pretend = 0, frame = 16
+ 249              		@ frame_needed = 0, uses_anonymous_args = 0
+ 250              		@ link register save eliminated.
+ 251 0000 84B0     		sub	sp, sp, #16
+ 252              		.cfi_def_cfa_offset 16
+ 253 0002 0390     		str	r0, [sp, #12]
+ 254 0004 0291     		str	r1, [sp, #8]
+ 255 0006 1346     		mov	r3, r2
+ 256 0008 ADF80630 		strh	r3, [sp, #6]	@ movhi
+ 137:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   pHandle->lastCommand = MCI_EXECCURRENTRAMPS;
+ 257              		.loc 1 137 24
+ 258 000c 039B     		ldr	r3, [sp, #12]
+ 259 000e 0422     		movs	r2, #4
+ 260 0010 1A73     		strb	r2, [r3, #12]
+ 138:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   pHandle->Iqdref = Iqdref;
+ 261              		.loc 1 138 19
+ 262 0012 039B     		ldr	r3, [sp, #12]
+ 263 0014 1233     		adds	r3, r3, #18
+ 264 0016 02AA     		add	r2, sp, #8
+ 265 0018 1068     		ldr	r0, [r2]
+ 266 001a 1860     		str	r0, [r3]	@ unaligned
+ 139:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   pHandle->hDurationms = hDurationms;
+ 267              		.loc 1 139 24
+ 268 001c 039B     		ldr	r3, [sp, #12]
+ 269 001e BDF80620 		ldrh	r2, [sp, #6]	@ movhi
+ 270 0022 DA82     		strh	r2, [r3, #22]	@ movhi
+ 140:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   pHandle->CommandState = MCI_COMMAND_NOT_ALREADY_EXECUTED;
+ 271              		.loc 1 140 25
+ 272 0024 039B     		ldr	r3, [sp, #12]
+ 273 0026 0122     		movs	r2, #1
+ 274 0028 1A76     		strb	r2, [r3, #24]
+ 141:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   pHandle->LastModalitySetByUser = STC_TORQUE_MODE;
+ 275              		.loc 1 141 34
+ 276 002a 039B     		ldr	r3, [sp, #12]
+ 277 002c 0022     		movs	r2, #0
+ 278 002e 5A76     		strb	r2, [r3, #25]
+ 142:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** }
+ 279              		.loc 1 142 1
+ 280 0030 00BF     		nop
+ 281 0032 04B0     		add	sp, sp, #16
+ 282              		.cfi_def_cfa_offset 0
+ 283              		@ sp needed
+ 284 0034 7047     		bx	lr
+ 285              		.cfi_endproc
+ 286              	.LFE1228:
+ 288 0036 00BF     		.section	.text.MCI_SetCurrentReferences,"ax",%progbits
+ 289              		.align	1
+ 290              		.p2align 4,,15
+ 291              		.weak	MCI_SetCurrentReferences
+ 292              		.syntax unified
+ 293              		.thumb
+ 294              		.thumb_func
+ 296              	MCI_SetCurrentReferences:
+ 297              	.LFB1229:
+ 143:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+ 144:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** /**
+ 145:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @brief  This is a buffered command to set directly the motor current
+ 146:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         references Iq and Id. This commands don't become active as soon as
+ 147:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         it is called but it will be executed when the pSTM state is
+ 148:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         START_RUN or RUN. User can check the status of the command calling
+ 149:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         the MCI_IsCommandAcknowledged method.
+ 150:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @param  pHandle Pointer on the component instance to work on.
+ 151:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @param  Iqdref current references on qd reference frame in qd_t
+ 152:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         format.
+ 153:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @retval none.
+ 154:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   */
+ 155:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** __weak void MCI_SetCurrentReferences( MCI_Handle_t * pHandle, qd_t Iqdref )
+ 156:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** {
+ 298              		.loc 1 156 1
+ 299              		.cfi_startproc
+ 300              		@ args = 0, pretend = 0, frame = 8
+ 301              		@ frame_needed = 0, uses_anonymous_args = 0
+ 302              		@ link register save eliminated.
+ 303 0000 82B0     		sub	sp, sp, #8
+ 304              		.cfi_def_cfa_offset 8
+ 305 0002 0190     		str	r0, [sp, #4]
+ 306 0004 0091     		str	r1, [sp]
+ 157:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   pHandle->lastCommand = MCI_SETCURRENTREFERENCES;
+ 307              		.loc 1 157 24
+ 308 0006 019B     		ldr	r3, [sp, #4]
+ 309 0008 0322     		movs	r2, #3
+ 310 000a 1A73     		strb	r2, [r3, #12]
+ 158:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   pHandle->Iqdref.q = Iqdref.q;
+ 311              		.loc 1 158 29
+ 312 000c BDF90020 		ldrsh	r2, [sp]
+ 313              		.loc 1 158 21
+ 314 0010 019B     		ldr	r3, [sp, #4]
+ 315 0012 5A82     		strh	r2, [r3, #18]	@ movhi
+ 159:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   pHandle->Iqdref.d = Iqdref.d;
+ 316              		.loc 1 159 29
+ 317 0014 BDF90220 		ldrsh	r2, [sp, #2]
+ 318              		.loc 1 159 21
+ 319 0018 019B     		ldr	r3, [sp, #4]
+ 320 001a 9A82     		strh	r2, [r3, #20]	@ movhi
+ 160:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   pHandle->CommandState = MCI_COMMAND_NOT_ALREADY_EXECUTED;
+ 321              		.loc 1 160 25
+ 322 001c 019B     		ldr	r3, [sp, #4]
+ 323 001e 0122     		movs	r2, #1
+ 324 0020 1A76     		strb	r2, [r3, #24]
+ 161:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   pHandle->LastModalitySetByUser = STC_TORQUE_MODE;
+ 325              		.loc 1 161 34
+ 326 0022 019B     		ldr	r3, [sp, #4]
+ 327 0024 0022     		movs	r2, #0
+ 328 0026 5A76     		strb	r2, [r3, #25]
+ 162:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** }
+ 329              		.loc 1 162 1
+ 330 0028 00BF     		nop
+ 331 002a 02B0     		add	sp, sp, #8
+ 332              		.cfi_def_cfa_offset 0
+ 333              		@ sp needed
+ 334 002c 7047     		bx	lr
+ 335              		.cfi_endproc
+ 336              	.LFE1229:
+ 338 002e 00BF     		.section	.text.MCI_StartMotor,"ax",%progbits
+ 339              		.align	1
+ 340              		.p2align 4,,15
+ 341              		.weak	MCI_StartMotor
+ 342              		.syntax unified
+ 343              		.thumb
+ 344              		.thumb_func
+ 346              	MCI_StartMotor:
+ 347              	.LFB1230:
+ 163:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+ 164:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** /**
+ 165:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @brief  This is a user command used to begin the start-up procedure.
+ 166:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         If the state machine is in IDLE state the command is executed
+ 167:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         instantaneously otherwise the command is discarded. User must take
+ 168:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         care of this possibility by checking the return value.
+ 169:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         Before calling MCI_StartMotor it is mandatory to execute one of
+ 170:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         these commands:\n
+ 171:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         MCI_ExecSpeedRamp\n
+ 172:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         MCI_ExecTorqueRamp\n
+ 173:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         MCI_SetCurrentReferences\n
+ 174:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         Otherwise the behaviour in run state will be unpredictable.\n
+ 175:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         <B>Note:</B> The MCI_StartMotor command is used just to begin the
+ 176:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         start-up procedure moving the state machine from IDLE state to
+ 177:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         IDLE_START. The command MCI_StartMotor is not blocking the execution
+ 178:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         of project until the motor is really running; to do this, the user
+ 179:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         have to check the state machine and verify that the RUN state (or
+ 180:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         any other state) has been reached.
+ 181:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @param  pHandle Pointer on the component instance to work on.
+ 182:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @retval bool It returns true if the command is successfully executed
+ 183:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         otherwise it return false.
+ 184:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   */
+ 185:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** __weak bool MCI_StartMotor( MCI_Handle_t * pHandle )
+ 186:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** {
+ 348              		.loc 1 186 1
+ 349              		.cfi_startproc
+ 350              		@ args = 0, pretend = 0, frame = 16
+ 351              		@ frame_needed = 0, uses_anonymous_args = 0
+ 352 0000 00B5     		push	{lr}
+ 353              		.cfi_def_cfa_offset 4
+ 354              		.cfi_offset 14, -4
+ 355 0002 85B0     		sub	sp, sp, #20
+ 356              		.cfi_def_cfa_offset 24
+ 357 0004 0190     		str	r0, [sp, #4]
+ 187:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   bool RetVal = STM_NextState( pHandle->pSTM, IDLE_START );
+ 358              		.loc 1 187 17
+ 359 0006 019B     		ldr	r3, [sp, #4]
+ 360 0008 1B68     		ldr	r3, [r3]
+ 361 000a 0321     		movs	r1, #3
+ 362 000c 1846     		mov	r0, r3
+ 363 000e FFF7FEFF 		bl	STM_NextState
+ 364 0012 0346     		mov	r3, r0
+ 365 0014 8DF80F30 		strb	r3, [sp, #15]
+ 188:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+ 189:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   if ( RetVal == true )
+ 366              		.loc 1 189 6
+ 367 0018 9DF80F30 		ldrb	r3, [sp, #15]	@ zero_extendqisi2
+ 368 001c 002B     		cmp	r3, #0
+ 369 001e 02D0     		beq	.L7
+ 190:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   {
+ 191:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****     pHandle->CommandState = MCI_COMMAND_NOT_ALREADY_EXECUTED;
+ 370              		.loc 1 191 27
+ 371 0020 019B     		ldr	r3, [sp, #4]
+ 372 0022 0122     		movs	r2, #1
+ 373 0024 1A76     		strb	r2, [r3, #24]
+ 374              	.L7:
+ 192:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   }
+ 193:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+ 194:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   return RetVal;
+ 375              		.loc 1 194 10
+ 376 0026 9DF80F30 		ldrb	r3, [sp, #15]	@ zero_extendqisi2
+ 195:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** }
+ 377              		.loc 1 195 1
+ 378 002a 1846     		mov	r0, r3
+ 379 002c 05B0     		add	sp, sp, #20
+ 380              		.cfi_def_cfa_offset 4
+ 381              		@ sp needed
+ 382 002e 5DF804FB 		ldr	pc, [sp], #4
+ 383              		.cfi_endproc
+ 384              	.LFE1230:
+ 386 0032 00BF     		.section	.text.MCI_StopMotor,"ax",%progbits
+ 387              		.align	1
+ 388              		.p2align 4,,15
+ 389              		.weak	MCI_StopMotor
+ 390              		.syntax unified
+ 391              		.thumb
+ 392              		.thumb_func
+ 394              	MCI_StopMotor:
+ 395              	.LFB1231:
+ 196:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+ 197:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** /**
+ 198:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @brief  This is a user command used to begin the stop motor procedure.
+ 199:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         If the state machine is in RUN or START states the command is
+ 200:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         executed instantaneously otherwise the command is discarded. User
+ 201:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         must take care of this possibility by checking the return value.\n
+ 202:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         <B>Note:</B> The MCI_StopMotor command is used just to begin the
+ 203:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         stop motor procedure moving the state machine to ANY_STOP.
+ 204:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         The command MCI_StopMotor is not blocking the execution of project
+ 205:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         until the motor is really stopped; to do this, the user have to
+ 206:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         check the state machine and verify that the IDLE state has been
+ 207:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         reached again.
+ 208:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @param  pHandle Pointer on the component instance to work on.
+ 209:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @retval bool It returns true if the command is successfully executed
+ 210:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         otherwise it return false.
+ 211:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   */
+ 212:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** __weak bool MCI_StopMotor( MCI_Handle_t * pHandle )
+ 213:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** {
+ 396              		.loc 1 213 1
+ 397              		.cfi_startproc
+ 398              		@ args = 0, pretend = 0, frame = 8
+ 399              		@ frame_needed = 0, uses_anonymous_args = 0
+ 400 0000 00B5     		push	{lr}
+ 401              		.cfi_def_cfa_offset 4
+ 402              		.cfi_offset 14, -4
+ 403 0002 83B0     		sub	sp, sp, #12
+ 404              		.cfi_def_cfa_offset 16
+ 405 0004 0190     		str	r0, [sp, #4]
+ 214:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   return STM_NextState( pHandle->pSTM, ANY_STOP );
+ 406              		.loc 1 214 10
+ 407 0006 019B     		ldr	r3, [sp, #4]
+ 408 0008 1B68     		ldr	r3, [r3]
+ 409 000a 0721     		movs	r1, #7
+ 410 000c 1846     		mov	r0, r3
+ 411 000e FFF7FEFF 		bl	STM_NextState
+ 412 0012 0346     		mov	r3, r0
+ 215:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** }
+ 413              		.loc 1 215 1
+ 414 0014 1846     		mov	r0, r3
+ 415 0016 03B0     		add	sp, sp, #12
+ 416              		.cfi_def_cfa_offset 4
+ 417              		@ sp needed
+ 418 0018 5DF804FB 		ldr	pc, [sp], #4
+ 419              		.cfi_endproc
+ 420              	.LFE1231:
+ 422              		.section	.text.MCI_FaultAcknowledged,"ax",%progbits
+ 423              		.align	1
+ 424              		.p2align 4,,15
+ 425              		.weak	MCI_FaultAcknowledged
+ 426              		.syntax unified
+ 427              		.thumb
+ 428              		.thumb_func
+ 430              	MCI_FaultAcknowledged:
+ 431              	.LFB1232:
+ 216:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+ 217:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** /**
+ 218:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @brief  This is a user command used to indicate that the user has seen the
+ 219:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         error condition. If is possible, the command is executed
+ 220:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         instantaneously otherwise the command is discarded. User must take
+ 221:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         care of this possibility by checking the return value.
+ 222:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @param  pHandle Pointer on the component instance to work on.
+ 223:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @retval bool It returns true if the command is successfully executed
+ 224:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         otherwise it return false.
+ 225:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   */
+ 226:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** __weak bool MCI_FaultAcknowledged( MCI_Handle_t * pHandle )
+ 227:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** {
+ 432              		.loc 1 227 1
+ 433              		.cfi_startproc
+ 434              		@ args = 0, pretend = 0, frame = 8
+ 435              		@ frame_needed = 0, uses_anonymous_args = 0
+ 436 0000 00B5     		push	{lr}
+ 437              		.cfi_def_cfa_offset 4
+ 438              		.cfi_offset 14, -4
+ 439 0002 83B0     		sub	sp, sp, #12
+ 440              		.cfi_def_cfa_offset 16
+ 441 0004 0190     		str	r0, [sp, #4]
+ 228:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   return STM_FaultAcknowledged( pHandle->pSTM );
+ 442              		.loc 1 228 10
+ 443 0006 019B     		ldr	r3, [sp, #4]
+ 444 0008 1B68     		ldr	r3, [r3]
+ 445 000a 1846     		mov	r0, r3
+ 446 000c FFF7FEFF 		bl	STM_FaultAcknowledged
+ 447 0010 0346     		mov	r3, r0
+ 229:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** }
+ 448              		.loc 1 229 1
+ 449 0012 1846     		mov	r0, r3
+ 450 0014 03B0     		add	sp, sp, #12
+ 451              		.cfi_def_cfa_offset 4
+ 452              		@ sp needed
+ 453 0016 5DF804FB 		ldr	pc, [sp], #4
+ 454              		.cfi_endproc
+ 455              	.LFE1232:
+ 457 001a 00BF     		.section	.text.MCI_EncoderAlign,"ax",%progbits
+ 458              		.align	1
+ 459              		.p2align 4,,15
+ 460              		.weak	MCI_EncoderAlign
+ 461              		.syntax unified
+ 462              		.thumb
+ 463              		.thumb_func
+ 465              	MCI_EncoderAlign:
+ 466              	.LFB1233:
+ 230:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+ 231:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** /**
+ 232:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @brief  This is a user command used to begin the encoder alignment procedure.
+ 233:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         If the state machine is in IDLE state the command is executed
+ 234:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         instantaneously otherwise the command is discarded. User must take
+ 235:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         care of this possibility by checking the return value.\n
+ 236:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         <B>Note:</B> The MCI_EncoderAlign command is used just to begin the
+ 237:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         encoder alignment procedure moving the state machine from IDLE state
+ 238:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         to IDLE_ALIGNMENT. The command MCI_EncoderAlign is not blocking the
+ 239:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         execution of project until the encoder is really calibrated; to do
+ 240:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         this, the user have to check the state machine and verify that the
+ 241:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         IDLE state has been reached again.
+ 242:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @param  pHandle Pointer on the component instance to work on.
+ 243:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @retval bool It returns true if the command is successfully executed
+ 244:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         otherwise it return false.
+ 245:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   */
+ 246:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** __weak bool MCI_EncoderAlign( MCI_Handle_t * pHandle )
+ 247:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** {
+ 467              		.loc 1 247 1
+ 468              		.cfi_startproc
+ 469              		@ args = 0, pretend = 0, frame = 8
+ 470              		@ frame_needed = 0, uses_anonymous_args = 0
+ 471 0000 00B5     		push	{lr}
+ 472              		.cfi_def_cfa_offset 4
+ 473              		.cfi_offset 14, -4
+ 474 0002 83B0     		sub	sp, sp, #12
+ 475              		.cfi_def_cfa_offset 16
+ 476 0004 0190     		str	r0, [sp, #4]
+ 248:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   return STM_NextState( pHandle->pSTM, IDLE_ALIGNMENT );
+ 477              		.loc 1 248 10
+ 478 0006 019B     		ldr	r3, [sp, #4]
+ 479 0008 1B68     		ldr	r3, [r3]
+ 480 000a 0121     		movs	r1, #1
+ 481 000c 1846     		mov	r0, r3
+ 482 000e FFF7FEFF 		bl	STM_NextState
+ 483 0012 0346     		mov	r3, r0
+ 249:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** }
+ 484              		.loc 1 249 1
+ 485 0014 1846     		mov	r0, r3
+ 486 0016 03B0     		add	sp, sp, #12
+ 487              		.cfi_def_cfa_offset 4
+ 488              		@ sp needed
+ 489 0018 5DF804FB 		ldr	pc, [sp], #4
+ 490              		.cfi_endproc
+ 491              	.LFE1233:
+ 493              		.section	.text.MCI_ExecBufferedCommands,"ax",%progbits
+ 494              		.align	1
+ 495              		.p2align 4,,15
+ 496              		.weak	MCI_ExecBufferedCommands
+ 497              		.syntax unified
+ 498              		.thumb
+ 499              		.thumb_func
+ 501              	MCI_ExecBufferedCommands:
+ 502              	.LFB1234:
+ 250:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+ 251:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** /**
+ 252:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @brief  This is usually a method managed by task. It must be called
+ 253:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         periodically in order to check the status of the related pSTM object
+ 254:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         and eventually to execute the buffered command if the condition
+ 255:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         occurs.
+ 256:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @param  pHandle Pointer on the component instance to work on.
+ 257:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @retval none.
+ 258:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   */
+ 259:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** __weak void MCI_ExecBufferedCommands( MCI_Handle_t * pHandle )
+ 260:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** {
+ 503              		.loc 1 260 1
+ 504              		.cfi_startproc
+ 505              		@ args = 0, pretend = 0, frame = 16
+ 506              		@ frame_needed = 0, uses_anonymous_args = 0
+ 507 0000 00B5     		push	{lr}
+ 508              		.cfi_def_cfa_offset 4
+ 509              		.cfi_offset 14, -4
+ 510 0002 85B0     		sub	sp, sp, #20
+ 511              		.cfi_def_cfa_offset 24
+ 512 0004 0190     		str	r0, [sp, #4]
+ 261:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   if ( pHandle != MC_NULL )
+ 513              		.loc 1 261 6
+ 514 0006 019B     		ldr	r3, [sp, #4]
+ 515 0008 002B     		cmp	r3, #0
+ 516 000a 00F0A380 		beq	.L30
+ 262:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   {
+ 263:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****     if ( pHandle->CommandState == MCI_COMMAND_NOT_ALREADY_EXECUTED )
+ 517              		.loc 1 263 17
+ 518 000e 019B     		ldr	r3, [sp, #4]
+ 519 0010 1B7E     		ldrb	r3, [r3, #24]	@ zero_extendqisi2
+ 520              		.loc 1 263 8
+ 521 0012 012B     		cmp	r3, #1
+ 522 0014 40F09E80 		bne	.L30
+ 523              	.LBB2:
+ 264:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****     {
+ 265:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****       bool commandHasBeenExecuted = false;
+ 524              		.loc 1 265 12
+ 525 0018 0023     		movs	r3, #0
+ 526 001a 8DF80F30 		strb	r3, [sp, #15]
+ 266:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****       STC_Modality_t ctrlModePrev = STC_GetControlMode(pHandle->pSTC);
+ 527              		.loc 1 266 37
+ 528 001e 019B     		ldr	r3, [sp, #4]
+ 529 0020 5B68     		ldr	r3, [r3, #4]
+ 530 0022 1846     		mov	r0, r3
+ 531 0024 FFF7FEFF 		bl	STC_GetControlMode
+ 532 0028 0346     		mov	r3, r0
+ 533 002a 8DF80E30 		strb	r3, [sp, #14]
+ 267:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+ 268:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****       switch ( pHandle->lastCommand )
+ 534              		.loc 1 268 23
+ 535 002e 019B     		ldr	r3, [sp, #4]
+ 536 0030 1B7B     		ldrb	r3, [r3, #12]	@ zero_extendqisi2
+ 537              		.loc 1 268 7
+ 538 0032 013B     		subs	r3, r3, #1
+ 539 0034 032B     		cmp	r3, #3
+ 540 0036 7FD8     		bhi	.L31
+ 541 0038 01A2     		adr	r2, .L19
+ 542 003a 52F823F0 		ldr	pc, [r2, r3, lsl #2]
+ 543 003e 00BF     		.p2align 2
+ 544              	.L19:
+ 545 0040 51000000 		.word	.L22+1
+ 546 0044 9D000000 		.word	.L21+1
+ 547 0048 E9000000 		.word	.L20+1
+ 548 004c 09010000 		.word	.L18+1
+ 549              		.p2align 1
+ 550              	.L22:
+ 269:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****       {
+ 270:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****         case MCI_EXECSPEEDRAMP:
+ 271:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****         {
+ 272:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****           STC_SetControlMode( pHandle->pSTC, STC_SPEED_MODE );
+ 551              		.loc 1 272 11
+ 552 0050 019B     		ldr	r3, [sp, #4]
+ 553 0052 5B68     		ldr	r3, [r3, #4]
+ 554 0054 0121     		movs	r1, #1
+ 555 0056 1846     		mov	r0, r3
+ 556 0058 FFF7FEFF 		bl	STC_SetControlMode
+ 273:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****           commandHasBeenExecuted = STC_ExecRamp( pHandle->pSTC, pHandle->hFinalSpeed, pHandle->hDur
+ 557              		.loc 1 273 36
+ 558 005c 019B     		ldr	r3, [sp, #4]
+ 559 005e 5868     		ldr	r0, [r3, #4]
+ 560 0060 019B     		ldr	r3, [sp, #4]
+ 561 0062 B3F90E10 		ldrsh	r1, [r3, #14]
+ 562              		.loc 1 273 94
+ 563 0066 019B     		ldr	r3, [sp, #4]
+ 564 0068 DB8A     		ldrh	r3, [r3, #22]
+ 565              		.loc 1 273 36
+ 566 006a 1A46     		mov	r2, r3
+ 567 006c FFF7FEFF 		bl	STC_ExecRamp
+ 568 0070 0346     		mov	r3, r0
+ 569 0072 8DF80F30 		strb	r3, [sp, #15]
+ 274:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****           if (commandHasBeenExecuted) {
+ 570              		.loc 1 274 14
+ 571 0076 9DF80F30 		ldrb	r3, [sp, #15]	@ zero_extendqisi2
+ 572 007a 002B     		cmp	r3, #0
+ 573 007c 05D0     		beq	.L23
+ 275:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****             pHandle->pFOCVars->bDriveInput = INTERNAL;
+ 574              		.loc 1 275 20
+ 575 007e 019B     		ldr	r3, [sp, #4]
+ 576 0080 9B68     		ldr	r3, [r3, #8]
+ 577              		.loc 1 275 44
+ 578 0082 0022     		movs	r2, #0
+ 579 0084 83F82420 		strb	r2, [r3, #36]
+ 276:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****           } else {
+ 277:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****             STC_SetControlMode( pHandle->pSTC, ctrlModePrev );
+ 278:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****           }
+ 279:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****         }
+ 280:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****         break;
+ 580              		.loc 1 280 9
+ 581 0088 59E0     		b	.L25
+ 582              	.L23:
+ 277:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****           }
+ 583              		.loc 1 277 13
+ 584 008a 019B     		ldr	r3, [sp, #4]
+ 585 008c 5B68     		ldr	r3, [r3, #4]
+ 586 008e 9DF80E20 		ldrb	r2, [sp, #14]	@ zero_extendqisi2
+ 587 0092 1146     		mov	r1, r2
+ 588 0094 1846     		mov	r0, r3
+ 589 0096 FFF7FEFF 		bl	STC_SetControlMode
+ 590              		.loc 1 280 9
+ 591 009a 50E0     		b	.L25
+ 592              	.L21:
+ 281:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****         case MCI_EXECTORQUERAMP:
+ 282:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****         {
+ 283:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****           STC_SetControlMode( pHandle->pSTC, STC_TORQUE_MODE );
+ 593              		.loc 1 283 11
+ 594 009c 019B     		ldr	r3, [sp, #4]
+ 595 009e 5B68     		ldr	r3, [r3, #4]
+ 596 00a0 0021     		movs	r1, #0
+ 597 00a2 1846     		mov	r0, r3
+ 598 00a4 FFF7FEFF 		bl	STC_SetControlMode
+ 284:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****           commandHasBeenExecuted = STC_ExecRamp( pHandle->pSTC, pHandle->hFinalTorque, pHandle->hDu
+ 599              		.loc 1 284 36
+ 600 00a8 019B     		ldr	r3, [sp, #4]
+ 601 00aa 5868     		ldr	r0, [r3, #4]
+ 602 00ac 019B     		ldr	r3, [sp, #4]
+ 603 00ae B3F91010 		ldrsh	r1, [r3, #16]
+ 604              		.loc 1 284 95
+ 605 00b2 019B     		ldr	r3, [sp, #4]
+ 606 00b4 DB8A     		ldrh	r3, [r3, #22]
+ 607              		.loc 1 284 36
+ 608 00b6 1A46     		mov	r2, r3
+ 609 00b8 FFF7FEFF 		bl	STC_ExecRamp
+ 610 00bc 0346     		mov	r3, r0
+ 611 00be 8DF80F30 		strb	r3, [sp, #15]
+ 285:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****           if (commandHasBeenExecuted) {
+ 612              		.loc 1 285 14
+ 613 00c2 9DF80F30 		ldrb	r3, [sp, #15]	@ zero_extendqisi2
+ 614 00c6 002B     		cmp	r3, #0
+ 615 00c8 05D0     		beq	.L26
+ 286:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****             pHandle->pFOCVars->bDriveInput = INTERNAL;
+ 616              		.loc 1 286 20
+ 617 00ca 019B     		ldr	r3, [sp, #4]
+ 618 00cc 9B68     		ldr	r3, [r3, #8]
+ 619              		.loc 1 286 44
+ 620 00ce 0022     		movs	r2, #0
+ 621 00d0 83F82420 		strb	r2, [r3, #36]
+ 287:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****           } else {
+ 288:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****             STC_SetControlMode( pHandle->pSTC, ctrlModePrev );
+ 289:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****           }
+ 290:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****         }
+ 291:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****         break;
+ 622              		.loc 1 291 9
+ 623 00d4 33E0     		b	.L25
+ 624              	.L26:
+ 288:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****           }
+ 625              		.loc 1 288 13
+ 626 00d6 019B     		ldr	r3, [sp, #4]
+ 627 00d8 5B68     		ldr	r3, [r3, #4]
+ 628 00da 9DF80E20 		ldrb	r2, [sp, #14]	@ zero_extendqisi2
+ 629 00de 1146     		mov	r1, r2
+ 630 00e0 1846     		mov	r0, r3
+ 631 00e2 FFF7FEFF 		bl	STC_SetControlMode
+ 632              		.loc 1 291 9
+ 633 00e6 2AE0     		b	.L25
+ 634              	.L20:
+ 292:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****         case MCI_SETCURRENTREFERENCES:
+ 293:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****         {
+ 294:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****           pHandle->pFOCVars->bDriveInput = EXTERNAL;
+ 635              		.loc 1 294 18
+ 636 00e8 019B     		ldr	r3, [sp, #4]
+ 637 00ea 9B68     		ldr	r3, [r3, #8]
+ 638              		.loc 1 294 42
+ 639 00ec 0122     		movs	r2, #1
+ 640 00ee 83F82420 		strb	r2, [r3, #36]
+ 295:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****           pHandle->pFOCVars->Iqdref = pHandle->Iqdref;
+ 641              		.loc 1 295 18
+ 642 00f2 019B     		ldr	r3, [sp, #4]
+ 643 00f4 9B68     		ldr	r3, [r3, #8]
+ 644              		.loc 1 295 37
+ 645 00f6 019A     		ldr	r2, [sp, #4]
+ 646 00f8 1033     		adds	r3, r3, #16
+ 647 00fa 1232     		adds	r2, r2, #18
+ 648 00fc 1268     		ldr	r2, [r2]	@ unaligned
+ 649 00fe 1A60     		str	r2, [r3]	@ unaligned
+ 296:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****           commandHasBeenExecuted = true;
+ 650              		.loc 1 296 34
+ 651 0100 0123     		movs	r3, #1
+ 652 0102 8DF80F30 		strb	r3, [sp, #15]
+ 297:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****         }
+ 298:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****         break;
+ 653              		.loc 1 298 9
+ 654 0106 1AE0     		b	.L25
+ 655              	.L18:
+ 299:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****         case MCI_EXECCURRENTRAMPS:
+ 300:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****         {
+ 301:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****           commandHasBeenExecuted = STC_ExecCurrentRamps( pHandle->pSTC, pHandle->Iqdref, pHandle->h
+ 656              		.loc 1 301 36
+ 657 0108 019B     		ldr	r3, [sp, #4]
+ 658 010a 5868     		ldr	r0, [r3, #4]
+ 659 010c 019B     		ldr	r3, [sp, #4]
+ 660 010e DA8A     		ldrh	r2, [r3, #22]
+ 661 0110 019B     		ldr	r3, [sp, #4]
+ 662 0112 D3F81210 		ldr	r1, [r3, #18]	@ unaligned
+ 663 0116 0B46     		mov	r3, r1
+ 664 0118 1946     		mov	r1, r3
+ 665 011a FFF7FEFF 		bl	STC_ExecCurrentRamps
+ 666 011e 0346     		mov	r3, r0
+ 667 0120 8DF80F30 		strb	r3, [sp, #15]
+ 302:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****           if (commandHasBeenExecuted) {
+ 668              		.loc 1 302 14
+ 669 0124 9DF80F30 		ldrb	r3, [sp, #15]	@ zero_extendqisi2
+ 670 0128 002B     		cmp	r3, #0
+ 671 012a 07D0     		beq	.L32
+ 303:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****             pHandle->pFOCVars->bDriveInput = INTERNAL;
+ 672              		.loc 1 303 20
+ 673 012c 019B     		ldr	r3, [sp, #4]
+ 674 012e 9B68     		ldr	r3, [r3, #8]
+ 675              		.loc 1 303 44
+ 676 0130 0022     		movs	r2, #0
+ 677 0132 83F82420 		strb	r2, [r3, #36]
+ 304:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****           }
+ 305:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****         }
+ 306:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****         break;
+ 678              		.loc 1 306 9
+ 679 0136 01E0     		b	.L32
+ 680              	.L31:
+ 307:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****         default:
+ 308:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****           break;
+ 681              		.loc 1 308 11
+ 682 0138 00BF     		nop
+ 683 013a 00E0     		b	.L25
+ 684              	.L32:
+ 306:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****         default:
+ 685              		.loc 1 306 9
+ 686 013c 00BF     		nop
+ 687              	.L25:
+ 309:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****       }
+ 310:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+ 311:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****       if ( commandHasBeenExecuted )
+ 688              		.loc 1 311 10
+ 689 013e 9DF80F30 		ldrb	r3, [sp, #15]	@ zero_extendqisi2
+ 690 0142 002B     		cmp	r3, #0
+ 691 0144 03D0     		beq	.L29
+ 312:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****       {
+ 313:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****         pHandle->CommandState = MCI_COMMAND_EXECUTED_SUCCESFULLY;
+ 692              		.loc 1 313 31
+ 693 0146 019B     		ldr	r3, [sp, #4]
+ 694 0148 0222     		movs	r2, #2
+ 695 014a 1A76     		strb	r2, [r3, #24]
+ 696              	.LBE2:
+ 314:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****       }
+ 315:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****       else
+ 316:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****       {
+ 317:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****         pHandle->CommandState = MCI_COMMAND_EXECUTED_UNSUCCESFULLY;
+ 318:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****       }
+ 319:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****     }
+ 320:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   }
+ 321:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** }
+ 697              		.loc 1 321 1
+ 698 014c 02E0     		b	.L30
+ 699              	.L29:
+ 700              	.LBB3:
+ 317:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****       }
+ 701              		.loc 1 317 31
+ 702 014e 019B     		ldr	r3, [sp, #4]
+ 703 0150 0322     		movs	r2, #3
+ 704 0152 1A76     		strb	r2, [r3, #24]
+ 705              	.L30:
+ 706              	.LBE3:
+ 707              		.loc 1 321 1
+ 708 0154 00BF     		nop
+ 709 0156 05B0     		add	sp, sp, #20
+ 710              		.cfi_def_cfa_offset 4
+ 711              		@ sp needed
+ 712 0158 5DF804FB 		ldr	pc, [sp], #4
+ 713              		.cfi_endproc
+ 714              	.LFE1234:
+ 716              		.section	.text.MCI_IsCommandAcknowledged,"ax",%progbits
+ 717              		.align	1
+ 718              		.p2align 4,,15
+ 719              		.weak	MCI_IsCommandAcknowledged
+ 720              		.syntax unified
+ 721              		.thumb
+ 722              		.thumb_func
+ 724              	MCI_IsCommandAcknowledged:
+ 725              	.LFB1235:
+ 322:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+ 323:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** /**
+ 324:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @brief  It returns information about the state of the last buffered command.
+ 325:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @param  pHandle Pointer on the component instance to work on.
+ 326:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @retval CommandState_t  It can be one of the following codes:
+ 327:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         - MCI_BUFFER_EMPTY if no buffered command has been called.
+ 328:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         - MCI_COMMAND_NOT_ALREADY_EXECUTED if the buffered command
+ 329:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         condition hasn't already occurred.
+ 330:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         - MCI_COMMAND_EXECUTED_SUCCESFULLY if the buffered command has
+ 331:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         been executed successfully. In this case calling this function reset
+ 332:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         the command state to BC_BUFFER_EMPTY.
+ 333:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         - MCI_COMMAND_EXECUTED_UNSUCCESFULLY if the buffered command has
+ 334:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         been executed unsuccessfully. In this case calling this function
+ 335:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         reset the command state to BC_BUFFER_EMPTY.
+ 336:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   */
+ 337:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** __weak MCI_CommandState_t  MCI_IsCommandAcknowledged( MCI_Handle_t * pHandle )
+ 338:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** {
+ 726              		.loc 1 338 1
+ 727              		.cfi_startproc
+ 728              		@ args = 0, pretend = 0, frame = 16
+ 729              		@ frame_needed = 0, uses_anonymous_args = 0
+ 730              		@ link register save eliminated.
+ 731 0000 84B0     		sub	sp, sp, #16
+ 732              		.cfi_def_cfa_offset 16
+ 733 0002 0190     		str	r0, [sp, #4]
+ 339:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   MCI_CommandState_t retVal = pHandle->CommandState;
+ 734              		.loc 1 339 22
+ 735 0004 019B     		ldr	r3, [sp, #4]
+ 736 0006 1B7E     		ldrb	r3, [r3, #24]
+ 737 0008 8DF80F30 		strb	r3, [sp, #15]
+ 340:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+ 341:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   if ( ( retVal == MCI_COMMAND_EXECUTED_SUCCESFULLY ) |
+ 738              		.loc 1 341 55
+ 739 000c 9DF80F30 		ldrb	r3, [sp, #15]	@ zero_extendqisi2
+ 740 0010 022B     		cmp	r3, #2
+ 741 0012 0CBF     		ite	eq
+ 742 0014 0123     		moveq	r3, #1
+ 743 0016 0023     		movne	r3, #0
+ 744 0018 DAB2     		uxtb	r2, r3
+ 745 001a 9DF80F30 		ldrb	r3, [sp, #15]	@ zero_extendqisi2
+ 746 001e 032B     		cmp	r3, #3
+ 747 0020 0CBF     		ite	eq
+ 748 0022 0123     		moveq	r3, #1
+ 749 0024 0023     		movne	r3, #0
+ 750 0026 DBB2     		uxtb	r3, r3
+ 751 0028 1343     		orrs	r3, r3, r2
+ 752 002a DBB2     		uxtb	r3, r3
+ 753              		.loc 1 341 6
+ 754 002c 002B     		cmp	r3, #0
+ 755 002e 02D0     		beq	.L34
+ 342:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****        ( retVal == MCI_COMMAND_EXECUTED_UNSUCCESFULLY ) )
+ 343:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   {
+ 344:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****     pHandle->CommandState = MCI_BUFFER_EMPTY;
+ 756              		.loc 1 344 27
+ 757 0030 019B     		ldr	r3, [sp, #4]
+ 758 0032 0022     		movs	r2, #0
+ 759 0034 1A76     		strb	r2, [r3, #24]
+ 760              	.L34:
+ 345:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   }
+ 346:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   return retVal;
+ 761              		.loc 1 346 10
+ 762 0036 9DF80F30 		ldrb	r3, [sp, #15]	@ zero_extendqisi2
+ 347:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** }
+ 763              		.loc 1 347 1
+ 764 003a 1846     		mov	r0, r3
+ 765 003c 04B0     		add	sp, sp, #16
+ 766              		.cfi_def_cfa_offset 0
+ 767              		@ sp needed
+ 768 003e 7047     		bx	lr
+ 769              		.cfi_endproc
+ 770              	.LFE1235:
+ 772              		.section	.text.MCI_GetSTMState,"ax",%progbits
+ 773              		.align	1
+ 774              		.p2align 4,,15
+ 775              		.weak	MCI_GetSTMState
+ 776              		.syntax unified
+ 777              		.thumb
+ 778              		.thumb_func
+ 780              	MCI_GetSTMState:
+ 781              	.LFB1236:
+ 348:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+ 349:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** /**
+ 350:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @brief  It returns information about the state of the related pSTM object.
+ 351:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @param  pHandle Pointer on the component instance to work on.
+ 352:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @retval State_t It returns the current state of the related pSTM object.
+ 353:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   */
+ 354:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** __weak State_t  MCI_GetSTMState( MCI_Handle_t * pHandle )
+ 355:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** {
+ 782              		.loc 1 355 1
+ 783              		.cfi_startproc
+ 784              		@ args = 0, pretend = 0, frame = 8
+ 785              		@ frame_needed = 0, uses_anonymous_args = 0
+ 786 0000 00B5     		push	{lr}
+ 787              		.cfi_def_cfa_offset 4
+ 788              		.cfi_offset 14, -4
+ 789 0002 83B0     		sub	sp, sp, #12
+ 790              		.cfi_def_cfa_offset 16
+ 791 0004 0190     		str	r0, [sp, #4]
+ 356:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   return STM_GetState( pHandle->pSTM );
+ 792              		.loc 1 356 10
+ 793 0006 019B     		ldr	r3, [sp, #4]
+ 794 0008 1B68     		ldr	r3, [r3]
+ 795 000a 1846     		mov	r0, r3
+ 796 000c FFF7FEFF 		bl	STM_GetState
+ 797 0010 0346     		mov	r3, r0
+ 357:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** }
+ 798              		.loc 1 357 1
+ 799 0012 1846     		mov	r0, r3
+ 800 0014 03B0     		add	sp, sp, #12
+ 801              		.cfi_def_cfa_offset 4
+ 802              		@ sp needed
+ 803 0016 5DF804FB 		ldr	pc, [sp], #4
+ 804              		.cfi_endproc
+ 805              	.LFE1236:
+ 807 001a 00BF     		.section	.text.MCI_GetOccurredFaults,"ax",%progbits
+ 808              		.align	1
+ 809              		.p2align 4,,15
+ 810              		.weak	MCI_GetOccurredFaults
+ 811              		.syntax unified
+ 812              		.thumb
+ 813              		.thumb_func
+ 815              	MCI_GetOccurredFaults:
+ 816              	.LFB1237:
+ 358:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+ 359:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** /**
+ 360:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @brief It returns a 16 bit fields containing information about faults
+ 361:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *        historically occurred since the state machine has been moved into
+ 362:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *        FAULT_NOW state.
+ 363:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * \n\link Fault_generation_error_codes Returned error codes are listed here \endlink
+ 364:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @param pHandle Pointer on the component instance to work on.
+ 365:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @retval uint16_t  16 bit fields with information about the faults
+ 366:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         historically occurred since the state machine has been moved into
+ 367:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         FAULT_NOW state.
+ 368:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * \n\link Fault_generation_error_codes Returned error codes are listed here \endlink
+ 369:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   */
+ 370:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** __weak uint16_t MCI_GetOccurredFaults( MCI_Handle_t * pHandle )
+ 371:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** {
+ 817              		.loc 1 371 1
+ 818              		.cfi_startproc
+ 819              		@ args = 0, pretend = 0, frame = 8
+ 820              		@ frame_needed = 0, uses_anonymous_args = 0
+ 821 0000 00B5     		push	{lr}
+ 822              		.cfi_def_cfa_offset 4
+ 823              		.cfi_offset 14, -4
+ 824 0002 83B0     		sub	sp, sp, #12
+ 825              		.cfi_def_cfa_offset 16
+ 826 0004 0190     		str	r0, [sp, #4]
+ 372:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   return ( uint16_t )( STM_GetFaultState( pHandle->pSTM ) );
+ 827              		.loc 1 372 24
+ 828 0006 019B     		ldr	r3, [sp, #4]
+ 829 0008 1B68     		ldr	r3, [r3]
+ 830 000a 1846     		mov	r0, r3
+ 831 000c FFF7FEFF 		bl	STM_GetFaultState
+ 832 0010 0346     		mov	r3, r0
+ 833              		.loc 1 372 10 discriminator 1
+ 834 0012 9BB2     		uxth	r3, r3
+ 373:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** }
+ 835              		.loc 1 373 1
+ 836 0014 1846     		mov	r0, r3
+ 837 0016 03B0     		add	sp, sp, #12
+ 838              		.cfi_def_cfa_offset 4
+ 839              		@ sp needed
+ 840 0018 5DF804FB 		ldr	pc, [sp], #4
+ 841              		.cfi_endproc
+ 842              	.LFE1237:
+ 844              		.section	.text.MCI_GetCurrentFaults,"ax",%progbits
+ 845              		.align	1
+ 846              		.p2align 4,,15
+ 847              		.weak	MCI_GetCurrentFaults
+ 848              		.syntax unified
+ 849              		.thumb
+ 850              		.thumb_func
+ 852              	MCI_GetCurrentFaults:
+ 853              	.LFB1238:
+ 374:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+ 375:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** /**
+ 376:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @brief It returns a 16 bit fields containing information about faults
+ 377:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *        currently present.
+ 378:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * \n\link Fault_generation_error_codes Returned error codes are listed here \endlink
+ 379:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @param pHandle Pointer on the component instance to work on.
+ 380:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @retval uint16_t  16 bit fields with information about about currently
+ 381:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         present faults.
+ 382:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * \n\link Fault_generation_error_codes Returned error codes are listed here \endlink
+ 383:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   */
+ 384:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** __weak uint16_t MCI_GetCurrentFaults( MCI_Handle_t * pHandle )
+ 385:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** {
+ 854              		.loc 1 385 1
+ 855              		.cfi_startproc
+ 856              		@ args = 0, pretend = 0, frame = 8
+ 857              		@ frame_needed = 0, uses_anonymous_args = 0
+ 858 0000 00B5     		push	{lr}
+ 859              		.cfi_def_cfa_offset 4
+ 860              		.cfi_offset 14, -4
+ 861 0002 83B0     		sub	sp, sp, #12
+ 862              		.cfi_def_cfa_offset 16
+ 863 0004 0190     		str	r0, [sp, #4]
+ 386:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   return ( uint16_t )( STM_GetFaultState( pHandle->pSTM ) >> 16 );
+ 864              		.loc 1 386 24
+ 865 0006 019B     		ldr	r3, [sp, #4]
+ 866 0008 1B68     		ldr	r3, [r3]
+ 867 000a 1846     		mov	r0, r3
+ 868 000c FFF7FEFF 		bl	STM_GetFaultState
+ 869 0010 0346     		mov	r3, r0
+ 870              		.loc 1 386 59 discriminator 1
+ 871 0012 1B0C     		lsrs	r3, r3, #16
+ 872              		.loc 1 386 10 discriminator 1
+ 873 0014 9BB2     		uxth	r3, r3
+ 387:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** }
+ 874              		.loc 1 387 1
+ 875 0016 1846     		mov	r0, r3
+ 876 0018 03B0     		add	sp, sp, #12
+ 877              		.cfi_def_cfa_offset 4
+ 878              		@ sp needed
+ 879 001a 5DF804FB 		ldr	pc, [sp], #4
+ 880              		.cfi_endproc
+ 881              	.LFE1238:
+ 883 001e 00BF     		.section	.text.MCI_GetControlMode,"ax",%progbits
+ 884              		.align	1
+ 885              		.p2align 4,,15
+ 886              		.weak	MCI_GetControlMode
+ 887              		.syntax unified
+ 888              		.thumb
+ 889              		.thumb_func
+ 891              	MCI_GetControlMode:
+ 892              	.LFB1239:
+ 388:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+ 389:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** /**
+ 390:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @brief  It returns the modality of the speed and torque controller.
+ 391:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @param  pHandle Pointer on the component instance to work on.
+ 392:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @retval STC_Modality_t It returns the modality of STC. It can be one of
+ 393:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         these two values: STC_TORQUE_MODE or STC_SPEED_MODE.
+ 394:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   */
+ 395:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** __weak STC_Modality_t MCI_GetControlMode( MCI_Handle_t * pHandle )
+ 396:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** {
+ 893              		.loc 1 396 1
+ 894              		.cfi_startproc
+ 895              		@ args = 0, pretend = 0, frame = 8
+ 896              		@ frame_needed = 0, uses_anonymous_args = 0
+ 897              		@ link register save eliminated.
+ 898 0000 82B0     		sub	sp, sp, #8
+ 899              		.cfi_def_cfa_offset 8
+ 900 0002 0190     		str	r0, [sp, #4]
+ 397:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   return pHandle->LastModalitySetByUser;
+ 901              		.loc 1 397 17
+ 902 0004 019B     		ldr	r3, [sp, #4]
+ 903 0006 5B7E     		ldrb	r3, [r3, #25]	@ zero_extendqisi2
+ 398:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** }
+ 904              		.loc 1 398 1
+ 905 0008 1846     		mov	r0, r3
+ 906 000a 02B0     		add	sp, sp, #8
+ 907              		.cfi_def_cfa_offset 0
+ 908              		@ sp needed
+ 909 000c 7047     		bx	lr
+ 910              		.cfi_endproc
+ 911              	.LFE1239:
+ 913 000e 00BF     		.section	.text.MCI_GetImposedMotorDirection,"ax",%progbits
+ 914              		.align	1
+ 915              		.p2align 4,,15
+ 916              		.weak	MCI_GetImposedMotorDirection
+ 917              		.syntax unified
+ 918              		.thumb
+ 919              		.thumb_func
+ 921              	MCI_GetImposedMotorDirection:
+ 922              	.LFB1240:
+ 399:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+ 400:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** /**
+ 401:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @brief  It returns the motor direction imposed by the last command
+ 402:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         (MCI_ExecSpeedRamp, MCI_ExecTorqueRamp or MCI_SetCurrentReferences).
+ 403:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @param  pHandle Pointer on the component instance to work on.
+ 404:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @retval int16_t It returns 1 or -1 according the sign of hFinalSpeed,
+ 405:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         hFinalTorque or Iqdref.q of the last command.
+ 406:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   */
+ 407:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** __weak int16_t MCI_GetImposedMotorDirection( MCI_Handle_t * pHandle )
+ 408:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** {
+ 923              		.loc 1 408 1
+ 924              		.cfi_startproc
+ 925              		@ args = 0, pretend = 0, frame = 16
+ 926              		@ frame_needed = 0, uses_anonymous_args = 0
+ 927              		@ link register save eliminated.
+ 928 0000 84B0     		sub	sp, sp, #16
+ 929              		.cfi_def_cfa_offset 16
+ 930 0002 0190     		str	r0, [sp, #4]
+ 409:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   int16_t retVal = 1;
+ 931              		.loc 1 409 11
+ 932 0004 0123     		movs	r3, #1
+ 933 0006 ADF80E30 		strh	r3, [sp, #14]	@ movhi
+ 410:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+ 411:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   switch ( pHandle->lastCommand )
+ 934              		.loc 1 411 19
+ 935 000a 019B     		ldr	r3, [sp, #4]
+ 936 000c 1B7B     		ldrb	r3, [r3, #12]	@ zero_extendqisi2
+ 937              		.loc 1 411 3
+ 938 000e 032B     		cmp	r3, #3
+ 939 0010 1AD0     		beq	.L45
+ 940 0012 032B     		cmp	r3, #3
+ 941 0014 22DC     		bgt	.L54
+ 942 0016 012B     		cmp	r3, #1
+ 943 0018 02D0     		beq	.L47
+ 944 001a 022B     		cmp	r3, #2
+ 945 001c 0AD0     		beq	.L48
+ 412:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   {
+ 413:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****     case MCI_EXECSPEEDRAMP:
+ 414:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****       if ( pHandle->hFinalSpeed < 0 )
+ 415:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****       {
+ 416:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****         retVal = -1;
+ 417:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****       }
+ 418:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****       break;
+ 419:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****     case MCI_EXECTORQUERAMP:
+ 420:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****       if ( pHandle->hFinalTorque < 0 )
+ 421:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****       {
+ 422:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****         retVal = -1;
+ 423:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****       }
+ 424:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****       break;
+ 425:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****     case MCI_SETCURRENTREFERENCES:
+ 426:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****       if ( pHandle->Iqdref.q < 0 )
+ 427:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****       {
+ 428:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****         retVal = -1;
+ 429:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****       }
+ 430:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****       break;
+ 431:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****     default:
+ 432:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****       break;
+ 946              		.loc 1 432 7
+ 947 001e 1DE0     		b	.L54
+ 948              	.L47:
+ 414:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****       {
+ 949              		.loc 1 414 19
+ 950 0020 019B     		ldr	r3, [sp, #4]
+ 951 0022 B3F90E30 		ldrsh	r3, [r3, #14]
+ 414:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****       {
+ 952              		.loc 1 414 10
+ 953 0026 002B     		cmp	r3, #0
+ 954 0028 1ADA     		bge	.L55
+ 416:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****       }
+ 955              		.loc 1 416 16
+ 956 002a 4FF6FF73 		movw	r3, #65535
+ 957 002e ADF80E30 		strh	r3, [sp, #14]	@ movhi
+ 418:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****     case MCI_EXECTORQUERAMP:
+ 958              		.loc 1 418 7
+ 959 0032 15E0     		b	.L55
+ 960              	.L48:
+ 420:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****       {
+ 961              		.loc 1 420 19
+ 962 0034 019B     		ldr	r3, [sp, #4]
+ 963 0036 B3F91030 		ldrsh	r3, [r3, #16]
+ 420:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****       {
+ 964              		.loc 1 420 10
+ 965 003a 002B     		cmp	r3, #0
+ 966 003c 12DA     		bge	.L56
+ 422:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****       }
+ 967              		.loc 1 422 16
+ 968 003e 4FF6FF73 		movw	r3, #65535
+ 969 0042 ADF80E30 		strh	r3, [sp, #14]	@ movhi
+ 424:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****     case MCI_SETCURRENTREFERENCES:
+ 970              		.loc 1 424 7
+ 971 0046 0DE0     		b	.L56
+ 972              	.L45:
+ 426:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****       {
+ 973              		.loc 1 426 27
+ 974 0048 019B     		ldr	r3, [sp, #4]
+ 975 004a B3F91230 		ldrsh	r3, [r3, #18]
+ 426:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****       {
+ 976              		.loc 1 426 10
+ 977 004e 002B     		cmp	r3, #0
+ 978 0050 0ADA     		bge	.L57
+ 428:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****       }
+ 979              		.loc 1 428 16
+ 980 0052 4FF6FF73 		movw	r3, #65535
+ 981 0056 ADF80E30 		strh	r3, [sp, #14]	@ movhi
+ 430:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****     default:
+ 982              		.loc 1 430 7
+ 983 005a 05E0     		b	.L57
+ 984              	.L54:
+ 985              		.loc 1 432 7
+ 986 005c 00BF     		nop
+ 987 005e 04E0     		b	.L50
+ 988              	.L55:
+ 418:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****     case MCI_EXECTORQUERAMP:
+ 989              		.loc 1 418 7
+ 990 0060 00BF     		nop
+ 991 0062 02E0     		b	.L50
+ 992              	.L56:
+ 424:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****     case MCI_SETCURRENTREFERENCES:
+ 993              		.loc 1 424 7
+ 994 0064 00BF     		nop
+ 995 0066 00E0     		b	.L50
+ 996              	.L57:
+ 430:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****     default:
+ 997              		.loc 1 430 7
+ 998 0068 00BF     		nop
+ 999              	.L50:
+ 433:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   }
+ 434:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   return retVal;
+ 1000              		.loc 1 434 10
+ 1001 006a BDF90E30 		ldrsh	r3, [sp, #14]
+ 435:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** }
+ 1002              		.loc 1 435 1
+ 1003 006e 1846     		mov	r0, r3
+ 1004 0070 04B0     		add	sp, sp, #16
+ 1005              		.cfi_def_cfa_offset 0
+ 1006              		@ sp needed
+ 1007 0072 7047     		bx	lr
+ 1008              		.cfi_endproc
+ 1009              	.LFE1240:
+ 1011              		.section	.text.MCI_GetLastRampFinalSpeed,"ax",%progbits
+ 1012              		.align	1
+ 1013              		.p2align 4,,15
+ 1014              		.weak	MCI_GetLastRampFinalSpeed
+ 1015              		.syntax unified
+ 1016              		.thumb
+ 1017              		.thumb_func
+ 1019              	MCI_GetLastRampFinalSpeed:
+ 1020              	.LFB1241:
+ 436:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+ 437:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** /**
+ 438:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @brief  It returns information about the last ramp final speed sent by the
+ 439:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         user expressed in tenths of HZ.
+ 440:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @param  pHandle Pointer on the component instance to work on.
+ 441:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @retval int16_t last ramp final speed sent by the user expressed in tehts
+ 442:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         of HZ.
+ 443:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   */
+ 444:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** __weak int16_t MCI_GetLastRampFinalSpeed( MCI_Handle_t * pHandle )
+ 445:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** {
+ 1021              		.loc 1 445 1
+ 1022              		.cfi_startproc
+ 1023              		@ args = 0, pretend = 0, frame = 16
+ 1024              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1025              		@ link register save eliminated.
+ 1026 0000 84B0     		sub	sp, sp, #16
+ 1027              		.cfi_def_cfa_offset 16
+ 1028 0002 0190     		str	r0, [sp, #4]
+ 446:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   int16_t hRetVal = 0;
+ 1029              		.loc 1 446 11
+ 1030 0004 0023     		movs	r3, #0
+ 1031 0006 ADF80E30 		strh	r3, [sp, #14]	@ movhi
+ 447:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+ 448:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   /* Examine the last buffered commands */
+ 449:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   if ( pHandle->lastCommand == MCI_EXECSPEEDRAMP )
+ 1032              		.loc 1 449 15
+ 1033 000a 019B     		ldr	r3, [sp, #4]
+ 1034 000c 1B7B     		ldrb	r3, [r3, #12]	@ zero_extendqisi2
+ 1035              		.loc 1 449 6
+ 1036 000e 012B     		cmp	r3, #1
+ 1037 0010 03D1     		bne	.L59
+ 450:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   {
+ 451:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****     hRetVal = pHandle->hFinalSpeed;
+ 1038              		.loc 1 451 13
+ 1039 0012 019B     		ldr	r3, [sp, #4]
+ 1040 0014 DB89     		ldrh	r3, [r3, #14]	@ movhi
+ 1041 0016 ADF80E30 		strh	r3, [sp, #14]	@ movhi
+ 1042              	.L59:
+ 452:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   }
+ 453:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   return hRetVal;
+ 1043              		.loc 1 453 10
+ 1044 001a BDF90E30 		ldrsh	r3, [sp, #14]
+ 454:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** }
+ 1045              		.loc 1 454 1
+ 1046 001e 1846     		mov	r0, r3
+ 1047 0020 04B0     		add	sp, sp, #16
+ 1048              		.cfi_def_cfa_offset 0
+ 1049              		@ sp needed
+ 1050 0022 7047     		bx	lr
+ 1051              		.cfi_endproc
+ 1052              	.LFE1241:
+ 1054              		.section	.text.MCI_RampCompleted,"ax",%progbits
+ 1055              		.align	1
+ 1056              		.p2align 4,,15
+ 1057              		.weak	MCI_RampCompleted
+ 1058              		.syntax unified
+ 1059              		.thumb
+ 1060              		.thumb_func
+ 1062              	MCI_RampCompleted:
+ 1063              	.LFB1242:
+ 455:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+ 456:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** /**
+ 457:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @brief  Check if the settled speed or torque ramp has been completed.
+ 458:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @param  pHandle Pointer on the component instance to work on.
+ 459:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @retval bool It returns true if the ramp is completed, false otherwise.
+ 460:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   */
+ 461:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** __weak bool MCI_RampCompleted( MCI_Handle_t * pHandle )
+ 462:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** {
+ 1064              		.loc 1 462 1
+ 1065              		.cfi_startproc
+ 1066              		@ args = 0, pretend = 0, frame = 16
+ 1067              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1068 0000 00B5     		push	{lr}
+ 1069              		.cfi_def_cfa_offset 4
+ 1070              		.cfi_offset 14, -4
+ 1071 0002 85B0     		sub	sp, sp, #20
+ 1072              		.cfi_def_cfa_offset 24
+ 1073 0004 0190     		str	r0, [sp, #4]
+ 463:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   bool retVal = false;
+ 1074              		.loc 1 463 8
+ 1075 0006 0023     		movs	r3, #0
+ 1076 0008 8DF80F30 		strb	r3, [sp, #15]
+ 464:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+ 465:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   if ( ( STM_GetState( pHandle->pSTM ) ) == RUN )
+ 1077              		.loc 1 465 10
+ 1078 000c 019B     		ldr	r3, [sp, #4]
+ 1079 000e 1B68     		ldr	r3, [r3]
+ 1080 0010 1846     		mov	r0, r3
+ 1081 0012 FFF7FEFF 		bl	STM_GetState
+ 1082 0016 0346     		mov	r3, r0
+ 1083              		.loc 1 465 6 discriminator 1
+ 1084 0018 062B     		cmp	r3, #6
+ 1085 001a 07D1     		bne	.L62
+ 466:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   {
+ 467:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****     retVal = STC_RampCompleted( pHandle->pSTC );
+ 1086              		.loc 1 467 14
+ 1087 001c 019B     		ldr	r3, [sp, #4]
+ 1088 001e 5B68     		ldr	r3, [r3, #4]
+ 1089 0020 1846     		mov	r0, r3
+ 1090 0022 FFF7FEFF 		bl	STC_RampCompleted
+ 1091 0026 0346     		mov	r3, r0
+ 1092 0028 8DF80F30 		strb	r3, [sp, #15]
+ 1093              	.L62:
+ 468:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   }
+ 469:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+ 470:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   return retVal;
+ 1094              		.loc 1 470 10
+ 1095 002c 9DF80F30 		ldrb	r3, [sp, #15]	@ zero_extendqisi2
+ 471:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** }
+ 1096              		.loc 1 471 1
+ 1097 0030 1846     		mov	r0, r3
+ 1098 0032 05B0     		add	sp, sp, #20
+ 1099              		.cfi_def_cfa_offset 4
+ 1100              		@ sp needed
+ 1101 0034 5DF804FB 		ldr	pc, [sp], #4
+ 1102              		.cfi_endproc
+ 1103              	.LFE1242:
+ 1105              		.section	.text.MCI_StopSpeedRamp,"ax",%progbits
+ 1106              		.align	1
+ 1107              		.p2align 4,,15
+ 1108              		.weak	MCI_StopSpeedRamp
+ 1109              		.syntax unified
+ 1110              		.thumb
+ 1111              		.thumb_func
+ 1113              	MCI_StopSpeedRamp:
+ 1114              	.LFB1243:
+ 472:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+ 473:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** /**
+ 474:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @brief  Stop the execution of speed ramp.
+ 475:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @param  pHandle Pointer on the component instance to work on.
+ 476:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @retval bool It returns true if the command is executed, false otherwise.
+ 477:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *
+ 478:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @deprecated This function is deprecated and should not be used anymore. It will be
+ 479:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *             removed in a future version of the STELLAR_PMSM_MC_FOC_LIBRARY. Use MCI_StopRamp() 
+ 480:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   */
+ 481:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** __weak bool MCI_StopSpeedRamp( MCI_Handle_t * pHandle )
+ 482:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** {
+ 1115              		.loc 1 482 1
+ 1116              		.cfi_startproc
+ 1117              		@ args = 0, pretend = 0, frame = 8
+ 1118              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1119 0000 00B5     		push	{lr}
+ 1120              		.cfi_def_cfa_offset 4
+ 1121              		.cfi_offset 14, -4
+ 1122 0002 83B0     		sub	sp, sp, #12
+ 1123              		.cfi_def_cfa_offset 16
+ 1124 0004 0190     		str	r0, [sp, #4]
+ 483:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   return STC_StopSpeedRamp( pHandle->pSTC );
+ 1125              		.loc 1 483 10
+ 1126 0006 019B     		ldr	r3, [sp, #4]
+ 1127 0008 5B68     		ldr	r3, [r3, #4]
+ 1128 000a 1846     		mov	r0, r3
+ 1129 000c FFF7FEFF 		bl	STC_StopSpeedRamp
+ 1130 0010 0346     		mov	r3, r0
+ 484:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** }
+ 1131              		.loc 1 484 1
+ 1132 0012 1846     		mov	r0, r3
+ 1133 0014 03B0     		add	sp, sp, #12
+ 1134              		.cfi_def_cfa_offset 4
+ 1135              		@ sp needed
+ 1136 0016 5DF804FB 		ldr	pc, [sp], #4
+ 1137              		.cfi_endproc
+ 1138              	.LFE1243:
+ 1140 001a 00BF     		.section	.text.MCI_StopRamp,"ax",%progbits
+ 1141              		.align	1
+ 1142              		.p2align 4,,15
+ 1143              		.weak	MCI_StopRamp
+ 1144              		.syntax unified
+ 1145              		.thumb
+ 1146              		.thumb_func
+ 1148              	MCI_StopRamp:
+ 1149              	.LFB1244:
+ 485:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+ 486:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** /**
+ 487:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @brief  Stop the execution of ongoing ramp.
+ 488:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @param  pHandle Pointer on the component instance to work on.
+ 489:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   */
+ 490:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** __weak void MCI_StopRamp( MCI_Handle_t * pHandle)
+ 491:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** {
+ 1150              		.loc 1 491 1
+ 1151              		.cfi_startproc
+ 1152              		@ args = 0, pretend = 0, frame = 8
+ 1153              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1154 0000 00B5     		push	{lr}
+ 1155              		.cfi_def_cfa_offset 4
+ 1156              		.cfi_offset 14, -4
+ 1157 0002 83B0     		sub	sp, sp, #12
+ 1158              		.cfi_def_cfa_offset 16
+ 1159 0004 0190     		str	r0, [sp, #4]
+ 492:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****    STC_StopRamp( pHandle->pSTC );
+ 1160              		.loc 1 492 4
+ 1161 0006 019B     		ldr	r3, [sp, #4]
+ 1162 0008 5B68     		ldr	r3, [r3, #4]
+ 1163 000a 1846     		mov	r0, r3
+ 1164 000c FFF7FEFF 		bl	STC_StopRamp
+ 493:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** }
+ 1165              		.loc 1 493 1
+ 1166 0010 00BF     		nop
+ 1167 0012 03B0     		add	sp, sp, #12
+ 1168              		.cfi_def_cfa_offset 4
+ 1169              		@ sp needed
+ 1170 0014 5DF804FB 		ldr	pc, [sp], #4
+ 1171              		.cfi_endproc
+ 1172              	.LFE1244:
+ 1174              		.section	.text.MCI_GetSpdSensorReliability,"ax",%progbits
+ 1175              		.align	1
+ 1176              		.p2align 4,,15
+ 1177              		.weak	MCI_GetSpdSensorReliability
+ 1178              		.syntax unified
+ 1179              		.thumb
+ 1180              		.thumb_func
+ 1182              	MCI_GetSpdSensorReliability:
+ 1183              	.LFB1245:
+ 494:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+ 495:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** /**
+ 496:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @brief  It returns speed sensor reliability with reference to the sensor
+ 497:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         actually used for reference frame transformation
+ 498:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @param  pHandle Pointer on the component instance to work on.
+ 499:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @retval bool It returns true if the speed sensor utilized for reference
+ 500:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         frame transformation and (in speed control mode) for speed
+ 501:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         regulation is reliable, false otherwise
+ 502:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   */
+ 503:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** __weak bool MCI_GetSpdSensorReliability( MCI_Handle_t * pHandle )
+ 504:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** {
+ 1184              		.loc 1 504 1
+ 1185              		.cfi_startproc
+ 1186              		@ args = 0, pretend = 0, frame = 16
+ 1187              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1188 0000 00B5     		push	{lr}
+ 1189              		.cfi_def_cfa_offset 4
+ 1190              		.cfi_offset 14, -4
+ 1191 0002 85B0     		sub	sp, sp, #20
+ 1192              		.cfi_def_cfa_offset 24
+ 1193 0004 0190     		str	r0, [sp, #4]
+ 505:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   SpeednPosFdbk_Handle_t * SpeedSensor = STC_GetSpeedSensor( pHandle->pSTC );
+ 1194              		.loc 1 505 42
+ 1195 0006 019B     		ldr	r3, [sp, #4]
+ 1196 0008 5B68     		ldr	r3, [r3, #4]
+ 1197 000a 1846     		mov	r0, r3
+ 1198 000c FFF7FEFF 		bl	STC_GetSpeedSensor
+ 1199 0010 0390     		str	r0, [sp, #12]
+ 506:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+ 507:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   return ( SPD_Check( SpeedSensor ) );
+ 1200              		.loc 1 507 12
+ 1201 0012 0398     		ldr	r0, [sp, #12]
+ 1202 0014 FFF7FEFF 		bl	SPD_Check
+ 1203 0018 0346     		mov	r3, r0
+ 508:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** }
+ 1204              		.loc 1 508 1
+ 1205 001a 1846     		mov	r0, r3
+ 1206 001c 05B0     		add	sp, sp, #20
+ 1207              		.cfi_def_cfa_offset 4
+ 1208              		@ sp needed
+ 1209 001e 5DF804FB 		ldr	pc, [sp], #4
+ 1210              		.cfi_endproc
+ 1211              	.LFE1245:
+ 1213 0022 00BF     		.section	.text.MCI_GetAvrgMecSpeedUnit,"ax",%progbits
+ 1214              		.align	1
+ 1215              		.p2align 4,,15
+ 1216              		.weak	MCI_GetAvrgMecSpeedUnit
+ 1217              		.syntax unified
+ 1218              		.thumb
+ 1219              		.thumb_func
+ 1221              	MCI_GetAvrgMecSpeedUnit:
+ 1222              	.LFB1246:
+ 509:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+ 510:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** /**
+ 511:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @brief  Returns the last computed average mechanical speed, expressed in
+ 512:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         the unit defined by #SPEED_UNIT and related to the sensor actually
+ 513:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         used by FOC algorithm
+ 514:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @param  pHandle Pointer on the component instance to work on.
+ 515:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   */
+ 516:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** __weak int16_t MCI_GetAvrgMecSpeedUnit( MCI_Handle_t * pHandle )
+ 517:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** {
+ 1223              		.loc 1 517 1
+ 1224              		.cfi_startproc
+ 1225              		@ args = 0, pretend = 0, frame = 16
+ 1226              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1227 0000 00B5     		push	{lr}
+ 1228              		.cfi_def_cfa_offset 4
+ 1229              		.cfi_offset 14, -4
+ 1230 0002 85B0     		sub	sp, sp, #20
+ 1231              		.cfi_def_cfa_offset 24
+ 1232 0004 0190     		str	r0, [sp, #4]
+ 518:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   SpeednPosFdbk_Handle_t * SpeedSensor = STC_GetSpeedSensor( pHandle->pSTC );
+ 1233              		.loc 1 518 42
+ 1234 0006 019B     		ldr	r3, [sp, #4]
+ 1235 0008 5B68     		ldr	r3, [r3, #4]
+ 1236 000a 1846     		mov	r0, r3
+ 1237 000c FFF7FEFF 		bl	STC_GetSpeedSensor
+ 1238 0010 0390     		str	r0, [sp, #12]
+ 519:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+ 520:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   return ( SPD_GetAvrgMecSpeedUnit( SpeedSensor ) );
+ 1239              		.loc 1 520 12
+ 1240 0012 0398     		ldr	r0, [sp, #12]
+ 1241 0014 FFF7FEFF 		bl	SPD_GetAvrgMecSpeedUnit
+ 1242 0018 0346     		mov	r3, r0
+ 521:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** }
+ 1243              		.loc 1 521 1
+ 1244 001a 1846     		mov	r0, r3
+ 1245 001c 05B0     		add	sp, sp, #20
+ 1246              		.cfi_def_cfa_offset 4
+ 1247              		@ sp needed
+ 1248 001e 5DF804FB 		ldr	pc, [sp], #4
+ 1249              		.cfi_endproc
+ 1250              	.LFE1246:
+ 1252 0022 00BF     		.section	.text.MCI_GetMecSpeedRefUnit,"ax",%progbits
+ 1253              		.align	1
+ 1254              		.p2align 4,,15
+ 1255              		.weak	MCI_GetMecSpeedRefUnit
+ 1256              		.syntax unified
+ 1257              		.thumb
+ 1258              		.thumb_func
+ 1260              	MCI_GetMecSpeedRefUnit:
+ 1261              	.LFB1247:
+ 522:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+ 523:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** /**
+ 524:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @brief  Returns the current mechanical rotor speed reference expressed in the unit defined by #
+ 525:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *
+ 526:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @param  pHandle Pointer on the component instance to work on.
+ 527:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *
+ 528:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   */
+ 529:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** __weak int16_t MCI_GetMecSpeedRefUnit( MCI_Handle_t * pHandle )
+ 530:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** {
+ 1262              		.loc 1 530 1
+ 1263              		.cfi_startproc
+ 1264              		@ args = 0, pretend = 0, frame = 8
+ 1265              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1266 0000 00B5     		push	{lr}
+ 1267              		.cfi_def_cfa_offset 4
+ 1268              		.cfi_offset 14, -4
+ 1269 0002 83B0     		sub	sp, sp, #12
+ 1270              		.cfi_def_cfa_offset 16
+ 1271 0004 0190     		str	r0, [sp, #4]
+ 531:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   return ( STC_GetMecSpeedRefUnit( pHandle->pSTC ) );
+ 1272              		.loc 1 531 12
+ 1273 0006 019B     		ldr	r3, [sp, #4]
+ 1274 0008 5B68     		ldr	r3, [r3, #4]
+ 1275 000a 1846     		mov	r0, r3
+ 1276 000c FFF7FEFF 		bl	STC_GetMecSpeedRefUnit
+ 1277 0010 0346     		mov	r3, r0
+ 532:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** }
+ 1278              		.loc 1 532 1
+ 1279 0012 1846     		mov	r0, r3
+ 1280 0014 03B0     		add	sp, sp, #12
+ 1281              		.cfi_def_cfa_offset 4
+ 1282              		@ sp needed
+ 1283 0016 5DF804FB 		ldr	pc, [sp], #4
+ 1284              		.cfi_endproc
+ 1285              	.LFE1247:
+ 1287 001a 00BF     		.section	.text.MCI_GetIab,"ax",%progbits
+ 1288              		.align	1
+ 1289              		.p2align 4,,15
+ 1290              		.weak	MCI_GetIab
+ 1291              		.syntax unified
+ 1292              		.thumb
+ 1293              		.thumb_func
+ 1295              	MCI_GetIab:
+ 1296              	.LFB1248:
+ 533:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+ 534:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** /**
+ 535:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @brief  It returns stator current Iab in ab_t format
+ 536:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @param  pHandle Pointer on the component instance to work on.
+ 537:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @retval ab_t Stator current Iab
+ 538:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   */
+ 539:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** __weak ab_t MCI_GetIab( MCI_Handle_t * pHandle )
+ 540:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** {
+ 1297              		.loc 1 540 1
+ 1298              		.cfi_startproc
+ 1299              		@ args = 0, pretend = 0, frame = 16
+ 1300              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1301              		@ link register save eliminated.
+ 1302 0000 84B0     		sub	sp, sp, #16
+ 1303              		.cfi_def_cfa_offset 16
+ 1304 0002 0190     		str	r0, [sp, #4]
+ 541:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   return ( pHandle->pFOCVars->Iab );
+ 1305              		.loc 1 541 19
+ 1306 0004 019B     		ldr	r3, [sp, #4]
+ 1307 0006 9A68     		ldr	r2, [r3, #8]
+ 1308              		.loc 1 541 29
+ 1309 0008 03AB     		add	r3, sp, #12
+ 1310 000a 1068     		ldr	r0, [r2]	@ unaligned
+ 1311 000c 1860     		str	r0, [r3]
+ 1312              		.loc 1 541 29 is_stmt 0 discriminator 1
+ 1313 000e 0023     		movs	r3, #0
+ 1314 0010 BDF80C20 		ldrh	r2, [sp, #12]
+ 1315 0014 62F30F03 		bfi	r3, r2, #0, #16
+ 1316 0018 BDF80E20 		ldrh	r2, [sp, #14]
+ 1317 001c 62F31F43 		bfi	r3, r2, #16, #16
+ 542:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** }
+ 1318              		.loc 1 542 1 is_stmt 1
+ 1319 0020 1846     		mov	r0, r3
+ 1320 0022 04B0     		add	sp, sp, #16
+ 1321              		.cfi_def_cfa_offset 0
+ 1322              		@ sp needed
+ 1323 0024 7047     		bx	lr
+ 1324              		.cfi_endproc
+ 1325              	.LFE1248:
+ 1327 0026 00BF     		.section	.text.MCI_GetIalphabeta,"ax",%progbits
+ 1328              		.align	1
+ 1329              		.p2align 4,,15
+ 1330              		.weak	MCI_GetIalphabeta
+ 1331              		.syntax unified
+ 1332              		.thumb
+ 1333              		.thumb_func
+ 1335              	MCI_GetIalphabeta:
+ 1336              	.LFB1249:
+ 543:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+ 544:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** /**
+ 545:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @brief  It returns stator current Ialphabeta in alphabeta_t format
+ 546:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @param  pHandle Pointer on the component instance to work on.
+ 547:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @retval alphabeta_t Stator current Ialphabeta
+ 548:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   */
+ 549:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** __weak alphabeta_t MCI_GetIalphabeta( MCI_Handle_t * pHandle )
+ 550:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** {
+ 1337              		.loc 1 550 1
+ 1338              		.cfi_startproc
+ 1339              		@ args = 0, pretend = 0, frame = 16
+ 1340              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1341              		@ link register save eliminated.
+ 1342 0000 84B0     		sub	sp, sp, #16
+ 1343              		.cfi_def_cfa_offset 16
+ 1344 0002 0190     		str	r0, [sp, #4]
+ 551:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   return ( pHandle->pFOCVars->Ialphabeta );
+ 1345              		.loc 1 551 19
+ 1346 0004 019B     		ldr	r3, [sp, #4]
+ 1347 0006 9A68     		ldr	r2, [r3, #8]
+ 1348              		.loc 1 551 29
+ 1349 0008 03AB     		add	r3, sp, #12
+ 1350 000a 0432     		adds	r2, r2, #4
+ 1351 000c 1068     		ldr	r0, [r2]	@ unaligned
+ 1352 000e 1860     		str	r0, [r3]
+ 1353              		.loc 1 551 29 is_stmt 0 discriminator 1
+ 1354 0010 0023     		movs	r3, #0
+ 1355 0012 BDF80C20 		ldrh	r2, [sp, #12]
+ 1356 0016 62F30F03 		bfi	r3, r2, #0, #16
+ 1357 001a BDF80E20 		ldrh	r2, [sp, #14]
+ 1358 001e 62F31F43 		bfi	r3, r2, #16, #16
+ 552:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** }
+ 1359              		.loc 1 552 1 is_stmt 1
+ 1360 0022 1846     		mov	r0, r3
+ 1361 0024 04B0     		add	sp, sp, #16
+ 1362              		.cfi_def_cfa_offset 0
+ 1363              		@ sp needed
+ 1364 0026 7047     		bx	lr
+ 1365              		.cfi_endproc
+ 1366              	.LFE1249:
+ 1368              		.section	.text.MCI_GetIqd,"ax",%progbits
+ 1369              		.align	1
+ 1370              		.p2align 4,,15
+ 1371              		.weak	MCI_GetIqd
+ 1372              		.syntax unified
+ 1373              		.thumb
+ 1374              		.thumb_func
+ 1376              	MCI_GetIqd:
+ 1377              	.LFB1250:
+ 553:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+ 554:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** /**
+ 555:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @brief  It returns stator current Iqd in qd_t format
+ 556:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @param  pHandle Pointer on the component instance to work on.
+ 557:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @retval qd_t Stator current Iqd
+ 558:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   */
+ 559:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** __weak qd_t MCI_GetIqd( MCI_Handle_t * pHandle )
+ 560:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** {
+ 1378              		.loc 1 560 1
+ 1379              		.cfi_startproc
+ 1380              		@ args = 0, pretend = 0, frame = 16
+ 1381              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1382              		@ link register save eliminated.
+ 1383 0000 84B0     		sub	sp, sp, #16
+ 1384              		.cfi_def_cfa_offset 16
+ 1385 0002 0190     		str	r0, [sp, #4]
+ 561:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   return ( pHandle->pFOCVars->Iqd );
+ 1386              		.loc 1 561 19
+ 1387 0004 019B     		ldr	r3, [sp, #4]
+ 1388 0006 9A68     		ldr	r2, [r3, #8]
+ 1389              		.loc 1 561 29
+ 1390 0008 03AB     		add	r3, sp, #12
+ 1391 000a 0C32     		adds	r2, r2, #12
+ 1392 000c 1068     		ldr	r0, [r2]	@ unaligned
+ 1393 000e 1860     		str	r0, [r3]
+ 1394              		.loc 1 561 29 is_stmt 0 discriminator 1
+ 1395 0010 0023     		movs	r3, #0
+ 1396 0012 BDF80C20 		ldrh	r2, [sp, #12]
+ 1397 0016 62F30F03 		bfi	r3, r2, #0, #16
+ 1398 001a BDF80E20 		ldrh	r2, [sp, #14]
+ 1399 001e 62F31F43 		bfi	r3, r2, #16, #16
+ 562:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** }
+ 1400              		.loc 1 562 1 is_stmt 1
+ 1401 0022 1846     		mov	r0, r3
+ 1402 0024 04B0     		add	sp, sp, #16
+ 1403              		.cfi_def_cfa_offset 0
+ 1404              		@ sp needed
+ 1405 0026 7047     		bx	lr
+ 1406              		.cfi_endproc
+ 1407              	.LFE1250:
+ 1409              		.section	.text.MCI_GetIqdHF,"ax",%progbits
+ 1410              		.align	1
+ 1411              		.p2align 4,,15
+ 1412              		.weak	MCI_GetIqdHF
+ 1413              		.syntax unified
+ 1414              		.thumb
+ 1415              		.thumb_func
+ 1417              	MCI_GetIqdHF:
+ 1418              	.LFB1251:
+ 563:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+ 564:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** /**
+ 565:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @brief  It returns stator current IqdHF in qd_t format
+ 566:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @param  pHandle Pointer on the component instance to work on.
+ 567:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @retval qd_t Stator current IqdHF if HFI is selected as main
+ 568:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         sensor. Otherwise it returns { 0, 0}.
+ 569:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   */
+ 570:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** __weak qd_t MCI_GetIqdHF( MCI_Handle_t * pHandle )
+ 571:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** {
+ 1419              		.loc 1 571 1
+ 1420              		.cfi_startproc
+ 1421              		@ args = 0, pretend = 0, frame = 16
+ 1422              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1423              		@ link register save eliminated.
+ 1424 0000 84B0     		sub	sp, sp, #16
+ 1425              		.cfi_def_cfa_offset 16
+ 1426 0002 0190     		str	r0, [sp, #4]
+ 572:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   return ( pHandle->pFOCVars->IqdHF );
+ 1427              		.loc 1 572 19
+ 1428 0004 019B     		ldr	r3, [sp, #4]
+ 1429 0006 9A68     		ldr	r2, [r3, #8]
+ 1430              		.loc 1 572 29
+ 1431 0008 03AB     		add	r3, sp, #12
+ 1432 000a 0832     		adds	r2, r2, #8
+ 1433 000c 1068     		ldr	r0, [r2]	@ unaligned
+ 1434 000e 1860     		str	r0, [r3]
+ 1435              		.loc 1 572 29 is_stmt 0 discriminator 1
+ 1436 0010 0023     		movs	r3, #0
+ 1437 0012 BDF80C20 		ldrh	r2, [sp, #12]
+ 1438 0016 62F30F03 		bfi	r3, r2, #0, #16
+ 1439 001a BDF80E20 		ldrh	r2, [sp, #14]
+ 1440 001e 62F31F43 		bfi	r3, r2, #16, #16
+ 573:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** }
+ 1441              		.loc 1 573 1 is_stmt 1
+ 1442 0022 1846     		mov	r0, r3
+ 1443 0024 04B0     		add	sp, sp, #16
+ 1444              		.cfi_def_cfa_offset 0
+ 1445              		@ sp needed
+ 1446 0026 7047     		bx	lr
+ 1447              		.cfi_endproc
+ 1448              	.LFE1251:
+ 1450              		.section	.text.MCI_GetIqdref,"ax",%progbits
+ 1451              		.align	1
+ 1452              		.p2align 4,,15
+ 1453              		.weak	MCI_GetIqdref
+ 1454              		.syntax unified
+ 1455              		.thumb
+ 1456              		.thumb_func
+ 1458              	MCI_GetIqdref:
+ 1459              	.LFB1252:
+ 574:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+ 575:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** /**
+ 576:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @brief  It returns stator current Iqdref in qd_t format
+ 577:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @param  pHandle Pointer on the component instance to work on.
+ 578:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @retval qd_t Stator current Iqdref
+ 579:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   */
+ 580:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** __weak qd_t MCI_GetIqdref( MCI_Handle_t * pHandle )
+ 581:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** {
+ 1460              		.loc 1 581 1
+ 1461              		.cfi_startproc
+ 1462              		@ args = 0, pretend = 0, frame = 16
+ 1463              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1464              		@ link register save eliminated.
+ 1465 0000 84B0     		sub	sp, sp, #16
+ 1466              		.cfi_def_cfa_offset 16
+ 1467 0002 0190     		str	r0, [sp, #4]
+ 582:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   return ( pHandle->pFOCVars->Iqdref );
+ 1468              		.loc 1 582 19
+ 1469 0004 019B     		ldr	r3, [sp, #4]
+ 1470 0006 9A68     		ldr	r2, [r3, #8]
+ 1471              		.loc 1 582 29
+ 1472 0008 03AB     		add	r3, sp, #12
+ 1473 000a 1032     		adds	r2, r2, #16
+ 1474 000c 1068     		ldr	r0, [r2]	@ unaligned
+ 1475 000e 1860     		str	r0, [r3]
+ 1476              		.loc 1 582 29 is_stmt 0 discriminator 1
+ 1477 0010 0023     		movs	r3, #0
+ 1478 0012 BDF80C20 		ldrh	r2, [sp, #12]
+ 1479 0016 62F30F03 		bfi	r3, r2, #0, #16
+ 1480 001a BDF80E20 		ldrh	r2, [sp, #14]
+ 1481 001e 62F31F43 		bfi	r3, r2, #16, #16
+ 583:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** }
+ 1482              		.loc 1 583 1 is_stmt 1
+ 1483 0022 1846     		mov	r0, r3
+ 1484 0024 04B0     		add	sp, sp, #16
+ 1485              		.cfi_def_cfa_offset 0
+ 1486              		@ sp needed
+ 1487 0026 7047     		bx	lr
+ 1488              		.cfi_endproc
+ 1489              	.LFE1252:
+ 1491              		.section	.text.MCI_GetVqd,"ax",%progbits
+ 1492              		.align	1
+ 1493              		.p2align 4,,15
+ 1494              		.weak	MCI_GetVqd
+ 1495              		.syntax unified
+ 1496              		.thumb
+ 1497              		.thumb_func
+ 1499              	MCI_GetVqd:
+ 1500              	.LFB1253:
+ 584:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+ 585:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** /**
+ 586:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @brief  It returns stator current Vqd in qd_t format
+ 587:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @param  pHandle Pointer on the component instance to work on.
+ 588:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @retval qd_t Stator current Vqd
+ 589:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   */
+ 590:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** __weak qd_t MCI_GetVqd( MCI_Handle_t * pHandle )
+ 591:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** {
+ 1501              		.loc 1 591 1
+ 1502              		.cfi_startproc
+ 1503              		@ args = 0, pretend = 0, frame = 16
+ 1504              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1505              		@ link register save eliminated.
+ 1506 0000 84B0     		sub	sp, sp, #16
+ 1507              		.cfi_def_cfa_offset 16
+ 1508 0002 0190     		str	r0, [sp, #4]
+ 592:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   return ( pHandle->pFOCVars->Vqd );
+ 1509              		.loc 1 592 19
+ 1510 0004 019B     		ldr	r3, [sp, #4]
+ 1511 0006 9A68     		ldr	r2, [r3, #8]
+ 1512              		.loc 1 592 29
+ 1513 0008 03AB     		add	r3, sp, #12
+ 1514 000a 1632     		adds	r2, r2, #22
+ 1515 000c 1068     		ldr	r0, [r2]	@ unaligned
+ 1516 000e 1860     		str	r0, [r3]
+ 1517              		.loc 1 592 29 is_stmt 0 discriminator 1
+ 1518 0010 0023     		movs	r3, #0
+ 1519 0012 BDF80C20 		ldrh	r2, [sp, #12]
+ 1520 0016 62F30F03 		bfi	r3, r2, #0, #16
+ 1521 001a BDF80E20 		ldrh	r2, [sp, #14]
+ 1522 001e 62F31F43 		bfi	r3, r2, #16, #16
+ 593:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** }
+ 1523              		.loc 1 593 1 is_stmt 1
+ 1524 0022 1846     		mov	r0, r3
+ 1525 0024 04B0     		add	sp, sp, #16
+ 1526              		.cfi_def_cfa_offset 0
+ 1527              		@ sp needed
+ 1528 0026 7047     		bx	lr
+ 1529              		.cfi_endproc
+ 1530              	.LFE1253:
+ 1532              		.section	.text.MCI_GetValphabeta,"ax",%progbits
+ 1533              		.align	1
+ 1534              		.p2align 4,,15
+ 1535              		.weak	MCI_GetValphabeta
+ 1536              		.syntax unified
+ 1537              		.thumb
+ 1538              		.thumb_func
+ 1540              	MCI_GetValphabeta:
+ 1541              	.LFB1254:
+ 594:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+ 595:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** /**
+ 596:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @brief  It returns stator current Valphabeta in alphabeta_t format
+ 597:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @param  pHandle Pointer on the component instance to work on.
+ 598:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @retval alphabeta_t Stator current Valphabeta
+ 599:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   */
+ 600:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** __weak alphabeta_t MCI_GetValphabeta( MCI_Handle_t * pHandle )
+ 601:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** {
+ 1542              		.loc 1 601 1
+ 1543              		.cfi_startproc
+ 1544              		@ args = 0, pretend = 0, frame = 16
+ 1545              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1546              		@ link register save eliminated.
+ 1547 0000 84B0     		sub	sp, sp, #16
+ 1548              		.cfi_def_cfa_offset 16
+ 1549 0002 0190     		str	r0, [sp, #4]
+ 602:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   return ( pHandle->pFOCVars->Valphabeta );
+ 1550              		.loc 1 602 19
+ 1551 0004 019B     		ldr	r3, [sp, #4]
+ 1552 0006 9A68     		ldr	r2, [r3, #8]
+ 1553              		.loc 1 602 29
+ 1554 0008 03AB     		add	r3, sp, #12
+ 1555 000a 1A32     		adds	r2, r2, #26
+ 1556 000c 1068     		ldr	r0, [r2]	@ unaligned
+ 1557 000e 1860     		str	r0, [r3]
+ 1558              		.loc 1 602 29 is_stmt 0 discriminator 1
+ 1559 0010 0023     		movs	r3, #0
+ 1560 0012 BDF80C20 		ldrh	r2, [sp, #12]
+ 1561 0016 62F30F03 		bfi	r3, r2, #0, #16
+ 1562 001a BDF80E20 		ldrh	r2, [sp, #14]
+ 1563 001e 62F31F43 		bfi	r3, r2, #16, #16
+ 603:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** }
+ 1564              		.loc 1 603 1 is_stmt 1
+ 1565 0022 1846     		mov	r0, r3
+ 1566 0024 04B0     		add	sp, sp, #16
+ 1567              		.cfi_def_cfa_offset 0
+ 1568              		@ sp needed
+ 1569 0026 7047     		bx	lr
+ 1570              		.cfi_endproc
+ 1571              	.LFE1254:
+ 1573              		.section	.text.MCI_GetElAngledpp,"ax",%progbits
+ 1574              		.align	1
+ 1575              		.p2align 4,,15
+ 1576              		.weak	MCI_GetElAngledpp
+ 1577              		.syntax unified
+ 1578              		.thumb
+ 1579              		.thumb_func
+ 1581              	MCI_GetElAngledpp:
+ 1582              	.LFB1255:
+ 604:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+ 605:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** /**
+ 606:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @brief  It returns the rotor electrical angle actually used for reference
+ 607:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         frame transformation
+ 608:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @param  pHandle Pointer on the component instance to work on.
+ 609:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @retval int16_t Rotor electrical angle in dpp format
+ 610:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   */
+ 611:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** __weak int16_t MCI_GetElAngledpp( MCI_Handle_t * pHandle )
+ 612:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** {
+ 1583              		.loc 1 612 1
+ 1584              		.cfi_startproc
+ 1585              		@ args = 0, pretend = 0, frame = 8
+ 1586              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1587              		@ link register save eliminated.
+ 1588 0000 82B0     		sub	sp, sp, #8
+ 1589              		.cfi_def_cfa_offset 8
+ 1590 0002 0190     		str	r0, [sp, #4]
+ 613:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   return ( pHandle->pFOCVars->hElAngle );
+ 1591              		.loc 1 613 19
+ 1592 0004 019B     		ldr	r3, [sp, #4]
+ 1593 0006 9B68     		ldr	r3, [r3, #8]
+ 1594              		.loc 1 613 29
+ 1595 0008 B3F92030 		ldrsh	r3, [r3, #32]
+ 614:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** }
+ 1596              		.loc 1 614 1
+ 1597 000c 1846     		mov	r0, r3
+ 1598 000e 02B0     		add	sp, sp, #8
+ 1599              		.cfi_def_cfa_offset 0
+ 1600              		@ sp needed
+ 1601 0010 7047     		bx	lr
+ 1602              		.cfi_endproc
+ 1603              	.LFE1255:
+ 1605 0012 00BF     		.section	.text.MCI_GetTeref,"ax",%progbits
+ 1606              		.align	1
+ 1607              		.p2align 4,,15
+ 1608              		.weak	MCI_GetTeref
+ 1609              		.syntax unified
+ 1610              		.thumb
+ 1611              		.thumb_func
+ 1613              	MCI_GetTeref:
+ 1614              	.LFB1256:
+ 615:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+ 616:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** /**
+ 617:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @brief  It returns the reference eletrical torque, fed to derived class for
+ 618:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         Iqref and Idref computation
+ 619:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @param  pHandle Pointer on the component instance to work on.
+ 620:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @retval int16_t Teref
+ 621:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   */
+ 622:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** __weak int16_t MCI_GetTeref( MCI_Handle_t * pHandle )
+ 623:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** {
+ 1615              		.loc 1 623 1
+ 1616              		.cfi_startproc
+ 1617              		@ args = 0, pretend = 0, frame = 8
+ 1618              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1619              		@ link register save eliminated.
+ 1620 0000 82B0     		sub	sp, sp, #8
+ 1621              		.cfi_def_cfa_offset 8
+ 1622 0002 0190     		str	r0, [sp, #4]
+ 624:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   return ( pHandle->pFOCVars->hTeref );
+ 1623              		.loc 1 624 19
+ 1624 0004 019B     		ldr	r3, [sp, #4]
+ 1625 0006 9B68     		ldr	r3, [r3, #8]
+ 1626              		.loc 1 624 29
+ 1627 0008 B3F91E30 		ldrsh	r3, [r3, #30]
+ 625:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** }
+ 1628              		.loc 1 625 1
+ 1629 000c 1846     		mov	r0, r3
+ 1630 000e 02B0     		add	sp, sp, #8
+ 1631              		.cfi_def_cfa_offset 0
+ 1632              		@ sp needed
+ 1633 0010 7047     		bx	lr
+ 1634              		.cfi_endproc
+ 1635              	.LFE1256:
+ 1637 0012 00BF     		.section	.text.MCI_GetPhaseCurrentAmplitude,"ax",%progbits
+ 1638              		.align	1
+ 1639              		.p2align 4,,15
+ 1640              		.weak	MCI_GetPhaseCurrentAmplitude
+ 1641              		.syntax unified
+ 1642              		.thumb
+ 1643              		.thumb_func
+ 1645              	MCI_GetPhaseCurrentAmplitude:
+ 1646              	.LFB1257:
+ 626:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+ 627:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** /**
+ 628:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @brief  It returns the motor phase current amplitude (0-to-peak) in s16A
+ 629:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         To convert s16A into Ampere following formula must be used:
+ 630:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         Current(Amp) = [Current(s16A) * Vdd micro] / [65536 * Rshunt * Aop]
+ 631:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @param  pHandle Pointer on the component instance to work on.
+ 632:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @retval int16_t Motor phase current (0-to-peak) in s16A
+ 633:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   */
+ 634:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** __weak int16_t MCI_GetPhaseCurrentAmplitude( MCI_Handle_t * pHandle )
+ 635:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** {
+ 1647              		.loc 1 635 1
+ 1648              		.cfi_startproc
+ 1649              		@ args = 0, pretend = 0, frame = 24
+ 1650              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1651 0000 00B5     		push	{lr}
+ 1652              		.cfi_def_cfa_offset 4
+ 1653              		.cfi_offset 14, -4
+ 1654 0002 87B0     		sub	sp, sp, #28
+ 1655              		.cfi_def_cfa_offset 32
+ 1656 0004 0190     		str	r0, [sp, #4]
+ 636:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   alphabeta_t Local_Curr;
+ 637:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   int32_t wAux1, wAux2;
+ 638:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+ 639:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   Local_Curr = pHandle->pFOCVars->Ialphabeta;
+ 1657              		.loc 1 639 23
+ 1658 0006 019B     		ldr	r3, [sp, #4]
+ 1659 0008 9A68     		ldr	r2, [r3, #8]
+ 1660              		.loc 1 639 14
+ 1661 000a 03AB     		add	r3, sp, #12
+ 1662 000c 0432     		adds	r2, r2, #4
+ 1663 000e 1068     		ldr	r0, [r2]	@ unaligned
+ 1664 0010 1860     		str	r0, [r3]
+ 640:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   wAux1 = ( int32_t )( Local_Curr.alpha ) * Local_Curr.alpha;
+ 1665              		.loc 1 640 34
+ 1666 0012 BDF90C30 		ldrsh	r3, [sp, #12]
+ 1667              		.loc 1 640 55
+ 1668 0016 BDF90C20 		ldrsh	r2, [sp, #12]
+ 1669              		.loc 1 640 9
+ 1670 001a 02FB03F3 		mul	r3, r2, r3
+ 1671 001e 0593     		str	r3, [sp, #20]
+ 641:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   wAux2 = ( int32_t )( Local_Curr.beta ) * Local_Curr.beta;
+ 1672              		.loc 1 641 34
+ 1673 0020 BDF90E30 		ldrsh	r3, [sp, #14]
+ 1674              		.loc 1 641 54
+ 1675 0024 BDF90E20 		ldrsh	r2, [sp, #14]
+ 1676              		.loc 1 641 9
+ 1677 0028 02FB03F3 		mul	r3, r2, r3
+ 1678 002c 0493     		str	r3, [sp, #16]
+ 642:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+ 643:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   wAux1 += wAux2;
+ 1679              		.loc 1 643 9
+ 1680 002e 059A     		ldr	r2, [sp, #20]
+ 1681 0030 049B     		ldr	r3, [sp, #16]
+ 1682 0032 1344     		add	r3, r3, r2
+ 1683 0034 0593     		str	r3, [sp, #20]
+ 644:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   wAux1 = MCM_Sqrt( wAux1 );
+ 1684              		.loc 1 644 11
+ 1685 0036 0598     		ldr	r0, [sp, #20]
+ 1686 0038 FFF7FEFF 		bl	MCM_Sqrt
+ 1687 003c 0590     		str	r0, [sp, #20]
+ 645:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+ 646:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   if ( wAux1 > INT16_MAX )
+ 1688              		.loc 1 646 6
+ 1689 003e 059B     		ldr	r3, [sp, #20]
+ 1690 0040 B3F5004F 		cmp	r3, #32768
+ 1691 0044 02DB     		blt	.L92
+ 647:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   {
+ 648:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****     wAux1 = ( int32_t ) INT16_MAX;
+ 1692              		.loc 1 648 11
+ 1693 0046 47F6FF73 		movw	r3, #32767
+ 1694 004a 0593     		str	r3, [sp, #20]
+ 1695              	.L92:
+ 649:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   }
+ 650:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+ 651:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   return ( ( int16_t )wAux1 );
+ 1696              		.loc 1 651 12
+ 1697 004c 059B     		ldr	r3, [sp, #20]
+ 1698 004e 1BB2     		sxth	r3, r3
+ 652:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** }
+ 1699              		.loc 1 652 1
+ 1700 0050 1846     		mov	r0, r3
+ 1701 0052 07B0     		add	sp, sp, #28
+ 1702              		.cfi_def_cfa_offset 4
+ 1703              		@ sp needed
+ 1704 0054 5DF804FB 		ldr	pc, [sp], #4
+ 1705              		.cfi_endproc
+ 1706              	.LFE1257:
+ 1708              		.section	.text.MCI_GetPhaseVoltageAmplitude,"ax",%progbits
+ 1709              		.align	1
+ 1710              		.p2align 4,,15
+ 1711              		.weak	MCI_GetPhaseVoltageAmplitude
+ 1712              		.syntax unified
+ 1713              		.thumb
+ 1714              		.thumb_func
+ 1716              	MCI_GetPhaseVoltageAmplitude:
+ 1717              	.LFB1258:
+ 653:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+ 654:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** /**
+ 655:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @brief  It returns the applied motor phase voltage amplitude (0-to-peak) in
+ 656:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         s16V. To convert s16V into Volts following formula must be used:
+ 657:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         PhaseVoltage(V) = [PhaseVoltage(s16A) * Vbus(V)] /[sqrt(3) *32767]
+ 658:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @param  pHandle Pointer on the component instance to work on.
+ 659:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @retval int16_t Motor phase voltage (0-to-peak) in s16V
+ 660:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   */
+ 661:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** __weak int16_t MCI_GetPhaseVoltageAmplitude( MCI_Handle_t * pHandle )
+ 662:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** {
+ 1718              		.loc 1 662 1
+ 1719              		.cfi_startproc
+ 1720              		@ args = 0, pretend = 0, frame = 24
+ 1721              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1722 0000 00B5     		push	{lr}
+ 1723              		.cfi_def_cfa_offset 4
+ 1724              		.cfi_offset 14, -4
+ 1725 0002 87B0     		sub	sp, sp, #28
+ 1726              		.cfi_def_cfa_offset 32
+ 1727 0004 0190     		str	r0, [sp, #4]
+ 663:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   alphabeta_t Local_Voltage;
+ 664:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   int32_t wAux1, wAux2;
+ 665:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+ 666:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   Local_Voltage = pHandle->pFOCVars->Valphabeta;
+ 1728              		.loc 1 666 26
+ 1729 0006 019B     		ldr	r3, [sp, #4]
+ 1730 0008 9A68     		ldr	r2, [r3, #8]
+ 1731              		.loc 1 666 17
+ 1732 000a 03AB     		add	r3, sp, #12
+ 1733 000c 1A32     		adds	r2, r2, #26
+ 1734 000e 1068     		ldr	r0, [r2]	@ unaligned
+ 1735 0010 1860     		str	r0, [r3]
+ 667:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   wAux1 = ( int32_t )( Local_Voltage.alpha ) * Local_Voltage.alpha;
+ 1736              		.loc 1 667 37
+ 1737 0012 BDF90C30 		ldrsh	r3, [sp, #12]
+ 1738              		.loc 1 667 61
+ 1739 0016 BDF90C20 		ldrsh	r2, [sp, #12]
+ 1740              		.loc 1 667 9
+ 1741 001a 02FB03F3 		mul	r3, r2, r3
+ 1742 001e 0593     		str	r3, [sp, #20]
+ 668:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   wAux2 = ( int32_t )( Local_Voltage.beta ) * Local_Voltage.beta;
+ 1743              		.loc 1 668 37
+ 1744 0020 BDF90E30 		ldrsh	r3, [sp, #14]
+ 1745              		.loc 1 668 60
+ 1746 0024 BDF90E20 		ldrsh	r2, [sp, #14]
+ 1747              		.loc 1 668 9
+ 1748 0028 02FB03F3 		mul	r3, r2, r3
+ 1749 002c 0493     		str	r3, [sp, #16]
+ 669:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+ 670:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   wAux1 += wAux2;
+ 1750              		.loc 1 670 9
+ 1751 002e 059A     		ldr	r2, [sp, #20]
+ 1752 0030 049B     		ldr	r3, [sp, #16]
+ 1753 0032 1344     		add	r3, r3, r2
+ 1754 0034 0593     		str	r3, [sp, #20]
+ 671:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   wAux1 = MCM_Sqrt( wAux1 );
+ 1755              		.loc 1 671 11
+ 1756 0036 0598     		ldr	r0, [sp, #20]
+ 1757 0038 FFF7FEFF 		bl	MCM_Sqrt
+ 1758 003c 0590     		str	r0, [sp, #20]
+ 672:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+ 673:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   if ( wAux1 > INT16_MAX )
+ 1759              		.loc 1 673 6
+ 1760 003e 059B     		ldr	r3, [sp, #20]
+ 1761 0040 B3F5004F 		cmp	r3, #32768
+ 1762 0044 02DB     		blt	.L95
+ 674:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   {
+ 675:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****     wAux1 = ( int32_t ) INT16_MAX;
+ 1763              		.loc 1 675 11
+ 1764 0046 47F6FF73 		movw	r3, #32767
+ 1765 004a 0593     		str	r3, [sp, #20]
+ 1766              	.L95:
+ 676:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   }
+ 677:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+ 678:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   return ( ( int16_t ) wAux1 );
+ 1767              		.loc 1 678 12
+ 1768 004c 059B     		ldr	r3, [sp, #20]
+ 1769 004e 1BB2     		sxth	r3, r3
+ 679:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** }
+ 1770              		.loc 1 679 1
+ 1771 0050 1846     		mov	r0, r3
+ 1772 0052 07B0     		add	sp, sp, #28
+ 1773              		.cfi_def_cfa_offset 4
+ 1774              		@ sp needed
+ 1775 0054 5DF804FB 		ldr	pc, [sp], #4
+ 1776              		.cfi_endproc
+ 1777              	.LFE1258:
+ 1779              		.section	.text.MCI_SetIdref,"ax",%progbits
+ 1780              		.align	1
+ 1781              		.p2align 4,,15
+ 1782              		.weak	MCI_SetIdref
+ 1783              		.syntax unified
+ 1784              		.thumb
+ 1785              		.thumb_func
+ 1787              	MCI_SetIdref:
+ 1788              	.LFB1259:
+ 680:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+ 681:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** /**
+ 682:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @brief  When bDriveInput is set to INTERNAL, Idref should is normally managed
+ 683:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         by FOC_CalcCurrRef. Neverthless, this method allows forcing changing
+ 684:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         Idref value. Method call has no effect when either flux weakening
+ 685:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   *         region is entered or MTPA is enabled
+ 686:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @param  pHandle Pointer on the component instance to work on.
+ 687:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @param  int16_t New target Id value
+ 688:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @retval none
+ 689:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   */
+ 690:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** __weak void MCI_SetIdref( MCI_Handle_t * pHandle, int16_t hNewIdref )
+ 691:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** {
+ 1789              		.loc 1 691 1
+ 1790              		.cfi_startproc
+ 1791              		@ args = 0, pretend = 0, frame = 8
+ 1792              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1793              		@ link register save eliminated.
+ 1794 0000 82B0     		sub	sp, sp, #8
+ 1795              		.cfi_def_cfa_offset 8
+ 1796 0002 0190     		str	r0, [sp, #4]
+ 1797 0004 0B46     		mov	r3, r1
+ 1798 0006 ADF80230 		strh	r3, [sp, #2]	@ movhi
+ 692:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   pHandle->pFOCVars->Iqdref.d = hNewIdref;
+ 1799              		.loc 1 692 10
+ 1800 000a 019B     		ldr	r3, [sp, #4]
+ 1801 000c 9B68     		ldr	r3, [r3, #8]
+ 1802              		.loc 1 692 31
+ 1803 000e BDF80220 		ldrh	r2, [sp, #2]	@ movhi
+ 1804 0012 5A82     		strh	r2, [r3, #18]	@ movhi
+ 693:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   pHandle->pFOCVars->UserIdref = hNewIdref;
+ 1805              		.loc 1 693 10
+ 1806 0014 019B     		ldr	r3, [sp, #4]
+ 1807 0016 9B68     		ldr	r3, [r3, #8]
+ 1808              		.loc 1 693 32
+ 1809 0018 BDF80220 		ldrh	r2, [sp, #2]	@ movhi
+ 1810 001c 9A82     		strh	r2, [r3, #20]	@ movhi
+ 694:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** }
+ 1811              		.loc 1 694 1
+ 1812 001e 00BF     		nop
+ 1813 0020 02B0     		add	sp, sp, #8
+ 1814              		.cfi_def_cfa_offset 0
+ 1815              		@ sp needed
+ 1816 0022 7047     		bx	lr
+ 1817              		.cfi_endproc
+ 1818              	.LFE1259:
+ 1820              		.section	.text.MCI_Clear_Iqdref,"ax",%progbits
+ 1821              		.align	1
+ 1822              		.p2align 4,,15
+ 1823              		.weak	MCI_Clear_Iqdref
+ 1824              		.syntax unified
+ 1825              		.thumb
+ 1826              		.thumb_func
+ 1828              	MCI_Clear_Iqdref:
+ 1829              	.LFB1260:
+ 695:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+ 696:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** /**
+ 697:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @brief  It re-initializes Iqdref variables with their default values.
+ 698:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @param  pHandle Pointer on the component instance to work on.
+ 699:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @retval none
+ 700:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   */
+ 701:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** __weak void MCI_Clear_Iqdref( MCI_Handle_t * pHandle )
+ 702:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** {
+ 1830              		.loc 1 702 1
+ 1831              		.cfi_startproc
+ 1832              		@ args = 0, pretend = 0, frame = 8
+ 1833              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1834 0000 10B5     		push	{r4, lr}
+ 1835              		.cfi_def_cfa_offset 8
+ 1836              		.cfi_offset 4, -8
+ 1837              		.cfi_offset 14, -4
+ 1838 0002 82B0     		sub	sp, sp, #8
+ 1839              		.cfi_def_cfa_offset 16
+ 1840 0004 0190     		str	r0, [sp, #4]
+ 703:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   pHandle->pFOCVars->Iqdref = STC_GetDefaultIqdref( pHandle->pSTC );
+ 1841              		.loc 1 703 31
+ 1842 0006 019B     		ldr	r3, [sp, #4]
+ 1843 0008 5A68     		ldr	r2, [r3, #4]
+ 1844              		.loc 1 703 10
+ 1845 000a 019B     		ldr	r3, [sp, #4]
+ 1846 000c 9C68     		ldr	r4, [r3, #8]
+ 1847              		.loc 1 703 31
+ 1848 000e 1046     		mov	r0, r2
+ 1849 0010 FFF7FEFF 		bl	STC_GetDefaultIqdref
+ 1850 0014 0346     		mov	r3, r0
+ 1851 0016 1A46     		mov	r2, r3	@ movhi
+ 1852 0018 2282     		strh	r2, [r4, #16]	@ movhi
+ 1853 001a C3F30F43 		ubfx	r3, r3, #16, #16
+ 1854 001e 6382     		strh	r3, [r4, #18]	@ movhi
+ 704:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** }
+ 1855              		.loc 1 704 1
+ 1856 0020 00BF     		nop
+ 1857 0022 02B0     		add	sp, sp, #8
+ 1858              		.cfi_def_cfa_offset 8
+ 1859              		@ sp needed
+ 1860 0024 10BD     		pop	{r4, pc}
+ 1861              		.cfi_endproc
+ 1862              	.LFE1260:
+ 1864 0026 00BF     		.section	.text.MCI_Reset_Motor,"ax",%progbits
+ 1865              		.align	1
+ 1866              		.p2align 4,,15
+ 1867              		.global	MCI_Reset_Motor
+ 1868              		.syntax unified
+ 1869              		.thumb
+ 1870              		.thumb_func
+ 1872              	MCI_Reset_Motor:
+ 1873              	.LFB1261:
+ 705:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+ 706:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** /**
+ 707:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @brief  It reset the micro
+ 708:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   * @retval none
+ 709:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   */
+ 710:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** void MCI_Reset_Motor(void)
+ 711:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** {
+ 1874              		.loc 1 711 1
+ 1875              		.cfi_startproc
+ 1876              		@ args = 0, pretend = 0, frame = 0
+ 1877              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1878              		@ link register save eliminated.
+ 712:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****  
+ 713:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c ****   RCC->FSWRR = FUNCTIONAL_SOFTWARE_RESET;
+ 1879              		.loc 1 713 6
+ 1880 0000 4FF08843 		mov	r3, #1140850688
+ 1881              		.loc 1 713 14
+ 1882 0004 024A     		ldr	r2, .L100
+ 1883 0006 C3F80022 		str	r2, [r3, #512]
+ 714:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** 
+ 715:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_interface.c **** }
+ 1884              		.loc 1 715 1
+ 1885 000a 00BF     		nop
+ 1886 000c 7047     		bx	lr
+ 1887              	.L101:
+ 1888 000e 00BF     		.align	2
+ 1889              	.L100:
+ 1890 0010 D1841BF4 		.word	-199523119
+ 1891              		.cfi_endproc
+ 1892              	.LFE1261:
+ 1894              		.text
+ 1895              	.Letext0:
+ 1896              		.file 2 "C:/StellarStudio-9.2/SDKS/TOOLS/Toolchain/ARM/MINGW64_NT/13.3.1-2024.06/arm-none-eabi/inc
+ 1897              		.file 3 "C:/StellarStudio-9.2/SDKS/TOOLS/Toolchain/ARM/MINGW64_NT/13.3.1-2024.06/arm-none-eabi/inc
+ 1898              		.file 4 "C:/StellarStudio-9.2/workspace/SR5E1_MCTK_v0/.sdk/StellarESDK-1.7.0/Modules/Platform/MCU/
+ 1899              		.file 5 ".sdk/SR5E1_MCTK-1.3.0/include/LL_Library/sr5e1_ll_tim.h"
+ 1900              		.file 6 ".sdk/SR5E1_MCTK-1.3.0/include/LL_Library/sr5e1_ll_usart.h"
+ 1901              		.file 7 ".sdk/SR5E1_MCTK-1.3.0/include/LL_Library/sr5e1_ll_dma.h"
+ 1902              		.file 8 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/mc_type.h"
+ 1903              		.file 9 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/pid_regulator.h"
+ 1904              		.file 10 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/speed_pos_fdbk.h"
+ 1905              		.file 11 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/speed_torq_ctrl.h"
+ 1906              		.file 12 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/state_machine.h"
+ 1907              		.file 13 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/mc_interface.h"
+ 1908              		.file 14 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/mc_math.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 mc_interface.c
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:20     .rodata.OFFSET_TAB_CCMRx:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:23     .rodata.OFFSET_TAB_CCMRx:00000000 OFFSET_TAB_CCMRx
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:26     .rodata.SHIFT_TAB_OCxx:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:29     .rodata.SHIFT_TAB_OCxx:00000000 SHIFT_TAB_OCxx
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:32     .rodata.SHIFT_TAB_ICxx:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:35     .rodata.SHIFT_TAB_ICxx:00000000 SHIFT_TAB_ICxx
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:38     .rodata.SHIFT_TAB_CCxP:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:41     .rodata.SHIFT_TAB_CCxP:00000000 SHIFT_TAB_CCxP
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:44     .rodata.SHIFT_TAB_OISx:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:47     .rodata.SHIFT_TAB_OISx:00000000 SHIFT_TAB_OISx
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:50     .rodata.USART_PRESCALER_TAB:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:53     .rodata.USART_PRESCALER_TAB:00000000 USART_PRESCALER_TAB
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:67     .rodata.LL_DMA_STR_OFFSET_TAB:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:70     .rodata.LL_DMA_STR_OFFSET_TAB:00000000 LL_DMA_STR_OFFSET_TAB
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:73     .text.MCI_Init:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:80     .text.MCI_Init:00000000 MCI_Init
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:135    .text.MCI_ExecSpeedRamp:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:142    .text.MCI_ExecSpeedRamp:00000000 MCI_ExecSpeedRamp
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:186    .text.MCI_ExecTorqueRamp:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:193    .text.MCI_ExecTorqueRamp:00000000 MCI_ExecTorqueRamp
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:237    .text.MCI_ExecCurrentRamps:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:244    .text.MCI_ExecCurrentRamps:00000000 MCI_ExecCurrentRamps
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:289    .text.MCI_SetCurrentReferences:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:296    .text.MCI_SetCurrentReferences:00000000 MCI_SetCurrentReferences
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:339    .text.MCI_StartMotor:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:346    .text.MCI_StartMotor:00000000 MCI_StartMotor
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:387    .text.MCI_StopMotor:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:394    .text.MCI_StopMotor:00000000 MCI_StopMotor
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:423    .text.MCI_FaultAcknowledged:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:430    .text.MCI_FaultAcknowledged:00000000 MCI_FaultAcknowledged
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:458    .text.MCI_EncoderAlign:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:465    .text.MCI_EncoderAlign:00000000 MCI_EncoderAlign
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:494    .text.MCI_ExecBufferedCommands:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:501    .text.MCI_ExecBufferedCommands:00000000 MCI_ExecBufferedCommands
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:545    .text.MCI_ExecBufferedCommands:00000040 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:549    .text.MCI_ExecBufferedCommands:00000050 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:717    .text.MCI_IsCommandAcknowledged:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:724    .text.MCI_IsCommandAcknowledged:00000000 MCI_IsCommandAcknowledged
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:773    .text.MCI_GetSTMState:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:780    .text.MCI_GetSTMState:00000000 MCI_GetSTMState
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:808    .text.MCI_GetOccurredFaults:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:815    .text.MCI_GetOccurredFaults:00000000 MCI_GetOccurredFaults
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:845    .text.MCI_GetCurrentFaults:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:852    .text.MCI_GetCurrentFaults:00000000 MCI_GetCurrentFaults
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:884    .text.MCI_GetControlMode:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:891    .text.MCI_GetControlMode:00000000 MCI_GetControlMode
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:914    .text.MCI_GetImposedMotorDirection:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:921    .text.MCI_GetImposedMotorDirection:00000000 MCI_GetImposedMotorDirection
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:1012   .text.MCI_GetLastRampFinalSpeed:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:1019   .text.MCI_GetLastRampFinalSpeed:00000000 MCI_GetLastRampFinalSpeed
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:1055   .text.MCI_RampCompleted:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:1062   .text.MCI_RampCompleted:00000000 MCI_RampCompleted
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:1106   .text.MCI_StopSpeedRamp:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:1113   .text.MCI_StopSpeedRamp:00000000 MCI_StopSpeedRamp
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:1141   .text.MCI_StopRamp:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:1148   .text.MCI_StopRamp:00000000 MCI_StopRamp
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:1175   .text.MCI_GetSpdSensorReliability:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:1182   .text.MCI_GetSpdSensorReliability:00000000 MCI_GetSpdSensorReliability
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:1214   .text.MCI_GetAvrgMecSpeedUnit:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:1221   .text.MCI_GetAvrgMecSpeedUnit:00000000 MCI_GetAvrgMecSpeedUnit
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:1253   .text.MCI_GetMecSpeedRefUnit:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:1260   .text.MCI_GetMecSpeedRefUnit:00000000 MCI_GetMecSpeedRefUnit
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:1288   .text.MCI_GetIab:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:1295   .text.MCI_GetIab:00000000 MCI_GetIab
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:1328   .text.MCI_GetIalphabeta:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:1335   .text.MCI_GetIalphabeta:00000000 MCI_GetIalphabeta
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:1369   .text.MCI_GetIqd:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:1376   .text.MCI_GetIqd:00000000 MCI_GetIqd
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:1410   .text.MCI_GetIqdHF:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:1417   .text.MCI_GetIqdHF:00000000 MCI_GetIqdHF
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:1451   .text.MCI_GetIqdref:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:1458   .text.MCI_GetIqdref:00000000 MCI_GetIqdref
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:1492   .text.MCI_GetVqd:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:1499   .text.MCI_GetVqd:00000000 MCI_GetVqd
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:1533   .text.MCI_GetValphabeta:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:1540   .text.MCI_GetValphabeta:00000000 MCI_GetValphabeta
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:1574   .text.MCI_GetElAngledpp:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:1581   .text.MCI_GetElAngledpp:00000000 MCI_GetElAngledpp
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:1606   .text.MCI_GetTeref:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:1613   .text.MCI_GetTeref:00000000 MCI_GetTeref
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:1638   .text.MCI_GetPhaseCurrentAmplitude:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:1645   .text.MCI_GetPhaseCurrentAmplitude:00000000 MCI_GetPhaseCurrentAmplitude
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:1709   .text.MCI_GetPhaseVoltageAmplitude:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:1716   .text.MCI_GetPhaseVoltageAmplitude:00000000 MCI_GetPhaseVoltageAmplitude
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:1780   .text.MCI_SetIdref:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:1787   .text.MCI_SetIdref:00000000 MCI_SetIdref
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:1821   .text.MCI_Clear_Iqdref:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:1828   .text.MCI_Clear_Iqdref:00000000 MCI_Clear_Iqdref
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:1865   .text.MCI_Reset_Motor:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:1872   .text.MCI_Reset_Motor:00000000 MCI_Reset_Motor
+C:\Users\ttqpe\AppData\Local\Temp\ccFBeqrB.s:1890   .text.MCI_Reset_Motor:00000010 $d
+                           .group:00000000 wm4.0.6093079fab0af1ca2c5a0ad5709343e3
+                           .group:00000000 wm4._newlib_version.h.4.411db44ea2338a62eca2f0777f81481b
+                           .group:00000000 wm4.features.h.33.5ea28ceb8be6621901b9d58b4c3ee651
+                           .group:00000000 wm4._default_types.h.15.247e5cd201eca3442cbf5404108c4935
+                           .group:00000000 wm4._intsup.h.10.48bafbb683905c4daa4565a85aeeb264
+                           .group:00000000 wm4._stdint.h.10.c24fa3af3bc1706662bb5593a907e841
+                           .group:00000000 wm4.stdint.h.23.d53047a68f4a85177f80b422d52785ed
+                           .group:00000000 wm4.stdbool.h.29.c08aa3eec75cf5b9b5003883f43253f0
+                           .group:00000000 wm4.mc_stm_types.h.20.2d7d6ac163527ff5d1947d422c918f78
+                           .group:00000000 wm4.sr5e1xx.h.22.e5c808533cc52ed19fb0830cd7d98924
+                           .group:00000000 wm4.cmsis_version.h.32.0f826810625204eca22a19868bdc7586
+                           .group:00000000 wm4.core_cm7.h.66.8ab2de36917d6fcae18019067fda13e0
+                           .group:00000000 wm4.cmsis_gcc.h.26.498d0ad17a45fc9ef20fdc01caf02259
+                           .group:00000000 wm4.core_cm7.h.174.43edb295ecdaadad738f48ba6011ffad
+                           .group:00000000 wm4.mpu_armv7.h.32.83326921a797fa9d6f70449916b4b839
+                           .group:00000000 wm4.cachel1_armv7.h.32.abd77761a989e008b0c60891114a33c7
+                           .group:00000000 wm4.SR5E1_ADC.h.14.21608e6aff125ba995dd767d6d8dc311
+                           .group:00000000 wm4.SR5E1_CEM.h.14.01fe5742c8f1ae35b1f3af05932f702e
+                           .group:00000000 wm4.SR5E1_CMU.h.14.2617b38b159abe38028862394531e06d
+                           .group:00000000 wm4.SR5E1_COMP.h.14.4b6fdfe4f5f7fd9bedf3a99b98bdf4cd
+                           .group:00000000 wm4.SR5E1_CORDIC.h.14.354fbf7c9eaf6963d38eaa25cf28ffe8
+                           .group:00000000 wm4.SR5E1_CRC.h.14.c64d0f7767671ddb92e9ead0a1162100
+                           .group:00000000 wm4.SR5E1_DAC.h.14.8c26a0ff04b0cfeb55306cc3f22187b8
+                           .group:00000000 wm4.SR5E1_DBGMCU.h.14.427df893d53a8044654f017ba01c25ed
+                           .group:00000000 wm4.SR5E1_DMA.h.14.a7f9a92f844b40a86965798c2e64240b
+                           .group:00000000 wm4.SR5E1_DMAMUX.h.14.471b3b4dfd4d41515f1df49493698866
+                           .group:00000000 wm4.SR5E1_EXTI.h.14.a325ea3fe89cd84894660551c33241ea
+                           .group:00000000 wm4.SR5E1_FCCU.h.14.0ebf0f0f36e079d28613ad2c80e17e23
+                           .group:00000000 wm4.SR5E1_FDCAN.h.14.ac57101fad5dbc798bfb93f34c899de7
+                           .group:00000000 wm4.SR5E1_FLASH_REG_ITF.h.14.d23d1d44923f9b20b8c8fdb51d66aefd
+                           .group:00000000 wm4.SR5E1_GPIO.h.14.1c84071e130d7c64b62470ab0e18a1f1
+                           .group:00000000 wm4.SR5E1_HRTIM.h.24.03932387d2522e6bd5c772a4edaf2f5d
+                           .group:00000000 wm4.SR5E1_HSEM.h.14.cbe70eee519f01b16452c3f8c99d8df1
+                           .group:00000000 wm4.SR5E1_I2C.h.14.350ba3e0f4fd57828457efa80135c36c
+                           .group:00000000 wm4.SR5E1_IMA.h.14.62b7088985ab2b7ce9b030a02daa1f7d
+                           .group:00000000 wm4.SR5E1_IWDG.h.14.20b7c5f05cf7ae94464c360d7af3660d
+                           .group:00000000 wm4.SR5E1_MEMU.h.14.04bad7ae4c52ce334a4fc900aad2ae5b
+                           .group:00000000 wm4.SR5E1_NVM_CTRL.h.14.5f442617f0628d4f16258f211c614ef9
+                           .group:00000000 wm4.SR5E1_PLLDIG.h.14.bd87a8e6917eee17dae2f312c8e5fa53
+                           .group:00000000 wm4.SR5E1_PMC_DIG.h.14.54173b566c6656344766ec4ef46c9281
+                           .group:00000000 wm4.SR5E1_RCC.h.14.56734803c71534de286e793a53649740
+                           .group:00000000 wm4.SR5E1_RTC.h.14.47037cbc7d8175dbf2be1dc0bb955e3f
+                           .group:00000000 wm4.SR5E1_SD_ADC.h.14.552b97d0b8f3c1fd4df6d8964b2f1a80
+                           .group:00000000 wm4.SR5E1_SMPU.h.14.8ce5bb6d5d7c579cd725f492f46e9085
+                           .group:00000000 wm4.SR5E1_SPI.h.14.42d52112e540f85ade4d9135f8b87d72
+                           .group:00000000 wm4.SR5E1_SSCM.h.14.8e6a2ad0ce5fca422fc3d69939b6125b
+                           .group:00000000 wm4.SR5E1_SYSCFG.h.14.02b969490118ce4069914b5e94f7ca65
+                           .group:00000000 wm4.SR5E1_TDM.h.14.a40ed7928cad243a57fd233fccf01ad2
+                           .group:00000000 wm4.SR5E1_TIM.h.14.05b8efc5395873619642d61a4b0b5a54
+                           .group:00000000 wm4.SR5E1_UART.h.14.eec3ab82b02b3bdb3de500483675b83f
+                           .group:00000000 wm4.SR5E1_WWDG.h.14.59b45efc70e442cc6ef03702aad4ad88
+                           .group:00000000 wm4.stddef.h.39.38eb7ec030421799c657b13be5aa21c7
+                           .group:00000000 wm4.typedefs.h.36.07fe3956b4e751037cfee70edcd0b397
+                           .group:00000000 wm4.irq_numbers.h.38.6294b95aed1bf7b3a2cda0eed8ce8f57
+                           .group:00000000 wm4.regs.h.23.2ac145b4f57126d16daed5fbd86d99c6
+                           .group:00000000 wm4.sr5e1_wrapper.h.20.64eb3ae8ac9b19f101ec010f065b27e0
+                           .group:00000000 wm4.sr5e1_macros.h.48.23238fd8be149bfd93a4b06f4d1d3e48
+                           .group:00000000 wm4.sr5e1_ll_system.h.75.323fef6699ff2ef93649a75fbc3b9dc0
+                           .group:00000000 wm4.sr5e1_ll_tim.h.21.35d0409c49249d40ffa0621f7fd1e49f
+                           .group:00000000 wm4.sr5e1_ll_adc.h.21.a09418770aae8e8540b1ce15e5fd6881
+                           .group:00000000 wm4.sr5e1_ll_dac.h.21.e617f768d26181c75ac38760d82ada91
+                           .group:00000000 wm4.sr5e1_ll_cordic.h.21.601660824250c93d03fb6b7dd46d0750
+                           .group:00000000 wm4.sr5e1_ll_usart.h.21.edc232fc61ffb518b3051f74f786aac1
+                           .group:00000000 wm4.sr5e1_ll_dmamux.h.21.e0f20dc23ecc4be39502f49d8383668f
+                           .group:00000000 wm4.sr5e1_ll_dma.h.74.155fcc98e704261e48b273dd9cbd510c
+                           .group:00000000 wm4.mc_stm_types.h.52.4cccb248a2fcd7dfda158e1610af49bf
+                           .group:00000000 wm4.mc_type.h.47.50da95e050e3bfbddab14d990c2d05af
+                           .group:00000000 wm4.mc_math.h.36.161078bb2bca963b4db32a4d9e543245
+
+UNDEFINED SYMBOLS
+STM_NextState
+STM_FaultAcknowledged
+STC_GetControlMode
+STC_SetControlMode
+STC_ExecRamp
+STC_ExecCurrentRamps
+STM_GetState
+STM_GetFaultState
+STC_RampCompleted
+STC_StopSpeedRamp
+STC_StopRamp
+STC_GetSpeedSensor
+SPD_Check
+SPD_GetAvrgMecSpeedUnit
+STC_GetMecSpeedRefUnit
+MCM_Sqrt
+STC_GetDefaultIqdref

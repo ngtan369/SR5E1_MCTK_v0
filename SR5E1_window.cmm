@@ -1,0 +1,51 @@
+// T32 Thu Oct 13 14:09:49 2022
+
+B::
+
+TOOLBAR   ON
+STATUSBAR ON
+FramePOS 2.75,1.7857,,,Maximized
+WinPAGE.RESet
+
+WinPAGE.Create P000
+WinCLEAR
+
+WinPOS 113.5 45.714 64. 9. 0. 0. W003
+Register
+
+WinPOS 111.25 0.0 103. 24. 0. 0. W002
+Var.Watch
+
+Var.AddWatch L9907_Diag_Errors
+Var.AddWatch sch_checkerror
+Var.AddWatch DebugCurrentIb
+Var.AddWatch DebugCurrentIa
+Var.AddWatch DebugTestEncHallDiff
+Var.AddWatch DebugflagAngle
+Var.AddWatch DebugAngleAuxArray
+Var.AddWatch DebugAngleMainArray
+Var.AddWatch DebugflagAngle
+Var.AddWatch DebugAngleAux
+Var.AddWatch DebugAngle
+Var.AddWatch DebugRPMAux
+Var.AddWatch DebugRPM
+Var.AddWatch FOCVars
+Var.AddWatch STM
+Var.AddWatch ICS_ParamsM1
+Var.AddWatch &oMCInterface[0]
+Var.AddWatch MCT
+Var.AddWatch PWM_Handle_M1
+Var.AddWatch oMCInterface[0]
+Var.AddWatch DebugTestEncHallDiff
+Var.AddWatch L9907_Diag_Errors
+
+WinPOS 110.88 31.786 114. 23. 0. 0. W000
+PER.view , /SpotLight
+
+WinPOS -3.875 2.5 108. 45. 16. 1. W001
+WinTABS 10. 10. 25.
+d.l
+
+WinPAGE.select P000
+
+ENDDO

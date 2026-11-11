@@ -1,0 +1,424 @@
+   1              		.cpu cortex-m7
+   2              		.arch armv7e-m
+   3              		.fpu fpv5-d16
+   4              		.eabi_attribute 28, 1
+   5              		.eabi_attribute 20, 1
+   6              		.eabi_attribute 21, 1
+   7              		.eabi_attribute 23, 3
+   8              		.eabi_attribute 24, 1
+   9              		.eabi_attribute 25, 1
+  10              		.eabi_attribute 26, 1
+  11              		.eabi_attribute 30, 6
+  12              		.eabi_attribute 34, 1
+  13              		.eabi_attribute 18, 4
+  14              		.file	"ui_irq_handler.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.file 1 ".sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c"
+  19              		.section	.rodata.OFFSET_TAB_CCMRx,"a"
+  20              		.align	2
+  23              	OFFSET_TAB_CCMRx:
+  24 0000 00000000 		.ascii	"\000\000\000\000\004\004\004\00488"
+  24      04040404 
+  24      3838
+  25              		.section	.rodata.SHIFT_TAB_OCxx,"a"
+  26              		.align	2
+  29              	SHIFT_TAB_OCxx:
+  30 0000 00000800 		.ascii	"\000\000\010\000\000\000\010\000\000\010"
+  30      00000800 
+  30      0008
+  31              		.section	.rodata.SHIFT_TAB_ICxx,"a"
+  32              		.align	2
+  35              	SHIFT_TAB_ICxx:
+  36 0000 00000800 		.ascii	"\000\000\010\000\000\000\010\000\000\000"
+  36      00000800 
+  36      0000
+  37              		.section	.rodata.SHIFT_TAB_CCxP,"a"
+  38              		.align	2
+  41              	SHIFT_TAB_CCxP:
+  42 0000 00020406 		.ascii	"\000\002\004\006\010\012\014\016\020\024"
+  42      080A0C0E 
+  42      1014
+  43              		.section	.rodata.SHIFT_TAB_OISx,"a"
+  44              		.align	2
+  47              	SHIFT_TAB_OISx:
+  48 0000 00010203 		.ascii	"\000\001\002\003\004\005\006\007\010\012"
+  48      04050607 
+  48      080A
+  49              		.section	.rodata.USART_PRESCALER_TAB,"a"
+  50              		.align	2
+  53              	USART_PRESCALER_TAB:
+  54 0000 01000000 		.word	1
+  55 0004 02000000 		.word	2
+  56 0008 04000000 		.word	4
+  57 000c 06000000 		.word	6
+  58 0010 08000000 		.word	8
+  59 0014 0A000000 		.word	10
+  60 0018 0C000000 		.word	12
+  61 001c 10000000 		.word	16
+  62 0020 20000000 		.word	32
+  63 0024 40000000 		.word	64
+  64 0028 80000000 		.word	128
+  65 002c 00010000 		.word	256
+  66              		.section	.rodata.LL_DMA_STR_OFFSET_TAB,"a"
+  67              		.align	2
+  70              	LL_DMA_STR_OFFSET_TAB:
+  71 0000 10284058 		.ascii	"\020(@Xp\210\240\270"
+  71      7088A0B8 
+  72              		.section	.bss.oUI_IRQTable,"aw",%nobits
+  73              		.align	2
+  76              	oUI_IRQTable:
+  77 0000 00000000 		.space	8
+  77      00000000 
+  78              		.section	.text.UIIRQ_SetIrqHandler,"ax",%progbits
+  79              		.align	1
+  80              		.p2align 4,,15
+  81              		.global	UIIRQ_SetIrqHandler
+  82              		.syntax unified
+  83              		.thumb
+  84              		.thumb_func
+  86              	UIIRQ_SetIrqHandler:
+  87              	.LFB1225:
+   1:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** /****************************************************************************
+   2:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** *
+   3:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** * Copyright (c) 2023 STMicroelectronics - All Rights Reserved
+   4:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** *
+   5:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** * License terms: STMicroelectronics Proprietary in accordance with licensing
+   6:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** * terms SLA0098 at www.st.com.
+   7:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** *
+   8:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** * THIS SOFTWARE IS DISTRIBUTED "AS IS," AND ALL WARRANTIES ARE DISCLAIMED,
+   9:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** * INCLUDING MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+  10:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** *****************************************************************************/
+  11:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** /**
+  12:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** *   @file    ui_irq_handler.c
+  13:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** *   @version M4_VERSION
+  14:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** *   @brief   This file provides firmware functions that implement the UI IRQ Handler
+  15:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** *            of the Stellar Motor Control.
+  16:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** *          
+  17:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** *   @details This file provides firmware functions that implement the UI IRQ Handler
+  18:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** *            of the Stellar Motor Control.
+  19:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** *
+  20:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** */
+  21:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** /* Includes ------------------------------------------------------------------*/
+  22:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** #include "ui_irq_handler.h"
+  23:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** #include "mc_type.h"
+  24:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** 
+  25:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** 
+  26:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** /** @addtogroup STELLAR_PMSM_MC_UI_LIBRARY
+  27:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   * @{
+  28:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   */
+  29:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** 
+  30:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** /**
+  31:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****  * @addtogroup MCUI
+  32:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****  * @{
+  33:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****  */
+  34:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** 
+  35:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** /** @defgroup UI_IRQ_HANDLER MC IRQ Handler Component
+  36:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   * @brief Performs registration and execution of Interrupts handlers for the UI
+  37:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   *
+  38:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   *  This component is a temporary work around allowing to use the former IRQ Handler
+  39:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   * registration mechanism with both the old Classes and the new Components.
+  40:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   *
+  41:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   *  The former mechanism is defined in the UIIRQHandlerClass and is basically playing
+  42:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   * two roles.
+  43:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   *
+  44:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   *  The first one is to register an Object and a method of that object to be executed
+  45:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   * when an given interrupt occurs. Interrupt sources are identified by a number; 1
+  46:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   * such sources are defined:
+  47:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   *
+  48:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   * - #UI_IRQ_USART
+  49:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   *
+  50:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   *  The second is to provide a function that executes the Interrupt handler
+  51:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   * registered for a given interrupt source.
+  52:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   *
+  53:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   *  The implementation of the UIIRQHandlerClass mandated that the first field of the
+  54:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   * structure of the registered Object be a pointer on the interrupt handling function to
+  55:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   * execute.
+  56:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   *
+  57:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   *  This constraint is unacceptable for Components and this is the reason why
+  58:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   * this work-around is proposed.
+  59:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   *
+  60:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   *  It is only a work around as the actual interrupt handling method to be used
+  61:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   * on the 5.0.0 onwards will rely on Cube FW mechanisms and is still TBD in details.
+  62:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   *
+  63:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   *  This work around is designed to work both with remanants of the former 4.3 architecture and
+  64:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   * with the new components from the 5.0 architecture. It minimizes the changes to be made in the
+  65:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   * legacy 4.3 code by providing two macros named after the UIIRQHandlerClass methods:
+  66:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   *
+  67:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   * - #Set_UI_IRQ_Handler
+  68:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   * - #Exec_UI_IRQ_Handler
+  69:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   *
+  70:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   *  And it provides two functions, similar to the former UIIRQHandlerClass's methods, but designed
+  71:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   * to work with the new components.
+  72:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   * @{
+  73:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   */
+  74:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** 
+  75:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** 
+  76:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** /* Private typedef -----------------------------------------------------------*/
+  77:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** /**
+  78:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   * @brief Interrupt handling configuration structure
+  79:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   *
+  80:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   *  The #Handler field is a pointer on the Interrupt handling function, while the
+  81:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   * #Handle field is a pointer that is passed as the first parameter to the interrupt
+  82:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   * handling function when it is executed.
+  83:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   */
+  84:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** typedef struct
+  85:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** {
+  86:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****     UIIRQ_Handler_t Handler;
+  87:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****     void *          Handle;
+  88:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** } UIIRQ_HandlerConfigItem_t;
+  89:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** 
+  90:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** 
+  91:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** /* Private defines -----------------------------------------------------------*/
+  92:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** /** @brief Number of Interrupt handlers managed by the UI IRQ component */
+  93:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** #define MAX_UI_IRQ_NUM 1
+  94:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** 
+  95:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** 
+  96:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** /* Static variables ----------------------------------------------------------*/
+  97:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** /** @brief Table containing the Interrupt handling configurations */
+  98:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** static UIIRQ_HandlerConfigItem_t oUI_IRQTable[MAX_UI_IRQ_NUM];
+  99:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** 
+ 100:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** 
+ 101:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** /* Functions ---------------------------------------------------- */
+ 102:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** /**
+ 103:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   * @brief Sets the function to invoque when the interrupt identified by bIRQAddr occurs.
+ 104:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   * @p Handler as the handler for the interrupt identified by @p bIRQAddr.
+ 105:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   * @p Handle is also registered and passed as first argument to the @p Handler function when it
+ 106:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   * is executed.
+ 107:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   */
+ 108:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** 
+ 109:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** void UIIRQ_SetIrqHandler(uint8_t bIRQAddr, UIIRQ_Handler_t Handler, void * Handle)
+ 110:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** {
+  88              		.loc 1 110 1
+  89              		.cfi_startproc
+  90              		@ args = 0, pretend = 0, frame = 16
+  91              		@ frame_needed = 0, uses_anonymous_args = 0
+  92              		@ link register save eliminated.
+  93 0000 84B0     		sub	sp, sp, #16
+  94              		.cfi_def_cfa_offset 16
+  95 0002 0346     		mov	r3, r0
+  96 0004 0291     		str	r1, [sp, #8]
+  97 0006 0192     		str	r2, [sp, #4]
+  98 0008 8DF80F30 		strb	r3, [sp, #15]
+ 111:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****     if ( bIRQAddr < MAX_UI_IRQ_NUM )
+  99              		.loc 1 111 8
+ 100 000c 9DF80F30 		ldrb	r3, [sp, #15]	@ zero_extendqisi2
+ 101 0010 002B     		cmp	r3, #0
+ 102 0012 0CD1     		bne	.L3
+ 112:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****     {
+ 113:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****         oUI_IRQTable[ bIRQAddr ].Handler = Handler;
+ 103              		.loc 1 113 33
+ 104 0014 9DF80F30 		ldrb	r3, [sp, #15]	@ zero_extendqisi2
+ 105              		.loc 1 113 42
+ 106 0018 0649     		ldr	r1, .L4
+ 107 001a 029A     		ldr	r2, [sp, #8]
+ 108 001c 41F83320 		str	r2, [r1, r3, lsl #3]
+ 114:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****         oUI_IRQTable[ bIRQAddr ].Handle  = Handle;
+ 109              		.loc 1 114 33
+ 110 0020 9DF80F30 		ldrb	r3, [sp, #15]	@ zero_extendqisi2
+ 111              		.loc 1 114 42
+ 112 0024 034A     		ldr	r2, .L4
+ 113 0026 DB00     		lsls	r3, r3, #3
+ 114 0028 1344     		add	r3, r3, r2
+ 115 002a 019A     		ldr	r2, [sp, #4]
+ 116 002c 5A60     		str	r2, [r3, #4]
+ 117              	.L3:
+ 115:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****     }
+ 116:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** }
+ 118              		.loc 1 116 1
+ 119 002e 00BF     		nop
+ 120 0030 04B0     		add	sp, sp, #16
+ 121              		.cfi_def_cfa_offset 0
+ 122              		@ sp needed
+ 123 0032 7047     		bx	lr
+ 124              	.L5:
+ 125              		.align	2
+ 126              	.L4:
+ 127 0034 00000000 		.word	oUI_IRQTable
+ 128              		.cfi_endproc
+ 129              	.LFE1225:
+ 131              		.section	.text.UIIRQ_ExecIrqHandler,"ax",%progbits
+ 132              		.align	1
+ 133              		.p2align 4,,15
+ 134              		.global	UIIRQ_ExecIrqHandler
+ 135              		.syntax unified
+ 136              		.thumb
+ 137              		.thumb_func
+ 139              	UIIRQ_ExecIrqHandler:
+ 140              	.LFB1226:
+ 117:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** 
+ 118:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** 
+ 119:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** /** @brief Executes the function registered for the interrupt identified by
+ 120:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   * @p bIRQAddr and returns its return value.
+ 121:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   * @p flag is passed as second argument to the handler function, the first being the pointer
+ 122:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   * that was registered with it.
+ 123:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   * @p rx_data is passed as third argument to the handler function.
+ 124:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   */
+ 125:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** void* UIIRQ_ExecIrqHandler(uint8_t bIRQAddr, uint8_t flag, uint16_t rx_data)
+ 126:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** {  
+ 141              		.loc 1 126 1
+ 142              		.cfi_startproc
+ 143              		@ args = 0, pretend = 0, frame = 16
+ 144              		@ frame_needed = 0, uses_anonymous_args = 0
+ 145 0000 10B5     		push	{r4, lr}
+ 146              		.cfi_def_cfa_offset 8
+ 147              		.cfi_offset 4, -8
+ 148              		.cfi_offset 14, -4
+ 149 0002 84B0     		sub	sp, sp, #16
+ 150              		.cfi_def_cfa_offset 24
+ 151 0004 0346     		mov	r3, r0
+ 152 0006 8DF80730 		strb	r3, [sp, #7]
+ 153 000a 0B46     		mov	r3, r1
+ 154 000c 8DF80630 		strb	r3, [sp, #6]
+ 155 0010 1346     		mov	r3, r2	@ movhi
+ 156 0012 ADF80430 		strh	r3, [sp, #4]	@ movhi
+ 127:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   void * ret_val = MC_NULL;
+ 157              		.loc 1 127 10
+ 158 0016 0023     		movs	r3, #0
+ 159 0018 0393     		str	r3, [sp, #12]
+ 128:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** 
+ 129:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   if ( bIRQAddr < MAX_UI_IRQ_NUM )
+ 160              		.loc 1 129 6
+ 161 001a 9DF80730 		ldrb	r3, [sp, #7]	@ zero_extendqisi2
+ 162 001e 002B     		cmp	r3, #0
+ 163 0020 11D1     		bne	.L7
+ 130:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   {
+ 131:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****       ret_val = oUI_IRQTable[ bIRQAddr ].Handler( oUI_IRQTable[ bIRQAddr ].Handle, flag, rx_data );
+ 164              		.loc 1 131 41
+ 165 0022 9DF80730 		ldrb	r3, [sp, #7]	@ zero_extendqisi2
+ 166 0026 0A4A     		ldr	r2, .L9
+ 167 0028 52F83340 		ldr	r4, [r2, r3, lsl #3]
+ 168              		.loc 1 131 17
+ 169 002c 9DF80730 		ldrb	r3, [sp, #7]	@ zero_extendqisi2
+ 170 0030 074A     		ldr	r2, .L9
+ 171 0032 DB00     		lsls	r3, r3, #3
+ 172 0034 1344     		add	r3, r3, r2
+ 173 0036 5B68     		ldr	r3, [r3, #4]
+ 174 0038 BDF80420 		ldrh	r2, [sp, #4]
+ 175 003c 9DF80610 		ldrb	r1, [sp, #6]	@ zero_extendqisi2
+ 176 0040 1846     		mov	r0, r3
+ 177 0042 A047     		blx	r4
+ 178              	.LVL0:
+ 179 0044 0390     		str	r0, [sp, #12]
+ 180              	.L7:
+ 132:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   }
+ 133:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** 
+ 134:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c ****   return ret_val;
+ 181              		.loc 1 134 10
+ 182 0046 039B     		ldr	r3, [sp, #12]
+ 135:.sdk/SR5E1_MCTK-1.3.0/src/UILibrary/ui_irq_handler.c **** }
+ 183              		.loc 1 135 1
+ 184 0048 1846     		mov	r0, r3
+ 185 004a 04B0     		add	sp, sp, #16
+ 186              		.cfi_def_cfa_offset 8
+ 187              		@ sp needed
+ 188 004c 10BD     		pop	{r4, pc}
+ 189              	.L10:
+ 190 004e 00BF     		.align	2
+ 191              	.L9:
+ 192 0050 00000000 		.word	oUI_IRQTable
+ 193              		.cfi_endproc
+ 194              	.LFE1226:
+ 196              		.text
+ 197              	.Letext0:
+ 198              		.file 2 "C:/StellarStudio-9.2/SDKS/TOOLS/Toolchain/ARM/MINGW64_NT/13.3.1-2024.06/arm-none-eabi/inc
+ 199              		.file 3 "C:/StellarStudio-9.2/SDKS/TOOLS/Toolchain/ARM/MINGW64_NT/13.3.1-2024.06/arm-none-eabi/inc
+ 200              		.file 4 ".sdk/SR5E1_MCTK-1.3.0/include/LL_Library/sr5e1_ll_tim.h"
+ 201              		.file 5 ".sdk/SR5E1_MCTK-1.3.0/include/LL_Library/sr5e1_ll_usart.h"
+ 202              		.file 6 ".sdk/SR5E1_MCTK-1.3.0/include/LL_Library/sr5e1_ll_dma.h"
+ 203              		.file 7 ".sdk/SR5E1_MCTK-1.3.0/include/UILibrary/ui_irq_handler.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 ui_irq_handler.c
+C:\Users\ttqpe\AppData\Local\Temp\ccGN06Vx.s:20     .rodata.OFFSET_TAB_CCMRx:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccGN06Vx.s:23     .rodata.OFFSET_TAB_CCMRx:00000000 OFFSET_TAB_CCMRx
+C:\Users\ttqpe\AppData\Local\Temp\ccGN06Vx.s:26     .rodata.SHIFT_TAB_OCxx:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccGN06Vx.s:29     .rodata.SHIFT_TAB_OCxx:00000000 SHIFT_TAB_OCxx
+C:\Users\ttqpe\AppData\Local\Temp\ccGN06Vx.s:32     .rodata.SHIFT_TAB_ICxx:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccGN06Vx.s:35     .rodata.SHIFT_TAB_ICxx:00000000 SHIFT_TAB_ICxx
+C:\Users\ttqpe\AppData\Local\Temp\ccGN06Vx.s:38     .rodata.SHIFT_TAB_CCxP:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccGN06Vx.s:41     .rodata.SHIFT_TAB_CCxP:00000000 SHIFT_TAB_CCxP
+C:\Users\ttqpe\AppData\Local\Temp\ccGN06Vx.s:44     .rodata.SHIFT_TAB_OISx:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccGN06Vx.s:47     .rodata.SHIFT_TAB_OISx:00000000 SHIFT_TAB_OISx
+C:\Users\ttqpe\AppData\Local\Temp\ccGN06Vx.s:50     .rodata.USART_PRESCALER_TAB:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccGN06Vx.s:53     .rodata.USART_PRESCALER_TAB:00000000 USART_PRESCALER_TAB
+C:\Users\ttqpe\AppData\Local\Temp\ccGN06Vx.s:67     .rodata.LL_DMA_STR_OFFSET_TAB:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccGN06Vx.s:70     .rodata.LL_DMA_STR_OFFSET_TAB:00000000 LL_DMA_STR_OFFSET_TAB
+C:\Users\ttqpe\AppData\Local\Temp\ccGN06Vx.s:73     .bss.oUI_IRQTable:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccGN06Vx.s:76     .bss.oUI_IRQTable:00000000 oUI_IRQTable
+C:\Users\ttqpe\AppData\Local\Temp\ccGN06Vx.s:79     .text.UIIRQ_SetIrqHandler:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccGN06Vx.s:86     .text.UIIRQ_SetIrqHandler:00000000 UIIRQ_SetIrqHandler
+C:\Users\ttqpe\AppData\Local\Temp\ccGN06Vx.s:127    .text.UIIRQ_SetIrqHandler:00000034 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccGN06Vx.s:132    .text.UIIRQ_ExecIrqHandler:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccGN06Vx.s:139    .text.UIIRQ_ExecIrqHandler:00000000 UIIRQ_ExecIrqHandler
+C:\Users\ttqpe\AppData\Local\Temp\ccGN06Vx.s:192    .text.UIIRQ_ExecIrqHandler:00000050 $d
+                           .group:00000000 wm4.0.6093079fab0af1ca2c5a0ad5709343e3
+                           .group:00000000 wm4._newlib_version.h.4.411db44ea2338a62eca2f0777f81481b
+                           .group:00000000 wm4.features.h.33.5ea28ceb8be6621901b9d58b4c3ee651
+                           .group:00000000 wm4._default_types.h.15.247e5cd201eca3442cbf5404108c4935
+                           .group:00000000 wm4._intsup.h.10.48bafbb683905c4daa4565a85aeeb264
+                           .group:00000000 wm4._stdint.h.10.c24fa3af3bc1706662bb5593a907e841
+                           .group:00000000 wm4.stdint.h.23.d53047a68f4a85177f80b422d52785ed
+                           .group:00000000 wm4.stdbool.h.29.c08aa3eec75cf5b9b5003883f43253f0
+                           .group:00000000 wm4.mc_stm_types.h.20.2d7d6ac163527ff5d1947d422c918f78
+                           .group:00000000 wm4.sr5e1xx.h.22.e5c808533cc52ed19fb0830cd7d98924
+                           .group:00000000 wm4.cmsis_version.h.32.0f826810625204eca22a19868bdc7586
+                           .group:00000000 wm4.core_cm7.h.66.8ab2de36917d6fcae18019067fda13e0
+                           .group:00000000 wm4.cmsis_gcc.h.26.498d0ad17a45fc9ef20fdc01caf02259
+                           .group:00000000 wm4.core_cm7.h.174.43edb295ecdaadad738f48ba6011ffad
+                           .group:00000000 wm4.mpu_armv7.h.32.83326921a797fa9d6f70449916b4b839
+                           .group:00000000 wm4.cachel1_armv7.h.32.abd77761a989e008b0c60891114a33c7
+                           .group:00000000 wm4.SR5E1_ADC.h.14.21608e6aff125ba995dd767d6d8dc311
+                           .group:00000000 wm4.SR5E1_CEM.h.14.01fe5742c8f1ae35b1f3af05932f702e
+                           .group:00000000 wm4.SR5E1_CMU.h.14.2617b38b159abe38028862394531e06d
+                           .group:00000000 wm4.SR5E1_COMP.h.14.4b6fdfe4f5f7fd9bedf3a99b98bdf4cd
+                           .group:00000000 wm4.SR5E1_CORDIC.h.14.354fbf7c9eaf6963d38eaa25cf28ffe8
+                           .group:00000000 wm4.SR5E1_CRC.h.14.c64d0f7767671ddb92e9ead0a1162100
+                           .group:00000000 wm4.SR5E1_DAC.h.14.8c26a0ff04b0cfeb55306cc3f22187b8
+                           .group:00000000 wm4.SR5E1_DBGMCU.h.14.427df893d53a8044654f017ba01c25ed
+                           .group:00000000 wm4.SR5E1_DMA.h.14.a7f9a92f844b40a86965798c2e64240b
+                           .group:00000000 wm4.SR5E1_DMAMUX.h.14.471b3b4dfd4d41515f1df49493698866
+                           .group:00000000 wm4.SR5E1_EXTI.h.14.a325ea3fe89cd84894660551c33241ea
+                           .group:00000000 wm4.SR5E1_FCCU.h.14.0ebf0f0f36e079d28613ad2c80e17e23
+                           .group:00000000 wm4.SR5E1_FDCAN.h.14.ac57101fad5dbc798bfb93f34c899de7
+                           .group:00000000 wm4.SR5E1_FLASH_REG_ITF.h.14.d23d1d44923f9b20b8c8fdb51d66aefd
+                           .group:00000000 wm4.SR5E1_GPIO.h.14.1c84071e130d7c64b62470ab0e18a1f1
+                           .group:00000000 wm4.SR5E1_HRTIM.h.24.03932387d2522e6bd5c772a4edaf2f5d
+                           .group:00000000 wm4.SR5E1_HSEM.h.14.cbe70eee519f01b16452c3f8c99d8df1
+                           .group:00000000 wm4.SR5E1_I2C.h.14.350ba3e0f4fd57828457efa80135c36c
+                           .group:00000000 wm4.SR5E1_IMA.h.14.62b7088985ab2b7ce9b030a02daa1f7d
+                           .group:00000000 wm4.SR5E1_IWDG.h.14.20b7c5f05cf7ae94464c360d7af3660d
+                           .group:00000000 wm4.SR5E1_MEMU.h.14.04bad7ae4c52ce334a4fc900aad2ae5b
+                           .group:00000000 wm4.SR5E1_NVM_CTRL.h.14.5f442617f0628d4f16258f211c614ef9
+                           .group:00000000 wm4.SR5E1_PLLDIG.h.14.bd87a8e6917eee17dae2f312c8e5fa53
+                           .group:00000000 wm4.SR5E1_PMC_DIG.h.14.54173b566c6656344766ec4ef46c9281
+                           .group:00000000 wm4.SR5E1_RCC.h.14.56734803c71534de286e793a53649740
+                           .group:00000000 wm4.SR5E1_RTC.h.14.47037cbc7d8175dbf2be1dc0bb955e3f
+                           .group:00000000 wm4.SR5E1_SD_ADC.h.14.552b97d0b8f3c1fd4df6d8964b2f1a80
+                           .group:00000000 wm4.SR5E1_SMPU.h.14.8ce5bb6d5d7c579cd725f492f46e9085
+                           .group:00000000 wm4.SR5E1_SPI.h.14.42d52112e540f85ade4d9135f8b87d72
+                           .group:00000000 wm4.SR5E1_SSCM.h.14.8e6a2ad0ce5fca422fc3d69939b6125b
+                           .group:00000000 wm4.SR5E1_SYSCFG.h.14.02b969490118ce4069914b5e94f7ca65
+                           .group:00000000 wm4.SR5E1_TDM.h.14.a40ed7928cad243a57fd233fccf01ad2
+                           .group:00000000 wm4.SR5E1_TIM.h.14.05b8efc5395873619642d61a4b0b5a54
+                           .group:00000000 wm4.SR5E1_UART.h.14.eec3ab82b02b3bdb3de500483675b83f
+                           .group:00000000 wm4.SR5E1_WWDG.h.14.59b45efc70e442cc6ef03702aad4ad88
+                           .group:00000000 wm4.stddef.h.39.38eb7ec030421799c657b13be5aa21c7
+                           .group:00000000 wm4.typedefs.h.36.07fe3956b4e751037cfee70edcd0b397
+                           .group:00000000 wm4.irq_numbers.h.38.6294b95aed1bf7b3a2cda0eed8ce8f57
+                           .group:00000000 wm4.regs.h.23.2ac145b4f57126d16daed5fbd86d99c6
+                           .group:00000000 wm4.sr5e1_wrapper.h.20.64eb3ae8ac9b19f101ec010f065b27e0
+                           .group:00000000 wm4.sr5e1_macros.h.48.23238fd8be149bfd93a4b06f4d1d3e48
+                           .group:00000000 wm4.sr5e1_ll_system.h.75.323fef6699ff2ef93649a75fbc3b9dc0
+                           .group:00000000 wm4.sr5e1_ll_tim.h.21.35d0409c49249d40ffa0621f7fd1e49f
+                           .group:00000000 wm4.sr5e1_ll_adc.h.21.a09418770aae8e8540b1ce15e5fd6881
+                           .group:00000000 wm4.sr5e1_ll_dac.h.21.e617f768d26181c75ac38760d82ada91
+                           .group:00000000 wm4.sr5e1_ll_cordic.h.21.601660824250c93d03fb6b7dd46d0750
+                           .group:00000000 wm4.sr5e1_ll_usart.h.21.edc232fc61ffb518b3051f74f786aac1
+                           .group:00000000 wm4.sr5e1_ll_dmamux.h.21.e0f20dc23ecc4be39502f49d8383668f
+                           .group:00000000 wm4.sr5e1_ll_dma.h.74.155fcc98e704261e48b273dd9cbd510c
+                           .group:00000000 wm4.mc_stm_types.h.52.4cccb248a2fcd7dfda158e1610af49bf
+                           .group:00000000 wm4.mc_type.h.47.50da95e050e3bfbddab14d990c2d05af
+                           .group:00000000 wm4.ui_irq_handler.h.46.92631810e1fed418ace67146b4fbdef9
+
+NO UNDEFINED SYMBOLS

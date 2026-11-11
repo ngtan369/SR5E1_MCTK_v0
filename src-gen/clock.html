@@ -1,0 +1,439 @@
+<!DOCTYPE HTML>
+		 		<html lang="en">
+		 		
+		 		  <head>
+		 		  	<meta charset="UTF-8" />
+		 		  	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		 		  	<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		 		    <title>Wizard for Sr5e1_clk</title>   
+		 		  </head>
+	
+		 		  <body onload="wizInit()" >
+					<object id="wizard-svg" type="image/svg+xml" data="ClockTreeSR5E1.svg" ></object>
+		 		  </body>
+		 		  
+		 		  <script>	
+		 		  
+		 		  var wizIntDashEmpty = function(elem) {
+		 		  	var elt = svgDoc.getElementById(elem);
+		 		  	if( elt == null ) {
+		 		  		alert("element '"+elem+" 'not found");
+		 		  	} else {
+		 		  		elt.style.setProperty('stroke-opacity', "0", null);
+		 		  	}
+		 		  }
+		 		  var wizIntDashDisable = function(elem) {
+		 		  	var elt = svgDoc.getElementById(elem);
+		 		  	elt.style.setProperty("stroke-dasharray", "none", null);
+		 		  	elt.style.setProperty('stroke-opacity', "1", null);
+		 		  }
+		 		  
+		 		  var wizIntDashEnable = function(elem) {
+		 		  	var elt = svgDoc.getElementById(elem);
+		 		  	elt.style.setProperty("stroke-dasharray", "2, 3", null);
+		 		  }
+		 		  
+		 		  var wizIntSimpleToolTip = function(rectId,msg) {
+		 		  	if( rectId) {
+		 		  		var rectObj = svgDoc.getElementById(rectId);
+		 		  		if( rectObj ) {
+		 		  			//wizIntChangeColor(rectId,"#ffffff");
+		 		  
+		 		  			rectObj.onmouseover = function(evt) {
+		 		  				wizEngDisplayTooltip(evt,msg);
+		 		  			};
+		 		  			rectObj.onmouseout = function(evt) {
+		 		  				wizEngDisplayTooltip(evt,'');
+		 		  			};
+		 		  		} else {
+		 		  			alert(rectId+"does not exist in svg file");
+		 		  		}
+		 		  	}
+		 		  }
+		 		  
+		 		  var wizEngDisplayTooltip = function(event,arg) {
+		 		  }
+
+  					var svg = document.getElementById("wizard-svg");
+  					var svgDoc = svg.contentDocument;
+  					
+  					var wizIntColorArrow = function(arrow,color){
+  						var elt = svgDoc.getElementById(arrow);
+  						elt.style.setProperty('stroke', color, null);	 
+  					}
+  					
+var manageSelectionError = function(Value, SelA, ValA) {
+	var colorError = "rgb(255, 0, 0)";
+	var colorBlack = "rgb(0, 0, 0)";
+
+	if( ValA && ValA.length > 0 && ValA[0] == '!' ) {
+		
+		if( ValA.substring(1) == Value) {
+			var elt = svgDoc.getElementById(SelA);
+			var errorValue = "wrong selection: '"+Value+"'";
+			elt.style.setProperty('stroke', colorError, null);
+			elt.style.setProperty("stroke-dasharray", "none", null);
+			elt.style.setProperty('stroke-opacity', "1", null);
+	
+			elt.parentNode.onmouseover = function(evt) {
+				wizEngDisplayTooltip(evt, errorValue);
+			};
+		
+		} else {
+			var elt = svgDoc.getElementById(SelA);
+			elt.style.setProperty('stroke', colorBlack, null);
+			elt.parentNode.onmouseover = function(evt) {
+				wizEngDisplayTooltip(evt, '');
+			}
+		}
+	} else {
+		var elt = svgDoc.getElementById(SelA);
+		elt.style.setProperty('stroke', colorBlack, null);
+		elt.parentNode.onmouseover = function(evt) {
+			wizEngDisplayTooltip(evt, '');
+		}
+	}
+}
+  					
+var wizIntMUX51Selection = function(Value, SelA, SelB, SelC, SelD, SelE, ValA,
+		ValB, ValC, ValD, ValE) {
+	wizIntDashEmpty(SelA);
+	wizIntDashEmpty(SelB);
+	wizIntDashEmpty(SelC);
+	wizIntDashEmpty(SelD);
+	wizIntDashEmpty(SelE);
+	switch (Value) {
+	case ValA:
+		wizIntDashDisable(SelA);
+		break;
+	case ValB:
+		wizIntDashDisable(SelB);
+		break;
+	case ValC:
+		wizIntDashDisable(SelC);
+		break;
+	case ValD:
+		wizIntDashDisable(SelD);
+		break;
+	case ValE:
+		wizIntDashDisable(SelE);
+		break;
+	}
+
+	manageSelectionError(Value, SelA, ValA);
+	manageSelectionError(Value, SelB, ValB);
+	manageSelectionError(Value, SelC, ValC);
+	manageSelectionError(Value, SelD, ValD);
+	manageSelectionError(Value, SelE, ValE);
+}
+
+var wizIntMUX61Selection = function(Value, SelA, SelB, SelC, SelD, SelE, SelF, 
+		ValA, ValB, ValC, ValD, ValE, ValF) {
+	wizIntDashEmpty(SelA);
+	wizIntDashEmpty(SelB);
+	wizIntDashEmpty(SelC);
+	wizIntDashEmpty(SelD);
+	wizIntDashEmpty(SelE);
+	wizIntDashEmpty(SelF);
+	switch (Value) {
+	case ValA:
+		wizIntDashDisable(SelA);
+		break;
+	case ValB:
+		wizIntDashDisable(SelB);
+		break;
+	case ValC:
+		wizIntDashDisable(SelC);
+		break;
+	case ValD:
+		wizIntDashDisable(SelD);
+		break;
+	case ValE:
+		wizIntDashDisable(SelE);
+		break;
+	case ValF:
+		wizIntDashDisable(SelF);
+		break;
+	}
+	manageSelectionError(Value, SelA, ValA);
+	manageSelectionError(Value, SelB, ValB);
+	manageSelectionError(Value, SelC, ValC);
+	manageSelectionError(Value, SelD, ValD);
+	manageSelectionError(Value, SelE, ValE);
+	manageSelectionError(Value, SelF, ValF);
+}
+
+var wizIntMUX21Selection = function(Value, SelA, SelB, ValA, ValB) 
+{
+	wizIntDashEmpty(SelA);
+	wizIntDashEmpty(SelB);
+	switch (Value) {
+	case ValA:
+		wizIntDashDisable(SelA);
+		break;
+	case ValB:
+		wizIntDashDisable(SelB);
+		break;
+	}
+	manageSelectionError(Value, SelA, ValA);
+	manageSelectionError(Value, SelB, ValB);
+}
+
+var wizIntMUX31Selection = function(Value, SelA, SelB, SelC, ValA,
+		ValB, ValC) {
+	wizIntDashEmpty(SelA);
+	wizIntDashEmpty(SelB);
+	wizIntDashEmpty(SelC);
+	switch (Value) {
+	case ValA:
+		wizIntDashDisable(SelA);
+		break;
+	case ValB:
+		wizIntDashDisable(SelB);
+		break;
+	case ValC:
+		wizIntDashDisable(SelC);
+		break;
+	}
+	manageSelectionError(Value, SelA, ValA);
+	manageSelectionError(Value, SelB, ValB);
+	manageSelectionError(Value, SelC, ValC);
+}
+
+var wizIntMUX41Selection = function(Value, SelA, SelB, SelC, SelD,
+		ValA, ValB, ValC, ValD) {
+	wizIntDashEmpty(SelA);
+	wizIntDashEmpty(SelB);
+	wizIntDashEmpty(SelC);
+	wizIntDashEmpty(SelD);
+	switch (Value) {
+	case ValA:
+		wizIntDashDisable(SelA);
+		break;
+	case ValB:
+		wizIntDashDisable(SelB);
+		break;
+	case ValC:
+		wizIntDashDisable(SelC);
+		break;
+	case ValD:
+		wizIntDashDisable(SelD);
+		break;
+	}
+	manageSelectionError(Value, SelA, ValA);
+	manageSelectionError(Value, SelB, ValB);
+	manageSelectionError(Value, SelC, ValC);
+	manageSelectionError(Value, SelD, ValD);
+}
+
+
+var wizIntMUX41SelectionEnabled = function(Value, isEnabled, rectId, SelA, SelB, SelC, SelD,
+		ValA, ValB, ValC, ValD) {
+	
+	var colorIn = '#E8F2FE';
+	var colorEnabled = '#ffffff';
+	var colorDisabled = '#c8c8c8';
+	wizIntDashEmpty(SelA);
+	wizIntDashEmpty(SelB);
+	wizIntDashEmpty(SelC);
+	wizIntDashEmpty(SelD);
+	
+	if( !isEnabled ) {
+		wizIntChangeColor(rectId,colorDisabled);
+		
+	} else {
+	wizIntChangeColor(rectId,colorEnabled);
+	switch (Value) {
+	case ValA:
+		wizIntDashDisable(SelA);
+		break;
+	case ValB:
+		wizIntDashDisable(SelB);
+		break;
+	case ValC:
+		wizIntDashDisable(SelC);
+		break;
+	case ValD:
+		wizIntDashDisable(SelD);
+		break;
+	}
+	manageSelectionError(Value, SelA, ValA);
+	manageSelectionError(Value, SelB, ValB);
+	manageSelectionError(Value, SelC, ValC);
+	manageSelectionError(Value, SelD, ValD);
+	}
+}
+
+  					function wizInit() {
+  					   	svg = document.getElementById("wizard-svg");
+  					   	svgDoc = svg.contentDocument;
+  					   	
+  					   	
+  					   	var _xosc = 40000000/1000000;
+  					   	var _ircosc = 16000000/1000000;
+  					   	var _pll0phi = 60000000/1000000;
+  					   	var _pll1phi = 300000000/1000000;
+  					   	var _sysclk_div = 300000000/1000000;
+  					   	var _sysclk = 300000000/1000000;
+  					   	
+					   	// XOSC
+ 			 		   	var xosc = svgDoc.getElementById("val_xosc");
+ 			 		   	xosc.textContent = _xosc+" MHz";
+
+ 			 		   	// IRCOSC
+ 			 		   	var ircosc = svgDoc.getElementById("val_ircosc");
+ 			 		   	ircosc.textContent = _ircosc+" MHz";
+
+ 			 		   	//XOSC PLL0
+ 			 		   	var xosc = svgDoc.getElementById("val_xosc_pll0");
+ 			 		    xosc.textContent = _xosc+" MHz";
+
+ 			 		    //IRCOSC PLL0
+ 			 		   	var ircosc = svgDoc.getElementById("val_ircosc_pll0");
+ 			 		    ircosc.textContent = _ircosc+" MHz";
+
+ 			 		    //PLL0PHI
+ 			 		   	var pll0phi = svgDoc.getElementById("val_pll0phi");
+ 			 		    pll0phi.textContent = _pll0phi+" MHz";
+  	 			 		    
+ 			 		    //PLL1PHI
+ 			 		   	var pll1phi = svgDoc.getElementById("val_pll1phi");
+ 			 		    pll1phi.textContent = _pll1phi+" MHz";
+
+ 			 		    //PLL0PHI1
+ 			 		   	var pll0phi1 = svgDoc.getElementById("val_pll0phi1");
+ 			 		   	var _pll0phi1 = 60000000/1000000;
+ 			 		    pll0phi1.textContent = _pll0phi1+" MHz";
+
+ 			 		    //SYSCLK
+ 			 		   	var sysclk = svgDoc.getElementById("val_sysclk");
+ 			 		    sysclk.textContent = _sysclk+" MHz";	
+
+ 			 		    //SYSCLK_DIV
+ 			 		   	var sysclk_div = svgDoc.getElementById("val_sysclk_div");
+ 			 		    sysclk_div.textContent = _sysclk_div+" MHz";
+
+  						var pll0Sel = "XOSC";
+  						wizIntMUX21Selection(pll0Sel,"Mux21_pll0SelA", "Mux21_pll0SelB","XOSC","IRCOSC");
+
+  						var pll1Sel = "PLL0PHI1";
+  						wizIntMUX21Selection(pll1Sel,"Mux21_pll1SelA", "Mux21_pll1SelB","PLL0PHI1","XOSC");
+
+  						// SW multiplexor
+  						var pcsSel = "PLL1PHI";
+  						wizIntMUX41Selection(pcsSel, "Mux41_pcsSelA", "Mux41_pcsSelB", "Mux41_pcsSelC", "Mux41_pcsSelD", 'IRCOSC', 'XOSC', 'PLL0PHI', 'PLL1PHI');
+
+  						// UART multiplexor
+  						var uartSel = "XOSC";
+  						wizIntMUX41Selection(uartSel, "Mux41_uartSelA", "Mux41_uartSelB", "Mux41_uartSelC", "Mux41_uartSelD", 'PLL0PHI', 'IRCOSC', 'XOSC', 'LSI');
+
+  						// UART value
+ 			 		   	var uart = svgDoc.getElementById("val_uart");
+ 			 		   	var _uart = 40000000/1000000;
+ 			 		    uart.textContent = _uart+" MHz";
+
+  						// I2C multiplexor
+  						var i2cSel = "XOSC";
+  						wizIntMUX31Selection(i2cSel, "Mux31_i2cSelA", "Mux31_i2cSelB", "Mux31_i2cSelC", 'PLL0PHI', 'IRCOSC', 'XOSC');
+
+  						// I2C value
+ 			 		   	var i2c = svgDoc.getElementById("val_i2c");
+ 			 		   	var _i2c = 40000000/1000000;
+ 			 		    i2c.textContent = _i2c+" MHz";
+
+  						// I2S multiplexor
+  						var I2SSel = "XOSC"; 
+  						wizIntMUX41Selection(I2SSel, "Mux41_i2sSelA", "Mux41_i2sSelB", "Mux41_i2sSelC", "Mux41_i2sSelD", 'PLL0PHI', 'IRCOSC', 'XOSC', 'I2S_CKIN');
+
+  						// i2s value
+ 			 		   	var i2s = svgDoc.getElementById("val_i2s");
+ 			 		   	var _i2s = 40000000/1000000;
+ 			 		    i2s.textContent = _i2s+" MHz";
+
+  						// FDCAN multiplexor
+  						var fdcanSel = "XOSC"; 
+  						wizIntMUX21Selection(fdcanSel, "Mux21_fdcanSelA", "Mux21_fdcanSelB", 'PLL0PHI', 'XOSC');
+
+  						// FDCAN value
+ 			 		   	var fdcan = svgDoc.getElementById("val_fdcan");
+ 			 		   	var _fdcan = 40000000/1000000;
+ 			 		    fdcan.textContent = _fdcan+" MHz";
+
+  						// ADC multiplexor
+  						var adcSel = "XOSC";
+  						wizIntMUX31Selection(adcSel, "Mux31_adcSelA", "Mux31_adcSelB", "Mux31_adcSelC", 'PLL0PHI', 'PLL1PHI', 'XOSC');
+
+  						// ADC value
+  						var adc = svgDoc.getElementById("val_adc");
+ 			 		   	var _adc = 40000000/1000000;
+ 			 		    adc.textContent = _adc+" MHz";
+
+  						// SDADC multiplexor
+  						var sdadcSel = "NOCLOCK";
+  						wizIntMUX31Selection(sdadcSel, "Mux31_sdadcSelA", "Mux31_sdadcSelB", "Mux31_sdadcSelC", 'PLL0PHI', 'PLL1PHI', 'XOSC');
+
+  						// SDADC value
+  						var sdadc = svgDoc.getElementById("val_sdadc");
+ 			 		   	var _sdadc = 0/1000000;
+ 			 		    sdadc.textContent = _sdadc+" MHz";
+
+  						// MCO multiplexor
+  						var mcoSel = "NOCLOCK";
+  						wizIntMUX51Selection(mcoSel, "Mux51_mcoSelA", "Mux51_mcoSelB", "Mux51_mcoSelC","Mux51_mcoSelD", "Mux51_mcoSelE", 'LSI', 'IRCOSC', 'XOSC', 'PLL0PHI', 'PLL1PHI');
+
+  						// RTC multiplexor
+  						var rtcSel = "XOSC"; 
+  						wizIntMUX21Selection(rtcSel, "Mux21_rtcSelA", "Mux21_rtcSelB", 'LSI', 'XOSC');
+
+  						// RTC value
+  						var rtc = svgDoc.getElementById("val_rtc");
+ 			 		   	var _rtc = 1250000/1000000;
+ 			 		    rtc.textContent = _rtc+" MHz";
+
+  						//Dividers
+  						var _sysdiv = "1"; 
+						var sysdiv = svgDoc.getElementById("val_sysdiv");
+  						sysdiv.textContent = ": "+_sysdiv;
+
+  						var _uartdiv = "1"; 
+  						var uartdiv = svgDoc.getElementById("val_uartdiv");
+  						uartdiv.textContent = ": "+_uartdiv;
+
+  						var _i2cdiv = 1; 
+						var i2cdiv = svgDoc.getElementById("val_i2cdiv");
+  						i2cdiv.textContent = ": "+_i2cdiv;
+
+  						var _i2sdiv = 1; 
+						var i2sdiv = svgDoc.getElementById("val_i2sdiv");
+  						i2sdiv.textContent = ": "+_i2sdiv;
+
+						var _i2s = 40000000;
+						var i2s = svgDoc.getElementById("val_i2s");
+  						i2s.textContent = _i2s/1000000+" MHz";
+
+						var _fdcandiv = "1"; 
+  						var fdcandiv = svgDoc.getElementById("val_fdcandiv");
+  						fdcandiv.textContent = ": "+_fdcandiv; 						
+
+						var _adcdiv = "1"; 
+  						var adcdiv = svgDoc.getElementById("val_adcdiv");
+  						adcdiv.textContent = ": "+_adcdiv;	
+
+						var _sdadcdiv = "1"; 
+  						var sdadcdiv = svgDoc.getElementById("val_sdadcdiv");
+  						sdadcdiv.textContent = ": "+_sdadcdiv;	
+
+						var _mcodiv = "2"; 
+  						var mcodiv = svgDoc.getElementById("val_mcodiv");
+  						mcodiv.textContent = ": "+_mcodiv;	
+
+						var _lsidiv = "1"; 
+    					var lsidiv = svgDoc.getElementById("val_lsidiv");
+    					lsidiv.textContent = ": "+_lsidiv;	
+  							
+  						var rtcdiv = svgDoc.getElementById("val_rtcdiv");
+  						rtcdiv.textContent = ": 32";
+  					}
+
+  		 			</script>
+		 		  </html>

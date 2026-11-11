@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<com.st.stellar.component.sr5e1.clocktree:Clock xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:com.st.stellar.component.sr5e1.clocktree="http://com.st.stellar.component.sr5e1.clocktree" name="clock_cfg" wizard="com.st.stellar.wizard.clocktree.sr5e1" MCODIV="2">
+  <exportedFeatures>com.st.stellar.component.sr5e1.clocktree</exportedFeatures>
+  <exportedFeatures>com.st.stellar.component.sr5x.clocktree</exportedFeatures>
+</com.st.stellar.component.sr5e1.clocktree:Clock>

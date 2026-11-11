@@ -1,0 +1,94 @@
+/****************************************************************************
+*
+* Copyright (c) 2023 STMicroelectronics - All Rights Reserved
+*
+* License terms: STMicroelectronics Proprietary in accordance with licensing
+* terms SLA0098 at www.st.com.
+*
+* THIS SOFTWARE IS DISTRIBUTED "AS IS," AND ALL WARRANTIES ARE DISCLAIMED,
+* INCLUDING MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+*****************************************************************************/
+/**
+*   @file    STGAP4S_busVoltage.c
+*   @version M4_VERSION
+*   @brief   This file provides firmware functions that implement the features
+*            of the STGAP4S bus voltage.
+*          
+*   @details This file provides firmware functions that implement the features
+*            of the STGAP4S bus voltage.
+*
+ */
+#include "STGAP4S.h"
+#include "STGAP4S_busVoltage.h"
+#include "r_divider_bus_voltage_sensor.h"
+#include "drive_parameters.h"
+#include "mc_config.h"
+#include "filter.h"
+
+/*
+ * @addtogroup STELLAR_STGAP4S_Library
+ * @{
+ */
+ 
+#ifdef USE_VBUS_EXT_ADC_OUT
+
+Filter_t vdcFilter;
+
+ /**
+  * @brief	This function initialiaze STGAP4S Bus Sensing\n
+  *			
+  * @param	RDivider_Handle_t * pHandle
+  * @return void
+  */
+void RVBS_Init( RDivider_Handle_t * pHandle )
+{
+  (void)pHandle; /* not used */
+  FilterInit(&vdcFilter);
+}
+
+ /**
+  * @brief	This function compute STGAP4S Bus voltage\n
+  *			
+  * @param	RDivider_Handle_t * pHandle
+  * @return void
+  */
+uint16_t RVBS_CalcAvVbus(RDivider_Handle_t *pHandle) {
+  uint16_t retVal;
+  uint16_t BUSVolt = VBS_GetAvBusVoltage_V(&pHandle->_Super);
+  if (BUSVolt > OV_VOLTAGE_THRESHOLD_V) {
+    retVal = MC_OVER_VOLT;
+  } else if (BUSVolt < UD_VOLTAGE_THRESHOLD_V) {
+    retVal = MC_UNDER_VOLT;
+  } else {
+    retVal = MC_NO_ERROR;
+  }
+  pHandle->_Super.AvBusVoltage_d = (uint16_t)((int32_t)(BUSVolt* 65536)/pHandle->_Super.ConversionFactor);
+  return retVal;
+}
+
+ /**
+  * @brief	This function get STGAP4S Bus voltage\n
+  *			
+  * @param	BusVoltageSensor_Handle_t * pHandle
+  * @return void
+  */
+uint16_t VBS_GetAvBusVoltage_V( BusVoltageSensor_Handle_t* pHandle )
+{
+  (void)pHandle; /* not used */
+
+  uint8_t AIN_RAW_Value_PWMIN = ExtADC_GetADCValue(&VBUS_EXT_ADCOUT_M1);
+
+  float AIN_IN_Volt_PWM = STGAP4_GetADCVoltFromValue(Devices[VBUS_EXT_ADC_DEVICE_NB], AIN_RAW_Value_PWMIN); // Devices[4] measures VBUS_U
+
+  float vBUSVolt = convertBusVolt(AIN_IN_Volt_PWM, VBUS_NETWORK_PULLUP_RES_OHM, VBUS_NETWORK_PULLDW_RES_OHM);
+
+  uint16_t retVal = (uint16_t)(FilterNewSample(&vdcFilter, vBUSVolt));
+
+  return (retVal);
+}
+
+float convertBusVolt(float adcVolt, float pullUpRes, float pullDownRes) {
+  return adcVolt * (pullUpRes + pullDownRes) / pullDownRes;
+}
+
+#endif /* #ifdef USE_VBUS_EXT_ADC_OUT */

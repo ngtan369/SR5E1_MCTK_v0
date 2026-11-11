@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<com.st.stellar.component:Application xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:com.st.stellar.component="http://www.st.com/stellar/component/2.1.0" name="application">
+  <components uri="Config.gpio"/>
+  <components uri="clock_cfg.Sr5e1_clk"/>
+  <components uri="config.Motorcontrol"/>
+  <components uri="config.Sr5e1_can"/>
+  <components uri="config1.Sr5e1_can"/>
+</com.st.stellar.component:Application>

@@ -1,0 +1,637 @@
+   1              		.cpu cortex-m7
+   2              		.arch armv7e-m
+   3              		.fpu fpv5-d16
+   4              		.eabi_attribute 28, 1
+   5              		.eabi_attribute 20, 1
+   6              		.eabi_attribute 21, 1
+   7              		.eabi_attribute 23, 3
+   8              		.eabi_attribute 24, 1
+   9              		.eabi_attribute 25, 1
+  10              		.eabi_attribute 26, 1
+  11              		.eabi_attribute 30, 6
+  12              		.eabi_attribute 34, 1
+  13              		.eabi_attribute 18, 4
+  14              		.file	"inrush_current_limiter.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.file 1 ".sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c"
+  19              		.section	.rodata.OFFSET_TAB_CCMRx,"a"
+  20              		.align	2
+  23              	OFFSET_TAB_CCMRx:
+  24 0000 00000000 		.ascii	"\000\000\000\000\004\004\004\00488"
+  24      04040404 
+  24      3838
+  25              		.section	.rodata.SHIFT_TAB_OCxx,"a"
+  26              		.align	2
+  29              	SHIFT_TAB_OCxx:
+  30 0000 00000800 		.ascii	"\000\000\010\000\000\000\010\000\000\010"
+  30      00000800 
+  30      0008
+  31              		.section	.rodata.SHIFT_TAB_ICxx,"a"
+  32              		.align	2
+  35              	SHIFT_TAB_ICxx:
+  36 0000 00000800 		.ascii	"\000\000\010\000\000\000\010\000\000\000"
+  36      00000800 
+  36      0000
+  37              		.section	.rodata.SHIFT_TAB_CCxP,"a"
+  38              		.align	2
+  41              	SHIFT_TAB_CCxP:
+  42 0000 00020406 		.ascii	"\000\002\004\006\010\012\014\016\020\024"
+  42      080A0C0E 
+  42      1014
+  43              		.section	.rodata.SHIFT_TAB_OISx,"a"
+  44              		.align	2
+  47              	SHIFT_TAB_OISx:
+  48 0000 00010203 		.ascii	"\000\001\002\003\004\005\006\007\010\012"
+  48      04050607 
+  48      080A
+  49              		.section	.rodata.USART_PRESCALER_TAB,"a"
+  50              		.align	2
+  53              	USART_PRESCALER_TAB:
+  54 0000 01000000 		.word	1
+  55 0004 02000000 		.word	2
+  56 0008 04000000 		.word	4
+  57 000c 06000000 		.word	6
+  58 0010 08000000 		.word	8
+  59 0014 0A000000 		.word	10
+  60 0018 0C000000 		.word	12
+  61 001c 10000000 		.word	16
+  62 0020 20000000 		.word	32
+  63 0024 40000000 		.word	64
+  64 0028 80000000 		.word	128
+  65 002c 00010000 		.word	256
+  66              		.section	.rodata.LL_DMA_STR_OFFSET_TAB,"a"
+  67              		.align	2
+  70              	LL_DMA_STR_OFFSET_TAB:
+  71 0000 10284058 		.ascii	"\020(@Xp\210\240\270"
+  71      7088A0B8 
+  72              		.section	.text.ICL_Init,"ax",%progbits
+  73              		.align	1
+  74              		.p2align 4,,15
+  75              		.weak	ICL_Init
+  76              		.syntax unified
+  77              		.thumb
+  78              		.thumb_func
+  80              	ICL_Init:
+  81              	.LFB1225:
+   1:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** /****************************************************************************
+   2:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** *
+   3:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** * Copyright (c) 2023 STMicroelectronics - All Rights Reserved
+   4:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** *
+   5:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** * License terms: STMicroelectronics Proprietary in accordance with licensing
+   6:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** * terms SLA0098 at www.st.com.
+   7:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** *
+   8:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** * THIS SOFTWARE IS DISTRIBUTED "AS IS," AND ALL WARRANTIES ARE DISCLAIMED,
+   9:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** * INCLUDING MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+  10:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** *****************************************************************************/
+  11:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** /**
+  12:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** *   @file    inrush_current_limiter.c
+  13:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** *   @version M4_VERSION
+  14:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** *   @brief   This file provides firmware functions implementing the
+  15:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** *            InrushCurrentLimiter feature of the Stellar Motor Control.
+  16:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** *
+  17:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** *   @details This file provides firmware functions implementing the
+  18:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** *            InrushCurrentLimiter feature of the Stellar Motor Contro:
+  19:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** *
+  20:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** *            - ICL_Init() to initialize dedicated variables
+  21:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** *            - ICL_Exec() to manage the ICL state machine
+  22:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** *            - ICL_GetState() to get the current ICL state machine
+  23:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****  */
+  24:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** 
+  25:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** /* Includes ------------------------------------------------------------------*/
+  26:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** #include "inrush_current_limiter.h"
+  27:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** #include "mc_type.h"
+  28:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** 
+  29:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** /** @addtogroup STELLAR_PMSM_MC_FOC_LIBRARY
+  30:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****   * @{
+  31:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****   */
+  32:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** 
+  33:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** /** @defgroup ICL Inrush Current Limiter
+  34:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****   * @brief Inrush Current Limiter component of the Stellar Motor Control
+  35:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****   *
+  36:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****   * @todo Document the Inrush Current Limiter "module".
+  37:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****   *
+  38:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****   * @{
+  39:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****   */
+  40:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** 
+  41:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** 
+  42:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** /* Private typedef -----------------------------------------------------------*/
+  43:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** /* Private defines -----------------------------------------------------------*/
+  44:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** /* Private macros ------------------------------------------------------------*/
+  45:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** /* Global variables ----------------------------------------------------------*/
+  46:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** /* Private function prototypes -----------------------------------------------*/
+  47:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** /* Private functions ---------------------------------------------------------*/
+  48:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** /**
+  49:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****   * @brief  It initializes all the needed ICL component variables.
+  50:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****   *         It shall be called only once, right after the ICL instance creation.
+  51:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****   *         It makes the bus voltage sensor and digital output assignment needed
+  52:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****   *         for the ICL instance usage.
+  53:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****   * @param  pHandle: handler of the current instance of the ICL component
+  54:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****   * @param  pVBS the bus voltage sensor used by the ICL.
+  55:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****   * @param  pDOUT the digital output used by the ICL.
+  56:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****   * @retval none.
+  57:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****   */
+  58:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** __weak void ICL_Init( ICL_Handle_t * pHandle, BusVoltageSensor_Handle_t * pVBS, DOUT_handle_t * pDO
+  59:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** {
+  82              		.loc 1 59 1
+  83              		.cfi_startproc
+  84              		@ args = 0, pretend = 0, frame = 24
+  85              		@ frame_needed = 0, uses_anonymous_args = 0
+  86 0000 00B5     		push	{lr}
+  87              		.cfi_def_cfa_offset 4
+  88              		.cfi_offset 14, -4
+  89 0002 87B0     		sub	sp, sp, #28
+  90              		.cfi_def_cfa_offset 32
+  91 0004 0390     		str	r0, [sp, #12]
+  92 0006 0291     		str	r1, [sp, #8]
+  93 0008 0192     		str	r2, [sp, #4]
+  60:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****   uint32_t wAux;
+  61:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** 
+  62:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****   pHandle->pVBS = pVBS;
+  94              		.loc 1 62 17
+  95 000a 039B     		ldr	r3, [sp, #12]
+  96 000c 029A     		ldr	r2, [sp, #8]
+  97 000e 1A60     		str	r2, [r3]
+  63:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****   pHandle->pDOUT = pDOUT;
+  98              		.loc 1 63 18
+  99 0010 039B     		ldr	r3, [sp, #12]
+ 100 0012 019A     		ldr	r2, [sp, #4]
+ 101 0014 5A60     		str	r2, [r3, #4]
+  64:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****   pHandle->ICLstate = ICL_ACTIVE;
+ 102              		.loc 1 64 21
+ 103 0016 039B     		ldr	r3, [sp, #12]
+ 104 0018 0222     		movs	r2, #2
+ 105 001a 1A72     		strb	r2, [r3, #8]
+  65:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****   DOUT_SetOutputState( pDOUT, ACTIVE );
+ 106              		.loc 1 65 3
+ 107 001c 0121     		movs	r1, #1
+ 108 001e 0198     		ldr	r0, [sp, #4]
+ 109 0020 FFF7FEFF 		bl	DOUT_SetOutputState
+  66:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****   pHandle->hICLTicksCounter = 0u;
+ 110              		.loc 1 66 29
+ 111 0024 039B     		ldr	r3, [sp, #12]
+ 112 0026 0022     		movs	r2, #0
+ 113 0028 5A81     		strh	r2, [r3, #10]	@ movhi
+  67:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****   wAux = ( uint32_t )( pHandle->hICLDurationms );
+ 114              		.loc 1 67 31
+ 115 002a 039B     		ldr	r3, [sp, #12]
+ 116 002c 1B8A     		ldrh	r3, [r3, #16]
+ 117              		.loc 1 67 8
+ 118 002e 0593     		str	r3, [sp, #20]
+  68:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****   wAux *= ( uint32_t )( pHandle->hICLFrequencyHz );
+ 119              		.loc 1 68 32
+ 120 0030 039B     		ldr	r3, [sp, #12]
+ 121 0032 DB89     		ldrh	r3, [r3, #14]
+ 122              		.loc 1 68 11
+ 123 0034 1A46     		mov	r2, r3
+ 124              		.loc 1 68 8
+ 125 0036 059B     		ldr	r3, [sp, #20]
+ 126 0038 02FB03F3 		mul	r3, r2, r3
+ 127 003c 0593     		str	r3, [sp, #20]
+  69:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****   wAux /= 1000;
+ 128              		.loc 1 69 8
+ 129 003e 059B     		ldr	r3, [sp, #20]
+ 130 0040 0D4A     		ldr	r2, .L4
+ 131 0042 A2FB0323 		umull	r2, r3, r2, r3
+ 132 0046 9B09     		lsrs	r3, r3, #6
+ 133 0048 0593     		str	r3, [sp, #20]
+  70:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****   wAux -= 1;
+ 134              		.loc 1 70 8
+ 135 004a 059B     		ldr	r3, [sp, #20]
+ 136 004c 013B     		subs	r3, r3, #1
+ 137 004e 0593     		str	r3, [sp, #20]
+  71:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****   if ( wAux > UINT16_MAX )
+ 138              		.loc 1 71 6
+ 139 0050 059B     		ldr	r3, [sp, #20]
+ 140 0052 B3F5803F 		cmp	r3, #65536
+ 141 0056 02D3     		bcc	.L2
+  72:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****   {
+  73:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****     wAux = UINT16_MAX;
+ 142              		.loc 1 73 10
+ 143 0058 4FF6FF73 		movw	r3, #65535
+ 144 005c 0593     		str	r3, [sp, #20]
+ 145              	.L2:
+  74:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****   }
+  75:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****   if ( wAux < 1 )
+ 146              		.loc 1 75 6
+ 147 005e 059B     		ldr	r3, [sp, #20]
+ 148 0060 002B     		cmp	r3, #0
+ 149 0062 01D1     		bne	.L3
+  76:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****   {
+  77:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****     wAux = 1;
+ 150              		.loc 1 77 10
+ 151 0064 0123     		movs	r3, #1
+ 152 0066 0593     		str	r3, [sp, #20]
+ 153              	.L3:
+  78:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****   }
+  79:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****   pHandle->hICLTotalTicks = ( uint16_t )( wAux );
+ 154              		.loc 1 79 29
+ 155 0068 059B     		ldr	r3, [sp, #20]
+ 156 006a 9AB2     		uxth	r2, r3
+ 157              		.loc 1 79 27
+ 158 006c 039B     		ldr	r3, [sp, #12]
+ 159 006e 9A81     		strh	r2, [r3, #12]	@ movhi
+  80:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** }
+ 160              		.loc 1 80 1
+ 161 0070 00BF     		nop
+ 162 0072 07B0     		add	sp, sp, #28
+ 163              		.cfi_def_cfa_offset 4
+ 164              		@ sp needed
+ 165 0074 5DF804FB 		ldr	pc, [sp], #4
+ 166              	.L5:
+ 167              		.align	2
+ 168              	.L4:
+ 169 0078 D34D6210 		.word	274877907
+ 170              		.cfi_endproc
+ 171              	.LFE1225:
+ 173              		.section	.text.ICL_Exec,"ax",%progbits
+ 174              		.align	1
+ 175              		.p2align 4,,15
+ 176              		.weak	ICL_Exec
+ 177              		.syntax unified
+ 178              		.thumb
+ 179              		.thumb_func
+ 181              	ICL_Exec:
+ 182              	.LFB1226:
+  81:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** 
+  82:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** /**
+  83:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****   * @brief  It clocks the Inrush Current Limiter and must be called with a
+  84:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****   *         frequency equal to the one set in the hEACFrequencyHz parameter.
+  85:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****   * @param  pHandle: handler of the current instance of the ICL component
+  86:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****   * @retval ICLState_t returns the current ICL state machine
+  87:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****   */
+  88:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** __weak ICL_State_t ICL_Exec( ICL_Handle_t * pHandle )
+  89:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** {
+ 183              		.loc 1 89 1
+ 184              		.cfi_startproc
+ 185              		@ args = 0, pretend = 0, frame = 8
+ 186              		@ frame_needed = 0, uses_anonymous_args = 0
+ 187 0000 00B5     		push	{lr}
+ 188              		.cfi_def_cfa_offset 4
+ 189              		.cfi_offset 14, -4
+ 190 0002 83B0     		sub	sp, sp, #12
+ 191              		.cfi_def_cfa_offset 16
+ 192 0004 0190     		str	r0, [sp, #4]
+  90:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****   /* ICL actions.*/
+  91:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****   switch ( pHandle->ICLstate )
+ 193              		.loc 1 91 19
+ 194 0006 019B     		ldr	r3, [sp, #4]
+ 195 0008 1B7A     		ldrb	r3, [r3, #8]	@ zero_extendqisi2
+ 196              		.loc 1 91 3
+ 197 000a 013B     		subs	r3, r3, #1
+ 198 000c 032B     		cmp	r3, #3
+ 199 000e 55D8     		bhi	.L21
+ 200 0010 01A2     		adr	r2, .L9
+ 201 0012 52F823F0 		ldr	pc, [r2, r3, lsl #2]
+ 202 0016 00BF     		.p2align 2
+ 203              	.L9:
+ 204 0018 29000000 		.word	.L12+1
+ 205 001c 65000000 		.word	.L11+1
+ 206 0020 47000000 		.word	.L10+1
+ 207 0024 91000000 		.word	.L8+1
+ 208              		.p2align 1
+ 209              	.L12:
+  92:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****   {
+  93:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****     case ICL_ACTIVATION:
+  94:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****     {
+  95:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****       /* ICL activation: counting the step before pass in ICL_ACTIVE */
+  96:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****       if ( pHandle->hICLTicksCounter == 0u )
+ 210              		.loc 1 96 19
+ 211 0028 019B     		ldr	r3, [sp, #4]
+ 212 002a 5B89     		ldrh	r3, [r3, #10]
+ 213              		.loc 1 96 10
+ 214 002c 002B     		cmp	r3, #0
+ 215 002e 03D1     		bne	.L13
+  97:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****       {
+  98:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****         pHandle->ICLstate = ICL_ACTIVE;
+ 216              		.loc 1 98 27
+ 217 0030 019B     		ldr	r3, [sp, #4]
+ 218 0032 0222     		movs	r2, #2
+ 219 0034 1A72     		strb	r2, [r3, #8]
+  99:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****       }
+ 100:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****       else
+ 101:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****       {
+ 102:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****         pHandle->hICLTicksCounter--;
+ 103:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****       }
+ 104:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****     }
+ 105:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****     break;
+ 220              		.loc 1 105 5
+ 221 0036 46E0     		b	.L15
+ 222              	.L13:
+ 102:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****       }
+ 223              		.loc 1 102 16
+ 224 0038 019B     		ldr	r3, [sp, #4]
+ 225 003a 5B89     		ldrh	r3, [r3, #10]
+ 102:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****       }
+ 226              		.loc 1 102 34
+ 227 003c 013B     		subs	r3, r3, #1
+ 228 003e 9AB2     		uxth	r2, r3
+ 229 0040 019B     		ldr	r3, [sp, #4]
+ 230 0042 5A81     		strh	r2, [r3, #10]	@ movhi
+ 231              		.loc 1 105 5
+ 232 0044 3FE0     		b	.L15
+ 233              	.L10:
+ 106:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** 
+ 107:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****     case ICL_DEACTIVATION:
+ 108:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****     {
+ 109:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****       /* ICL deactivation: counting the step before pass in ICL_INACTIVE.*/
+ 110:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****       if ( pHandle->hICLTicksCounter == 0u )
+ 234              		.loc 1 110 19
+ 235 0046 019B     		ldr	r3, [sp, #4]
+ 236 0048 5B89     		ldrh	r3, [r3, #10]
+ 237              		.loc 1 110 10
+ 238 004a 002B     		cmp	r3, #0
+ 239 004c 03D1     		bne	.L16
+ 111:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****       {
+ 112:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****         pHandle->ICLstate = ICL_INACTIVE;
+ 240              		.loc 1 112 27
+ 241 004e 019B     		ldr	r3, [sp, #4]
+ 242 0050 0422     		movs	r2, #4
+ 243 0052 1A72     		strb	r2, [r3, #8]
+ 113:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****       }
+ 114:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****       else
+ 115:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****       {
+ 116:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****         pHandle->hICLTicksCounter--;
+ 117:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****       }
+ 118:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****     }
+ 119:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****     break;
+ 244              		.loc 1 119 5
+ 245 0054 37E0     		b	.L15
+ 246              	.L16:
+ 116:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****       }
+ 247              		.loc 1 116 16
+ 248 0056 019B     		ldr	r3, [sp, #4]
+ 249 0058 5B89     		ldrh	r3, [r3, #10]
+ 116:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****       }
+ 250              		.loc 1 116 34
+ 251 005a 013B     		subs	r3, r3, #1
+ 252 005c 9AB2     		uxth	r2, r3
+ 253 005e 019B     		ldr	r3, [sp, #4]
+ 254 0060 5A81     		strh	r2, [r3, #10]	@ movhi
+ 255              		.loc 1 119 5
+ 256 0062 30E0     		b	.L15
+ 257              	.L11:
+ 120:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** 
+ 121:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****     case ICL_ACTIVE:
+ 122:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****     {
+ 123:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****       /* ICL is active: if bus is present deactivate the ICL */
+ 124:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****       if ( VBS_CheckVbus( pHandle->pVBS ) != MC_UNDER_VOLT )
+ 258              		.loc 1 124 12
+ 259 0064 019B     		ldr	r3, [sp, #4]
+ 260 0066 1B68     		ldr	r3, [r3]
+ 261 0068 1846     		mov	r0, r3
+ 262 006a FFF7FEFF 		bl	VBS_CheckVbus
+ 263 006e 0346     		mov	r3, r0
+ 264              		.loc 1 124 10 discriminator 1
+ 265 0070 042B     		cmp	r3, #4
+ 266 0072 25D0     		beq	.L22
+ 125:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****       {
+ 126:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****         DOUT_SetOutputState( pHandle->pDOUT, INACTIVE );
+ 267              		.loc 1 126 9
+ 268 0074 019B     		ldr	r3, [sp, #4]
+ 269 0076 5B68     		ldr	r3, [r3, #4]
+ 270 0078 0021     		movs	r1, #0
+ 271 007a 1846     		mov	r0, r3
+ 272 007c FFF7FEFF 		bl	DOUT_SetOutputState
+ 127:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****         pHandle->ICLstate = ICL_DEACTIVATION;
+ 273              		.loc 1 127 27
+ 274 0080 019B     		ldr	r3, [sp, #4]
+ 275 0082 0322     		movs	r2, #3
+ 276 0084 1A72     		strb	r2, [r3, #8]
+ 128:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****         pHandle->hICLTicksCounter = pHandle->hICLTotalTicks;
+ 277              		.loc 1 128 44
+ 278 0086 019B     		ldr	r3, [sp, #4]
+ 279 0088 9A89     		ldrh	r2, [r3, #12]
+ 280              		.loc 1 128 35
+ 281 008a 019B     		ldr	r3, [sp, #4]
+ 282 008c 5A81     		strh	r2, [r3, #10]	@ movhi
+ 129:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****       }
+ 130:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****     }
+ 131:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****     break;
+ 283              		.loc 1 131 5
+ 284 008e 17E0     		b	.L22
+ 285              	.L8:
+ 132:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** 
+ 133:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****     case ICL_INACTIVE:
+ 134:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****     {
+ 135:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****       /* ICL is inactive: if bus is not present activate the ICL */
+ 136:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****       if ( VBS_CheckVbus( pHandle->pVBS ) == MC_UNDER_VOLT )
+ 286              		.loc 1 136 12
+ 287 0090 019B     		ldr	r3, [sp, #4]
+ 288 0092 1B68     		ldr	r3, [r3]
+ 289 0094 1846     		mov	r0, r3
+ 290 0096 FFF7FEFF 		bl	VBS_CheckVbus
+ 291 009a 0346     		mov	r3, r0
+ 292              		.loc 1 136 10 discriminator 1
+ 293 009c 042B     		cmp	r3, #4
+ 294 009e 11D1     		bne	.L23
+ 137:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****       {
+ 138:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****         DOUT_SetOutputState( pHandle->pDOUT, ACTIVE );
+ 295              		.loc 1 138 9
+ 296 00a0 019B     		ldr	r3, [sp, #4]
+ 297 00a2 5B68     		ldr	r3, [r3, #4]
+ 298 00a4 0121     		movs	r1, #1
+ 299 00a6 1846     		mov	r0, r3
+ 300 00a8 FFF7FEFF 		bl	DOUT_SetOutputState
+ 139:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****         pHandle->ICLstate = ICL_ACTIVATION;
+ 301              		.loc 1 139 27
+ 302 00ac 019B     		ldr	r3, [sp, #4]
+ 303 00ae 0122     		movs	r2, #1
+ 304 00b0 1A72     		strb	r2, [r3, #8]
+ 140:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****         pHandle->hICLTicksCounter = pHandle->hICLTotalTicks;
+ 305              		.loc 1 140 44
+ 306 00b2 019B     		ldr	r3, [sp, #4]
+ 307 00b4 9A89     		ldrh	r2, [r3, #12]
+ 308              		.loc 1 140 35
+ 309 00b6 019B     		ldr	r3, [sp, #4]
+ 310 00b8 5A81     		strh	r2, [r3, #10]	@ movhi
+ 141:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****       }
+ 142:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****     }
+ 143:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****     break;
+ 311              		.loc 1 143 5
+ 312 00ba 03E0     		b	.L23
+ 313              	.L21:
+ 144:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** 
+ 145:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****     case ICL_IDLE:
+ 146:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****     default:
+ 147:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****     {
+ 148:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****     }
+ 149:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****     break;
+ 314              		.loc 1 149 5
+ 315 00bc 00BF     		nop
+ 316 00be 02E0     		b	.L15
+ 317              	.L22:
+ 131:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** 
+ 318              		.loc 1 131 5
+ 319 00c0 00BF     		nop
+ 320 00c2 00E0     		b	.L15
+ 321              	.L23:
+ 143:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** 
+ 322              		.loc 1 143 5
+ 323 00c4 00BF     		nop
+ 324              	.L15:
+ 150:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****   }
+ 151:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** 
+ 152:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****   return pHandle->ICLstate;
+ 325              		.loc 1 152 17
+ 326 00c6 019B     		ldr	r3, [sp, #4]
+ 327 00c8 1B7A     		ldrb	r3, [r3, #8]	@ zero_extendqisi2
+ 153:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** }
+ 328              		.loc 1 153 1
+ 329 00ca 1846     		mov	r0, r3
+ 330 00cc 03B0     		add	sp, sp, #12
+ 331              		.cfi_def_cfa_offset 4
+ 332              		@ sp needed
+ 333 00ce 5DF804FB 		ldr	pc, [sp], #4
+ 334              		.cfi_endproc
+ 335              	.LFE1226:
+ 337 00d2 00BF     		.section	.text.ICL_GetState,"ax",%progbits
+ 338              		.align	1
+ 339              		.p2align 4,,15
+ 340              		.weak	ICL_GetState
+ 341              		.syntax unified
+ 342              		.thumb
+ 343              		.thumb_func
+ 345              	ICL_GetState:
+ 346              	.LFB1227:
+ 154:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** 
+ 155:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** 
+ 156:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** /**
+ 157:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****   * @brief It returns the current state of the ICL state machine.
+ 158:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****   * @param  pHandle: handler of the current instance of the ICL component
+ 159:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****   * @retval ICLState_t returns the current ICL state machine
+ 160:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****   */
+ 161:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** __weak ICL_State_t ICL_GetState( ICL_Handle_t * pHandle )
+ 162:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** {
+ 347              		.loc 1 162 1
+ 348              		.cfi_startproc
+ 349              		@ args = 0, pretend = 0, frame = 8
+ 350              		@ frame_needed = 0, uses_anonymous_args = 0
+ 351              		@ link register save eliminated.
+ 352 0000 82B0     		sub	sp, sp, #8
+ 353              		.cfi_def_cfa_offset 8
+ 354 0002 0190     		str	r0, [sp, #4]
+ 163:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c ****   return pHandle->ICLstate;
+ 355              		.loc 1 163 17
+ 356 0004 019B     		ldr	r3, [sp, #4]
+ 357 0006 1B7A     		ldrb	r3, [r3, #8]	@ zero_extendqisi2
+ 164:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/inrush_current_limiter.c **** }
+ 358              		.loc 1 164 1
+ 359 0008 1846     		mov	r0, r3
+ 360 000a 02B0     		add	sp, sp, #8
+ 361              		.cfi_def_cfa_offset 0
+ 362              		@ sp needed
+ 363 000c 7047     		bx	lr
+ 364              		.cfi_endproc
+ 365              	.LFE1227:
+ 367 000e 00BF     		.text
+ 368              	.Letext0:
+ 369              		.file 2 "C:/StellarStudio-9.2/SDKS/TOOLS/Toolchain/ARM/MINGW64_NT/13.3.1-2024.06/arm-none-eabi/inc
+ 370              		.file 3 "C:/StellarStudio-9.2/SDKS/TOOLS/Toolchain/ARM/MINGW64_NT/13.3.1-2024.06/arm-none-eabi/inc
+ 371              		.file 4 "C:/StellarStudio-9.2/workspace/SR5E1_MCTK_v0/.sdk/StellarESDK-1.7.0/Modules/Platform/MCU/
+ 372              		.file 5 ".sdk/SR5E1_MCTK-1.3.0/include/LL_Library/sr5e1_ll_tim.h"
+ 373              		.file 6 ".sdk/SR5E1_MCTK-1.3.0/include/LL_Library/sr5e1_ll_usart.h"
+ 374              		.file 7 ".sdk/SR5E1_MCTK-1.3.0/include/LL_Library/sr5e1_ll_dma.h"
+ 375              		.file 8 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/mc_type.h"
+ 376              		.file 9 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/bus_voltage_sensor.h"
+ 377              		.file 10 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/digital_output.h"
+ 378              		.file 11 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/inrush_current_limiter.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 inrush_current_limiter.c
+C:\Users\ttqpe\AppData\Local\Temp\ccX1MXoi.s:20     .rodata.OFFSET_TAB_CCMRx:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccX1MXoi.s:23     .rodata.OFFSET_TAB_CCMRx:00000000 OFFSET_TAB_CCMRx
+C:\Users\ttqpe\AppData\Local\Temp\ccX1MXoi.s:26     .rodata.SHIFT_TAB_OCxx:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccX1MXoi.s:29     .rodata.SHIFT_TAB_OCxx:00000000 SHIFT_TAB_OCxx
+C:\Users\ttqpe\AppData\Local\Temp\ccX1MXoi.s:32     .rodata.SHIFT_TAB_ICxx:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccX1MXoi.s:35     .rodata.SHIFT_TAB_ICxx:00000000 SHIFT_TAB_ICxx
+C:\Users\ttqpe\AppData\Local\Temp\ccX1MXoi.s:38     .rodata.SHIFT_TAB_CCxP:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccX1MXoi.s:41     .rodata.SHIFT_TAB_CCxP:00000000 SHIFT_TAB_CCxP
+C:\Users\ttqpe\AppData\Local\Temp\ccX1MXoi.s:44     .rodata.SHIFT_TAB_OISx:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccX1MXoi.s:47     .rodata.SHIFT_TAB_OISx:00000000 SHIFT_TAB_OISx
+C:\Users\ttqpe\AppData\Local\Temp\ccX1MXoi.s:50     .rodata.USART_PRESCALER_TAB:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccX1MXoi.s:53     .rodata.USART_PRESCALER_TAB:00000000 USART_PRESCALER_TAB
+C:\Users\ttqpe\AppData\Local\Temp\ccX1MXoi.s:67     .rodata.LL_DMA_STR_OFFSET_TAB:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccX1MXoi.s:70     .rodata.LL_DMA_STR_OFFSET_TAB:00000000 LL_DMA_STR_OFFSET_TAB
+C:\Users\ttqpe\AppData\Local\Temp\ccX1MXoi.s:73     .text.ICL_Init:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccX1MXoi.s:80     .text.ICL_Init:00000000 ICL_Init
+C:\Users\ttqpe\AppData\Local\Temp\ccX1MXoi.s:169    .text.ICL_Init:00000078 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccX1MXoi.s:174    .text.ICL_Exec:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccX1MXoi.s:181    .text.ICL_Exec:00000000 ICL_Exec
+C:\Users\ttqpe\AppData\Local\Temp\ccX1MXoi.s:204    .text.ICL_Exec:00000018 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccX1MXoi.s:208    .text.ICL_Exec:00000028 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccX1MXoi.s:338    .text.ICL_GetState:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccX1MXoi.s:345    .text.ICL_GetState:00000000 ICL_GetState
+                           .group:00000000 wm4.0.6093079fab0af1ca2c5a0ad5709343e3
+                           .group:00000000 wm4._newlib_version.h.4.411db44ea2338a62eca2f0777f81481b
+                           .group:00000000 wm4.features.h.33.5ea28ceb8be6621901b9d58b4c3ee651
+                           .group:00000000 wm4._default_types.h.15.247e5cd201eca3442cbf5404108c4935
+                           .group:00000000 wm4._intsup.h.10.48bafbb683905c4daa4565a85aeeb264
+                           .group:00000000 wm4._stdint.h.10.c24fa3af3bc1706662bb5593a907e841
+                           .group:00000000 wm4.stdint.h.23.d53047a68f4a85177f80b422d52785ed
+                           .group:00000000 wm4.stdbool.h.29.c08aa3eec75cf5b9b5003883f43253f0
+                           .group:00000000 wm4.mc_stm_types.h.20.2d7d6ac163527ff5d1947d422c918f78
+                           .group:00000000 wm4.sr5e1xx.h.22.e5c808533cc52ed19fb0830cd7d98924
+                           .group:00000000 wm4.cmsis_version.h.32.0f826810625204eca22a19868bdc7586
+                           .group:00000000 wm4.core_cm7.h.66.8ab2de36917d6fcae18019067fda13e0
+                           .group:00000000 wm4.cmsis_gcc.h.26.498d0ad17a45fc9ef20fdc01caf02259
+                           .group:00000000 wm4.core_cm7.h.174.43edb295ecdaadad738f48ba6011ffad
+                           .group:00000000 wm4.mpu_armv7.h.32.83326921a797fa9d6f70449916b4b839
+                           .group:00000000 wm4.cachel1_armv7.h.32.abd77761a989e008b0c60891114a33c7
+                           .group:00000000 wm4.SR5E1_ADC.h.14.21608e6aff125ba995dd767d6d8dc311
+                           .group:00000000 wm4.SR5E1_CEM.h.14.01fe5742c8f1ae35b1f3af05932f702e
+                           .group:00000000 wm4.SR5E1_CMU.h.14.2617b38b159abe38028862394531e06d
+                           .group:00000000 wm4.SR5E1_COMP.h.14.4b6fdfe4f5f7fd9bedf3a99b98bdf4cd
+                           .group:00000000 wm4.SR5E1_CORDIC.h.14.354fbf7c9eaf6963d38eaa25cf28ffe8
+                           .group:00000000 wm4.SR5E1_CRC.h.14.c64d0f7767671ddb92e9ead0a1162100
+                           .group:00000000 wm4.SR5E1_DAC.h.14.8c26a0ff04b0cfeb55306cc3f22187b8
+                           .group:00000000 wm4.SR5E1_DBGMCU.h.14.427df893d53a8044654f017ba01c25ed
+                           .group:00000000 wm4.SR5E1_DMA.h.14.a7f9a92f844b40a86965798c2e64240b
+                           .group:00000000 wm4.SR5E1_DMAMUX.h.14.471b3b4dfd4d41515f1df49493698866
+                           .group:00000000 wm4.SR5E1_EXTI.h.14.a325ea3fe89cd84894660551c33241ea
+                           .group:00000000 wm4.SR5E1_FCCU.h.14.0ebf0f0f36e079d28613ad2c80e17e23
+                           .group:00000000 wm4.SR5E1_FDCAN.h.14.ac57101fad5dbc798bfb93f34c899de7
+                           .group:00000000 wm4.SR5E1_FLASH_REG_ITF.h.14.d23d1d44923f9b20b8c8fdb51d66aefd
+                           .group:00000000 wm4.SR5E1_GPIO.h.14.1c84071e130d7c64b62470ab0e18a1f1
+                           .group:00000000 wm4.SR5E1_HRTIM.h.24.03932387d2522e6bd5c772a4edaf2f5d
+                           .group:00000000 wm4.SR5E1_HSEM.h.14.cbe70eee519f01b16452c3f8c99d8df1
+                           .group:00000000 wm4.SR5E1_I2C.h.14.350ba3e0f4fd57828457efa80135c36c
+                           .group:00000000 wm4.SR5E1_IMA.h.14.62b7088985ab2b7ce9b030a02daa1f7d
+                           .group:00000000 wm4.SR5E1_IWDG.h.14.20b7c5f05cf7ae94464c360d7af3660d
+                           .group:00000000 wm4.SR5E1_MEMU.h.14.04bad7ae4c52ce334a4fc900aad2ae5b
+                           .group:00000000 wm4.SR5E1_NVM_CTRL.h.14.5f442617f0628d4f16258f211c614ef9
+                           .group:00000000 wm4.SR5E1_PLLDIG.h.14.bd87a8e6917eee17dae2f312c8e5fa53
+                           .group:00000000 wm4.SR5E1_PMC_DIG.h.14.54173b566c6656344766ec4ef46c9281
+                           .group:00000000 wm4.SR5E1_RCC.h.14.56734803c71534de286e793a53649740
+                           .group:00000000 wm4.SR5E1_RTC.h.14.47037cbc7d8175dbf2be1dc0bb955e3f
+                           .group:00000000 wm4.SR5E1_SD_ADC.h.14.552b97d0b8f3c1fd4df6d8964b2f1a80
+                           .group:00000000 wm4.SR5E1_SMPU.h.14.8ce5bb6d5d7c579cd725f492f46e9085
+                           .group:00000000 wm4.SR5E1_SPI.h.14.42d52112e540f85ade4d9135f8b87d72
+                           .group:00000000 wm4.SR5E1_SSCM.h.14.8e6a2ad0ce5fca422fc3d69939b6125b
+                           .group:00000000 wm4.SR5E1_SYSCFG.h.14.02b969490118ce4069914b5e94f7ca65
+                           .group:00000000 wm4.SR5E1_TDM.h.14.a40ed7928cad243a57fd233fccf01ad2
+                           .group:00000000 wm4.SR5E1_TIM.h.14.05b8efc5395873619642d61a4b0b5a54
+                           .group:00000000 wm4.SR5E1_UART.h.14.eec3ab82b02b3bdb3de500483675b83f
+                           .group:00000000 wm4.SR5E1_WWDG.h.14.59b45efc70e442cc6ef03702aad4ad88
+                           .group:00000000 wm4.stddef.h.39.38eb7ec030421799c657b13be5aa21c7
+                           .group:00000000 wm4.typedefs.h.36.07fe3956b4e751037cfee70edcd0b397
+                           .group:00000000 wm4.irq_numbers.h.38.6294b95aed1bf7b3a2cda0eed8ce8f57
+                           .group:00000000 wm4.regs.h.23.2ac145b4f57126d16daed5fbd86d99c6
+                           .group:00000000 wm4.sr5e1_wrapper.h.20.64eb3ae8ac9b19f101ec010f065b27e0
+                           .group:00000000 wm4.sr5e1_macros.h.48.23238fd8be149bfd93a4b06f4d1d3e48
+                           .group:00000000 wm4.sr5e1_ll_system.h.75.323fef6699ff2ef93649a75fbc3b9dc0
+                           .group:00000000 wm4.sr5e1_ll_tim.h.21.35d0409c49249d40ffa0621f7fd1e49f
+                           .group:00000000 wm4.sr5e1_ll_adc.h.21.a09418770aae8e8540b1ce15e5fd6881
+                           .group:00000000 wm4.sr5e1_ll_dac.h.21.e617f768d26181c75ac38760d82ada91
+                           .group:00000000 wm4.sr5e1_ll_cordic.h.21.601660824250c93d03fb6b7dd46d0750
+                           .group:00000000 wm4.sr5e1_ll_usart.h.21.edc232fc61ffb518b3051f74f786aac1
+                           .group:00000000 wm4.sr5e1_ll_dmamux.h.21.e0f20dc23ecc4be39502f49d8383668f
+                           .group:00000000 wm4.sr5e1_ll_dma.h.74.155fcc98e704261e48b273dd9cbd510c
+                           .group:00000000 wm4.mc_stm_types.h.52.4cccb248a2fcd7dfda158e1610af49bf
+                           .group:00000000 wm4.mc_type.h.47.50da95e050e3bfbddab14d990c2d05af
+                           .group:00000000 wm4.pwm_curr_fdbk.h.25.8b72d58784715ceca81111ec103a103d
+                           .group:00000000 wm4.digital_output.h.25.02fba90b0f6ba87331476d93a103f49e
+
+UNDEFINED SYMBOLS
+DOUT_SetOutputState
+VBS_CheckVbus

@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<com.st.stellar.component.motorcontrol.model:Motorcontrol xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:com.st.stellar.component.motorcontrol.model="http://com.st.stellar.component.motorcontrol.model" name="config">
+  <motor_settings>
+    <electrical_parameters pole_pairs="14" max_rated_speed="64000.0" nominal_current="150.0" nominal_dc_voltage="72.0" rs="0.012" ld="0.01" lq="0.015" ls="0.015" demagnetizing_current="150.0" back_emfconstant="4.8"/>
+    <sensors sensors_displacement="120" quadrature_encoder="false" pulses_per_mechanical_revolution="512" resolver="false" resolver_phase_shift="180.0"/>
+  </motor_settings>
+  <power_stage>
+    <ac_input_info/>
+    <inrush_current_limiter_shut_out/>
+    <pfc_power_factor_correction_>
+      <pfc_group_invisible/>
+    </pfc_power_factor_correction_>
+    <dissipative_brake dissipative_brake_enable="true"/>
+    <phase_drivers high_side_driver_signal_polarity="Active Low" low_side_driver_signal_polarity="Active Low" hw_inserted_dead_time="2000.0">
+      <phase_u_driver high_side_driver_signal_polarity="Active Low" low_side_driver_signal_polarity="Active Low"/>
+      <phase_v_driver high_side_driver_signal_polarity="Active Low" low_side_driver_signal_polarity="Active Low"/>
+      <phase_w_driver high_side_driver_signal_polarity="Active Low" low_side_driver_signal_polarity="Active Low"/>
+    </phase_drivers>
+    <over_current_protection overcurrent_protection_enable="true" comparator_threshold="2.5"/>
+    <bus_voltage_sensing bus_voltage_sensing_enable="true" resistor_r1="1220.0" max_rated_bus_voltage="100.0" resistor_r2="10.0" min_rated_bus_voltage="20.0"/>
+    <temperature_sensing temperature_sensing_enable="true" temperature_sensing_v0="1650.0" temperature_coefficient="32.43">
+      <firmware_protection>
+        <over_temperature/>
+      </firmware_protection>
+    </temperature_sensing>
+    <current_sensing current_reading_topology="Three Shunt Resistor" shunt_resistor="5.0E-4" amplification_network_gain="20.0" rise_timing="1000.0" noise_timing="1000.0" max_readble_current="165.0">
+      <ics_or_two_shunt_settings shunt_positioning="LEGS"/>
+    </current_sensing>
+    <application_task/>
+  </power_stage>
+  <drive_management>
+    <speed_sensor_selection>
+      <main_sensor>
+        <sensor_list1 sensor_selection="Hall Sensors">
+          <sensor_less_observer_and_pll1>
+            <observer/>
+            <pll/>
+          </sensor_less_observer_and_pll1>
+          <sensor_less_observer_and_cordic1>
+            <observer/>
+          </sensor_less_observer_and_cordic1>
+          <sensor_less_observer_and_hfi>
+            <scan/>
+            <north_south_identification/>
+            <speed_threshold/>
+          </sensor_less_observer_and_hfi>
+          <quadrature_encoder reverse_counting_direction="true"/>
+          <hall_sensors hall_average_speed_fifo_depth="18.0"/>
+          <mainresolver demodulation_trigger_delay="9000.0">
+            <resolver_advanced_parameters/>
+            <pll/>
+          </mainresolver>
+        </sensor_list1>
+      </main_sensor>
+      <auxiliary_sensor>
+        <sensor_list sensor_selection="Observer+PLL">
+          <sensor_less_observer_and_pll2 manual_editing_enabled="true">
+            <observer/>
+            <pll/>
+          </sensor_less_observer_and_pll2>
+          <sensor_less_observer_and_cordic2>
+            <observer/>
+          </sensor_less_observer_and_cordic2>
+          <quadrature_encoder/>
+          <hall_sensors/>
+          <auxresolver demodulation_trigger_delay="9000.0">
+            <resolver_advanced_parameters/>
+            <pll/>
+          </auxresolver>
+        </sensor_list>
+      </auxiliary_sensor>
+    </speed_sensor_selection>
+    <drive_settings spc5_initialization="false">
+      <pwm_generation_and_current_reading pwm_frequency="10000.0">
+        <low_side_signals_and_dead_time sw_inserted_dead_time="700.0"/>
+      </pwm_generation_and_current_reading>
+      <speed_regulator kp="5620" ki="20"/>
+      <default_settings target_speed="60.0" target_stator_current_torque_component="3.0"/>
+      <torque_and_flux_regulators cut_off_frequency="3200.0" manual_editing_enabled="true">
+        <torque kp="500" ki="3" kp_div="16384" ki_div="16384"/>
+        <flux kp="1820" ki="3" kp_div="16384" ki_div="16384"/>
+      </torque_and_flux_regulators>
+    </drive_settings>
+    <startup_parameters>
+      <sensor_less_rev_up_settings consecutive_successfull_start_up_output_tests="1" minimum_start_up_output_speed="200">
+        <basic include_alignment_before_ramp_up="true" duration="1000" final_current_ramp_value="100.0" speed_ramp_duration="1000" speed_ramp_final_value="100" current_ramp_initial_value="100.0" current_ramp_final_value="120.0" current_ramp_duration="500"/>
+        <advanced_customized alignment_electrical_angle="0">
+          <phase_1 duration="2000" final_speed="100" final_current="70.0"/>
+          <phase_2 duration="2000" final_speed="150" final_current="70.0"/>
+          <phase_3 duration="2000" final_speed="200" final_current="70.0"/>
+          <phase_4 duration="2000" final_speed="210" final_current="70.0"/>
+          <phase_5 duration="2000" final_speed="220" final_current="70.0"/>
+        </advanced_customized>
+        <rev_up_to_foc_switch_over/>
+      </sensor_less_rev_up_settings>
+      <encoder_alignment_settings duration="500" final_current_ramp_value="5.0"/>
+    </startup_parameters>
+    <additional_features>
+      <additional_methods flux_weakening_enable="true" feed_forward_enable="true">
+        <flux_weakening kp="1000" kp_div="1024" ki="50" ki_div="1024" voltage_limit="100.0"/>
+      </additional_methods>
+    </additional_features>
+    <user_interface>
+      <can_details/>
+      <serial_details serialchannel="UART1"/>
+    </user_interface>
+  </drive_management>
+  <control_stage>
+    <mcu_supply_voltage_and_clock_frequency/>
+    <pwm_functionality PWM_U_channel="CHANNEL_CH3" PWM_W_channel="CHANNEL_CH1"/>
+    <CurrentSensing/>
+    <dac_functionality dac_mode="TIM" ch1_variable="Observed BEMF alpha (PLL)" ch2_variable="Observed BEMF beta (PLL)"/>
+    <resolver resolver_adc_selection="ADC4">
+      <sin_cos_sensing/>
+      <resolver_dma/>
+    </resolver>
+    <encoder tim_module="TIM2">
+      <encoder_channels/>
+    </encoder>
+    <hall>
+      <hall_channels/>
+    </hall>
+    <vbus_temp_measures temp_adc_module="ADC4" temp_adc_channel="CHANNEL_1"/>
+  </control_stage>
+</com.st.stellar.component.motorcontrol.model:Motorcontrol>

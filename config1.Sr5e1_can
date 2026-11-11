@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<com.st.stellar.component.sr5e1.can:Sr5e1_can xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:com.st.stellar.component.sr5e1.can="http://com.st.stellar.component.sr5e1.can" name="config1">
+  <requiredFeatures>com.st.stellar.component.sr5x.clocktree</requiredFeatures>
+  <exportedFeatures>com.st.stellar.component.sr5e1.can</exportedFeatures>
+  <configs name="rx_config" priority="0" enable_read_polling="false" can_clock="40000000" rx_buff_num="4" tx_buff_num="4" rx_fifo0_num="4" rx_fifo1_num="4" tx_fifoq_num="4" txe_fifo_num="4" IRQ_mask="All interrupts enabled" CAN_CB="canrx_receive_cb" CAN_ERROR_CB="canrx_error_cb">
+    <filters fec_type="Store into Rx Buffer or as debug message, configuration of SFT[1:0]" filter_type="Classic Filter Type" id1="2032"/>
+  </configs>
+  <configs name="tx_config" priority="10" enable_read_polling="false" can_clock="40000000" rx_buff_num="4" tx_buff_num="4" rx_fifo0_num="4" rx_fifo1_num="4" tx_fifoq_num="4" txe_fifo_num="4" CAN_ERROR_CB="canrx_error_cb">
+    <filters fec_type="Store into Rx Buffer or as debug message, configuration of SFT[1:0]" filter_type="Classic Filter Type" id1="2032"/>
+  </configs>
+</com.st.stellar.component.sr5e1.can:Sr5e1_can>
