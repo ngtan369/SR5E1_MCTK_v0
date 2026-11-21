@@ -33,6 +33,8 @@
 #include "ics_SR5E1_pwm_curr_fdbk.h"
 #include "mc_interface.h"
 #include "parameters_conversion.h"
+#include "mc_config.h"
+#include "sr5e1_ll_usart.h"
 //extern Mci_Handle_t oMCInterface[M1];
 volatile int16_t debug_Ia, elec_ang;
 volatile int16_t debug_Ib, dbg_vd = -500;
@@ -64,6 +66,12 @@ volatile uint8_t hall_position = 99U;
 
 static void EXTI_Init(void);
 static void STDRIVE601_Init(void);
+static void UART_LED_Test_Init(void);
+static void UART_LED_Test_SendString(const char *text);
+static void UART_LED_Test_Poll(void);
+static void UART_LED_Test_ReportHall(void);
+static void UART_LED_Test_Wait(void);
+static void UART_LED_Test_Blink(void);
 #ifdef USE_L9502
 void L9502_En_Button(void);
 #endif
@@ -168,14 +176,96 @@ volatile int16_t dbg_foc, dbg_hall;
  */
 static inline uint8_t HW_Read_Hall_Sensors(void)
 {
-    uint8_t hall_state = 0U;
+    return (uint8_t)((gpio_read_pin(MC_HALL_CH3) << 2U) |
+                     (gpio_read_pin(MC_HALL_CH2) << 1U) |
+                      gpio_read_pin(MC_HALL_CH1));
+}
 
+/* UART1 polling helpers are used only by the low-risk bring-up path. */
+static void UART_LED_Test_Init(void)
+{
+    LL_USART_InitTypeDef config = {0};
 
-    hall_state = (uint8_t) ((gpio_read_pin( MC_HALL_CH3 ) << 2)
-            | (gpio_read_pin( MC_HALL_CH2 ) << 1)
-            |  gpio_read_pin( MC_HALL_CH1 ) );
+    clock_enable_UART1(true);
+    config.PrescalerValue = LL_USART_PRESCALER_DIV1;
+    config.BaudRate = USART_SPEED;
+    config.DataWidth = LL_USART_DATAWIDTH_8B;
+    config.StopBits = LL_USART_STOPBITS_1;
+    config.Parity = LL_USART_PARITY_NONE;
+    config.TransferDirection = LL_USART_DIRECTION_TX_RX;
+    config.HardwareFlowControl = LL_USART_HWCONTROL_NONE;
+    config.OverSampling = LL_USART_OVERSAMPLING_16;
 
-    return hall_state;
+    LL_USART_Init(UART1, &config);
+    LL_USART_SetTXRXSwap(UART1, LL_USART_TXRX_STANDARD);
+    LL_USART_DisableFIFO(UART1);
+    LL_USART_ConfigAsyncMode(UART1);
+    LL_USART_Enable(UART1);
+    while ((LL_USART_IsActiveFlag_TEACK(UART1) == 0U) ||
+           (LL_USART_IsActiveFlag_REACK(UART1) == 0U)) { }
+}
+
+static void UART_LED_Test_SendString(const char *text)
+{
+    while (*text != '\0')
+    {
+        while (LL_USART_IsActiveFlag_TXE(UART1) == 0U) { }
+        LL_USART_TransmitData8(UART1, (uint8_t)*text++);
+    }
+    while (LL_USART_IsActiveFlag_TC(UART1) == 0U) { }
+}
+
+static void UART_LED_Test_Poll(void)
+{
+    if (LL_USART_IsActiveFlag_RXNE(UART1) != 0U)
+    {
+        uint8_t byte = LL_USART_ReceiveData8(UART1);
+        while (LL_USART_IsActiveFlag_TXE(UART1) == 0U) { }
+        LL_USART_TransmitData8(UART1, byte);
+    }
+}
+
+static void UART_LED_Test_ReportHall(void)
+{
+    static uint8_t previous = 0xFFU;
+    uint8_t hall = HW_Read_Hall_Sensors();
+    char message[] = "HALL H3=0 H2=0 H1=0 raw=00\r\n";
+
+    if (hall == previous) { return; }
+    previous = hall;
+    message[8] = (char)('0' + ((hall >> 2U) & 1U));
+    message[13] = (char)('0' + ((hall >> 1U) & 1U));
+    message[18] = (char)('0' + (hall & 1U));
+    message[25] = (char)('0' + (hall / 10U));
+    message[26] = (char)('0' + (hall % 10U));
+    UART_LED_Test_SendString(message);
+}
+
+static void UART_LED_Test_Wait(void)
+{
+    for (volatile uint32_t i = 0U; i < 3000000U; ++i)
+    {
+        if ((i & 0x3FFU) == 0U)
+        {
+            UART_LED_Test_Poll();
+            UART_LED_Test_ReportHall();
+        }
+    }
+}
+
+static void UART_LED_Test_Blink(void)
+{
+    gpio_set_pin(USER_LED_1);
+    UART_LED_Test_Wait();
+    gpio_clear_pin(USER_LED_1);
+
+    gpio_set_pin(USER_LED_2);
+    UART_LED_Test_Wait();
+    gpio_clear_pin(USER_LED_2);
+
+    gpio_set_pin(USER_LED_3);
+    UART_LED_Test_Wait();
+    gpio_clear_pin(USER_LED_3);
 }
 
 /**
@@ -345,21 +435,28 @@ void SixStep_Commutate(uint16_t target_pwm_duty)
  * @brief   Application entry point.
  * @note    Environment has been fully set up at this point.
  */
-int main(void) {
+int main(void)
+{
 
 //	uint32_t can_timer_ms = 0U;
 //	can_frame_t tx_frame;
 
-	duty = 900;
-	/* SDK initialization.*/
-  test_env_init(
-      TEST_INIT_CLOCK    |
-      TEST_INIT_GPIO     |
-      TEST_INIT_BOARD    |
-      TEST_INIT_IRQ      |
-      TEST_INIT_OSAL);
+    duty = 900;
+    test_env_init(TEST_INIT_CLOCK | TEST_INIT_GPIO | TEST_INIT_BOARD |
+                  TEST_INIT_IRQ | TEST_INIT_OSAL);
 
-  /* Enable interrupts.*/
+#ifdef LED_ONLY_TEST
+    /* Standalone board check: no driver or motor-control initialization. */
+    UART_LED_Test_Init();
+    UART_LED_Test_SendString("UART1 test: 38400 8-N-1, type to echo.\r\n");
+    for (;;)
+    {
+        UART_LED_Test_Poll();
+        UART_LED_Test_ReportHall();
+        UART_LED_Test_Blink();
+    }
+#else
+    /* Enable interrupts before starting the motor-control application. */
   osal_sys_unlock();
   
 //#ifdef TEST_TOGGLE_PIN_LED
@@ -599,6 +696,7 @@ int main(void) {
     MC_RunMotorControlTasks();
 #endif
   }
+#endif /* LED_ONLY_TEST */
 }
 
 /* IRQ handler for STDRIVE_EN pin */

@@ -258,7 +258,24 @@ Build thử nghiệm:
   - `0x00000000`: PE3 LOW
 - LED1 đã được quan sát nhấp nháy sau bootstrap thủ công.
 
-## 7.2 Vấn đề boot-handoff BAF sang Flash
+## 7.2 Test UART1, Hall và ba LED
+
+`LED_ONLY_TEST` trong `include/main.h` bật luồng bring-up polling tại đầu
+`main()`:
+
+- UART1 dùng `USART_SPEED` (`38400 baud`), 8-N-1, không flow control.
+- Firmware gửi banner khi khởi động và echo từng byte nhận được.
+- Hall được đọc trực tiếp theo thứ tự `H3:H2:H1`; firmware chỉ gửi dòng mới
+  qua UART khi trạng thái Hall thay đổi.
+- USER_LED_1, USER_LED_2, USER_LED_3 sáng lần lượt rồi tắt; trong thời gian
+  chờ, firmware tiếp tục poll UART và Hall.
+- Nhánh này không mở ngắt OSAL/MotorControl, không gọi
+  `STDRIVE601_Init()` hoặc `MX_MotorControl_Init()`, và không chạy motor.
+
+Đây là chức năng trong source đã được nhập từ `testled`; cần build và kiểm tra
+trên board trước khi đánh dấu kết quả UART/Hall/ba LED là đã xác nhận.
+
+## 7.3 Vấn đề boot-handoff BAF sang Flash
 
 Trạng thái đang giữ:
 
