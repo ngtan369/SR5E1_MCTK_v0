@@ -8,8 +8,9 @@ motor, tài liệu power stage hoặc phép đo trên board.
 
 - MCU/board profile: SR5E1E7 / `evbe7000s`, core1.
 - SDK/MCTK: StellarESDK 1.7.0 / SR5E1_MCTK 1.3.0.
-- Tài liệu này mô tả branch `openloop`. `OPEN_LOOP_FOC_TEST` và
-  `OPEN_LOOP_FOC` đang bật; `LED_ONLY_TEST` đã tắt.
+- Tài liệu này mô tả branch `openloop`. Luồng FOC khởi tạo mặc định;
+  `OPEN_LOOP_FOC_TEST` và `OPEN_LOOP_FOC` đang bật. Không còn nhánh firmware
+  dừng ở chế độ `LED_ONLY_TEST`.
 - Gửi `s` qua UART1 để yêu cầu start, `x` để stop, `?` để xem lệnh. Firmware
   không tự start motor khi reset.
 - Khi state machine ở `RUN`, UART1 xuất mỗi 100 ms:
@@ -33,7 +34,7 @@ sau đó chạy Generate Code/Refresh trong StellarStudio.
 | File | Vai trò |
 |---|---|
 | `src/main.c` | Entry point, chọn mode ứng dụng, init board/MCTK, start/stop và vòng lặp tasks |
-| `include/main.h` | Compile-time mode và các macro thử nghiệm như `LED_ONLY_TEST`, `OPEN_LOOP_FOC`, `OL_*` |
+| `include/main.h` | Chọn Open-loop FOC và các tham số `OL_*` |
 | `config.Motorcontrol` | Motor, sensor, PWM, sensing, limits và startup parameters đầu vào cho MCTK generator |
 | `Config.gpio` | Pinmux GPIO, UART, Hall, phase PWM và fault input |
 | `application.appcfg` | Danh sách component được generator đưa vào application |
@@ -41,6 +42,83 @@ sau đó chạy Generate Code/Refresh trong StellarStudio.
 | `.sdk/SR5E1_MCTK-1.3.0/include/MotorControl/mc_api.h` | Prototype API ứng dụng MCTK |
 | `.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_tasks.c` | Luồng FOC và vị trí Open-loop voltage được áp vào |
 | `readme.md` | Tóm tắt project, pinout và trạng thái bring-up |
+
+## 2.1 Cách đọc `src/main.c`
+
+Đọc file theo luồng thay vì cố hiểu từng biến một lượt:
+
+1. `include/main.h`: chọn thuật toán FOC và các macro build/debug.
+2. Đầu `src/main.c`: include SDK, biến debug và khai báo prototype.
+3. Các hàm `OpenLoop_*`: lệnh UART, in góc và cập nhật LED.
+4. `main()`: khởi tạo board/driver/MCTK, hiệu chuẩn current sense, sau đó chạy vòng ứng dụng.
+5. Các IRQ handler ở cuối file: fault driver và nút board.
+
+### Macro quan trọng trong `include/main.h`
+
+| Macro | Ý nghĩa trong branch hiện tại |
+|---|---|
+| `OPEN_LOOP_FOC_TEST` | Bật console UART1, telemetry góc và blink LED. Đây là lựa chọn phần ứng dụng/debug; tự nó không chọn thuật toán điều khiển. |
+| `OPEN_LOOP_FOC` | Chọn thuật toán trong MCTK. `TRUE` làm vòng FOC dùng điện áp/góc đặt `OL_*`, thay cho output PI dòng. |
+| `OL_VOLT` | Mức `Vq` đặt khi `OPEN_LOOP_FOC == TRUE`; đây là đơn vị nội bộ MCTK, không phải volt trực tiếp. |
+| `OL_ANGLE` | Góc điện khởi tạo cho vector điện áp, dạng DPP. |
+| `OL_DPP` | Bước tăng góc điện mỗi lần high-frequency FOC task chạy; quyết định tốc độ quay của vector open-loop. |
+| `MCTK_MC_MODE` | Đang comment. Không bật trong cấu hình hiện tại vì `MC_RunMotorControlTasks()` đã được gọi từ OSAL tick hook trong SDK; gọi thêm ở main loop có thể làm scheduler chạy trùng. |
+| `MCTK_DEBUG_*` | Bật buffer/biến phục vụ debugger, có thể tăng RAM/CPU. Chỉ bật những nhóm cần quan sát. |
+| `EXTERNAL_THROTTLE` | Đang tắt. Nếu bật sẽ kéo theo nhánh thử ADC/throttle cũ; đó không phải cách start Open-loop hiện tại. |
+
+### Hàm ứng dụng đang dùng
+
+| Hàm | Việc cần biết |
+|---|---|
+| `main()` | Luồng khởi động chính: `test_env_init()` → mở ngắt cần cho MCTK → `STDRIVE601_Init()` → `MX_MotorControl_Init()` → hiệu chuẩn dòng → vòng lặp app. Không start motor tự động khi boot. |
+| `OpenLoop_UART_PollCommand()` | Poll một byte UART1. `s` chỉ yêu cầu start khi state `IDLE` và không có current fault; đặt torque ramp 0 làm command hợp lệ trước `MC_StartMotor1()`. `x` yêu cầu stop; `?` in trợ giúp. |
+| `OpenLoop_UART_ReportAngles()` | Khi state `RUN`, in mỗi 100 ms góc FOC, góc Hall, hiệu wrap DPP và độ quy đổi. Đây là phép giám sát, không hiệu chỉnh góc. |
+| `OpenLoop_UpdateLEDs()` | Mỗi 250 ms tắt cả ba LED rồi bật LED kế tiếp. Cả chuỗi ba LED lặp khoảng 750 ms; hàm không dùng delay chặn vòng lặp. |
+| `UART1_SendString()` | Gửi chuỗi UART1 kiểu polling/blocking. Chỉ dùng cho banner/lệnh/telemetry thưa; không gọi trong ISR hoặc fast-current loop. |
+| `OpenLoop_AppendInt()` | Chuyển số nguyên sang chuỗi thập phân để format telemetry, thay cho `printf` trong firmware. |
+| `UI_Scheduler()` | Override rỗng của scheduler giao diện MCTK trong build console text; UART1 được dành cho lệnh/telemetry raw thay vì MCTK Live Monitor. |
+| `STDRIVE601_Init()` | Đưa chân `STDRIVE_EN` lên mức enable; nếu bật `MCTK_DEBUG_OFF_STDRIVE601` thì kéo xuống để giữ gate driver disable khi kiểm tra. |
+| `IRQ_EXTI2_HANDLER()` | Xử lý fault STDRIVE601: yêu cầu stop, kéo `STDRIVE_EN` thấp và bật LED2 báo lỗi. |
+| `EXTI_Init()` / `IRQ_EXTI15_10_HANDLER()` | Cấu hình và xử lý nút board. Một số nhánh gear/throttle ở đây là legacy; không dùng chúng làm điều khiển Open-loop UART. |
+
+### Biến/debug quan trọng
+
+| Biến | Cách hiểu |
+|---|---|
+| `FOCVars[M1].hElAngle` | Góc điện cuối cùng mà MCTK dùng trong FOC. Với Open-loop hiện tại, đây là góc dùng để tổng hợp vector điện áp. |
+| `HALL_M1._Super.hElAngle` | Góc điện Hall nội suy do MCTK cập nhật; không phải raw Hall 3-bit và cũng không có độ phân giải liên tục như encoder. |
+| `delta_dpp`, `delta_degrees` | Giá trị cục bộ trong hàm UART: sai lệch wrap theo miền 16-bit DPP và độ quy đổi gần đúng; dấu là `FOC - Hall`. |
+| `PWM_Handle_M1` | Handle MCTK chứa trạng thái PWM/current feedback. Không tự sửa các field của handle để điều khiển output. |
+| `dbg_dutyA/B/C`, `dbg_ccrA/B/C`, `dbg_dutyA_pct/...` | Snapshot compare duty từ handle và thanh ghi timer để quan sát bằng debugger; chỉ là telemetry debug. |
+| `debug_Ia`, `debug_Ib` | Bản sao hai dòng điện pha đọc qua `MC_GetIabMotor1()`, phục vụ debugger. |
+| `DebugAngle`, `DebugCurrentIa/Ib`, `DebugAngleMainArray` | Buffer debug do SDK MCTK tạo khi bật `MCTK_DEBUG_*`; kiểm tra định nghĩa trong `mc_tasks.c`/header trước khi dùng. |
+| `StateMotor`, `startMot`, `gear_D/R/N`, `throttle_zero_check` | Phần state/biến từ các thử nghiệm cũ. Không phải nguồn lệnh Open-loop chính; lệnh hiện tại đến từ `OpenLoop_UART_PollCommand()`. |
+| `faults`, `hall_position`, `current_hall` | Biến dùng trong fault/đường Hall 6-step cũ; không biểu diễn trạng thái state machine MCTK. |
+
+Một số global khác trong `main.c` chỉ còn là watch variable/đồ thử cũ:
+
+| Biến | Trạng thái hiện tại |
+|---|---|
+| `raw_ADC1_JDR1`, `raw_ADC2_JDR1`, `elec_ang`, `dbg_vd` | Khởi tạo giá trị để watch/debug; `main.c` hiện không cập nhật chúng như telemetry FOC. |
+| `debug_VSPEED_raw`, `rcm_state`, `testRegConvADC`, `handleRegADC` | Đường đọc throttle bằng ADC regular conversion; chỉ liên quan nếu bật `EXTERNAL_THROTTLE`, không phải input start mặc định. |
+| `target_patch_address`, `dbg_measured_cpr/ppr`, `dbg_z_pulse_count` | Biến dành cho thử patch/encoder; không dùng trong Open-loop Hall path hiện tại. |
+| `can_led_test_value`, `chart_avg_Iq`, `current`, `dbg_foc`, `dbg_hall` | Biến sót lại từ test CAN/chart/FOC-Hall; không phải nguồn điều khiển hiện hành. |
+| `duty` | Được gán `900` khi vào `main()`, nhưng Open-loop MCTK không dùng giá trị này để đặt SVPWM duty. |
+| `DutyPhABufferDebug`/`DutyPhBBufferDebug`/`DutyPhCBufferDebug`, `wIndex` | Buffer compare duty tùy chọn của SDK; `DUTY_PHA_DEBUG` hiện vẫn comment trong SDK nên các buffer này không được ghi ở cấu hình hiện tại. Nếu bật, đọc theo `wIndex`; đây vẫn là telemetry, không phải lệnh duty. |
+| `DebugCurrentIa/Ib`, `DebugAngleMainArray` | Buffer lịch sử do MCTK ghi khi bật macro debug; buffer có kích thước cố định và index quay vòng theo logic SDK. |
+
+### Comment nào đang chỉ là code cũ?
+
+`// ...` và `/* ... */` là comment nên compiler bỏ qua. Các đoạn CAN, L9502,
+throttle/ADC và auto-start đang comment hoặc nằm trong macro tắt là phần thử
+nghiệm cũ; không phải các bước đang chạy. Riêng các hàm `HW_Set_Phase_*()` và
+`SixStep_Commutate()` vẫn được compile nhưng là đóng cắt Hall 6-step thủ công;
+`main()` hiện không gọi chúng. Không gọi các hàm đó cùng với FOC/SVPWM của MCTK.
+
+Để lần theo FOC thật, xem `TSK_HighFrequencyTask()` và
+`FOC_CurrControllerM1()` trong `.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/mc_tasks.c`.
+Để đi tới Hall current PI ở giai đoạn sau, xem mục 8; không bật PI bằng cách chỉ
+bỏ comment một đoạn cũ trong `main.c`.
 
 Trong `src/main.c` còn có các helper tự đóng cắt pha theo Hall 6-step. Không
 dùng `HW_Set_Phase_*` hoặc `SixStep_Commutate()` làm đường phát PWM cho FOC.
@@ -158,7 +236,7 @@ inverter, gate driver, sensor và nguồn.
 
 | Cổng | Thử nghiệm | Điều kiện pass |
 |---|---|---|
-| T0 | Build `LED_ONLY_TEST`, UART echo, raw Hall, LED; không chạy motor | Build/nạp đúng ELF; không vào driver/MCTK motor path |
+| T0 | Build/nạp firmware FOC; chưa cấp VBUS motor và chưa gửi lệnh `s` | Firmware vào init MotorControl; UART banner/commands và ba LED hoạt động; motor chưa chạy |
 | T1 | Generate lại sau khi đổi `Config.gpio` và `config.Motorcontrol` | Header sinh khớp pin PD2, pole pairs và channel mapping |
 | T2 | Board logic-only: đọc VBUS, nhiệt, Hall và current offset | Đọc ổn định, scale/polarity phù hợp phép đo ngoài; fault input đúng |
 | T3 | VBUS ngắt: xác minh pinmux, trạng thái idle, EN và fault; kiểm tra gate outputs bị disable | Không có gate drive khi EN thấp; mapping logic/power được xác nhận theo schematic |

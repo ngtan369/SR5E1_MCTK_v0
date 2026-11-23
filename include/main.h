@@ -40,7 +40,6 @@ extern "C" {
 #define MCTK_DEBUG_ANGLE_SENSOR_BUFFER_SIZE 4000
 
 /* Select the motor-control application on branch openloop. */
-//#define LED_ONLY_TEST
 #define OPEN_LOOP_FOC_TEST
 
 /* Enable debug to diff main sensor vs aux sensor (DebugTestEncHallDiff) */

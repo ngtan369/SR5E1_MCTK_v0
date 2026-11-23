@@ -235,9 +235,13 @@ build/sr5e1/evbe7000s/core1/Debug/
 
 ## 7.1 Test LED và nạp Flash
 
+Ghi chú: phần 7.1–7.2 ghi lại bring-up lịch sử trên branch `main`. Branch
+`openloop` khởi tạo MotorControl mặc định và không còn nhánh `LED_ONLY_TEST`.
+
 Ngày test: `2026-11-18`
 
-Chế độ `LED_ONLY_TEST` được bật trong `include/main.h`:
+Trong lần thử lịch sử trên branch `main`, `LED_ONLY_TEST` được bật trong
+`include/main.h`:
 
 - LED1 = PE3
 - LED2 = PE2
@@ -270,8 +274,8 @@ Build thử nghiệm:
 
 ## 7.2 Test UART1, Hall và ba LED
 
-`LED_ONLY_TEST` trong `include/main.h` bật luồng bring-up polling tại đầu
-`main()`:
+Trong lần thử lịch sử trên branch `main`, `LED_ONLY_TEST` bật luồng bring-up
+polling tại đầu `main()`:
 
 - UART1 dùng `USART_SPEED` (`38400 baud`), 8-N-1, không flow control.
 - Firmware gửi banner khi khởi động và echo từng byte nhận được.

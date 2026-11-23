@@ -67,14 +67,7 @@ volatile uint8_t hall_position = 99U;
 
 static void EXTI_Init(void);
 static void STDRIVE601_Init(void);
-#if defined(LED_ONLY_TEST) && !defined(OPEN_LOOP_FOC_TEST)
-static void UART_LED_Test_Init(void);
-static void UART_LED_Test_Poll(void);
-static void UART_LED_Test_ReportHall(void);
-static void UART_LED_Test_Wait(void);
-static void UART_LED_Test_Blink(void);
-#endif
-static void UART_LED_Test_SendString(const char *text);
+static void UART1_SendString(const char *text);
 static void OpenLoop_UART_PollCommand(void);
 static void OpenLoop_UART_ReportAngles(void);
 static void OpenLoop_UpdateLEDs(void);
@@ -210,21 +203,21 @@ static void OpenLoop_UART_PollCommand(void)
             MC_ProgramTorqueRampMotor1(0, 0U);
             if (MC_StartMotor1())
             {
-                UART_LED_Test_SendString("Open-loop start requested\r\n");
+                UART1_SendString("Open-loop start requested\r\n");
             }
             else
             {
-                UART_LED_Test_SendString("Open-loop start rejected\r\n");
+                UART1_SendString("Open-loop start rejected\r\n");
             }
         }
         else if (command == 'x' || command == 'X')
         {
             (void)MC_StopMotor1();
-            UART_LED_Test_SendString("Stop requested\r\n");
+            UART1_SendString("Stop requested\r\n");
         }
         else if (command == '?')
         {
-            UART_LED_Test_SendString("s=start, x=stop, ?=help\r\n");
+            UART1_SendString("s=start, x=stop, ?=help\r\n");
         }
     }
 }
@@ -262,8 +255,8 @@ static void OpenLoop_UART_ReportAngles(void)
         *out++ = '\r';
         *out++ = '\n';
         *out = '\0';
-        UART_LED_Test_SendString("ANGLE_DPP foc,hall,delta,delta_deg: ");
-        UART_LED_Test_SendString(line);
+        UART1_SendString("ANGLE_DPP foc,hall,delta,delta_deg: ");
+        UART1_SendString(line);
     }
 }
 
@@ -306,34 +299,8 @@ static inline uint8_t HW_Read_Hall_Sensors(void)
                       gpio_read_pin(MC_HALL_CH1));
 }
 
-/* Standalone LED/Hall bring-up UART initialization. */
-#if defined(LED_ONLY_TEST) && !defined(OPEN_LOOP_FOC_TEST)
-static void UART_LED_Test_Init(void)
-{
-    LL_USART_InitTypeDef config = {0};
-
-    clock_enable_UART1(true);
-    config.PrescalerValue = LL_USART_PRESCALER_DIV1;
-    config.BaudRate = USART_SPEED;
-    config.DataWidth = LL_USART_DATAWIDTH_8B;
-    config.StopBits = LL_USART_STOPBITS_1;
-    config.Parity = LL_USART_PARITY_NONE;
-    config.TransferDirection = LL_USART_DIRECTION_TX_RX;
-    config.HardwareFlowControl = LL_USART_HWCONTROL_NONE;
-    config.OverSampling = LL_USART_OVERSAMPLING_16;
-
-    LL_USART_Init(UART1, &config);
-    LL_USART_SetTXRXSwap(UART1, LL_USART_TXRX_STANDARD);
-    LL_USART_DisableFIFO(UART1);
-    LL_USART_ConfigAsyncMode(UART1);
-    LL_USART_Enable(UART1);
-    while ((LL_USART_IsActiveFlag_TEACK(UART1) == 0U) ||
-           (LL_USART_IsActiveFlag_REACK(UART1) == 0U)) { }
-}
-#endif
-
 /* Blocking UART1 transmit helper for low-rate diagnostic text. */
-static void UART_LED_Test_SendString(const char *text)
+static void UART1_SendString(const char *text)
 {
     while (*text != '\0')
     {
@@ -342,61 +309,6 @@ static void UART_LED_Test_SendString(const char *text)
     }
     while (LL_USART_IsActiveFlag_TC(UART1) == 0U) { }
 }
-
-#if defined(LED_ONLY_TEST) && !defined(OPEN_LOOP_FOC_TEST)
-static void UART_LED_Test_Poll(void)
-{
-    if (LL_USART_IsActiveFlag_RXNE(UART1) != 0U)
-    {
-        uint8_t byte = LL_USART_ReceiveData8(UART1);
-        while (LL_USART_IsActiveFlag_TXE(UART1) == 0U) { }
-        LL_USART_TransmitData8(UART1, byte);
-    }
-}
-
-static void UART_LED_Test_ReportHall(void)
-{
-    static uint8_t previous = 0xFFU;
-    uint8_t hall = HW_Read_Hall_Sensors();
-    char message[] = "HALL H3=0 H2=0 H1=0 raw=00\r\n";
-
-    if (hall == previous) { return; }
-    previous = hall;
-    message[8] = (char)('0' + ((hall >> 2U) & 1U));
-    message[13] = (char)('0' + ((hall >> 1U) & 1U));
-    message[18] = (char)('0' + (hall & 1U));
-    message[25] = (char)('0' + (hall / 10U));
-    message[26] = (char)('0' + (hall % 10U));
-    UART_LED_Test_SendString(message);
-}
-
-static void UART_LED_Test_Wait(void)
-{
-    for (volatile uint32_t i = 0U; i < 3000000U; ++i)
-    {
-        if ((i & 0x3FFU) == 0U)
-        {
-            UART_LED_Test_Poll();
-            UART_LED_Test_ReportHall();
-        }
-    }
-}
-
-static void UART_LED_Test_Blink(void)
-{
-    gpio_set_pin(USER_LED_1);
-    UART_LED_Test_Wait();
-    gpio_clear_pin(USER_LED_1);
-
-    gpio_set_pin(USER_LED_2);
-    UART_LED_Test_Wait();
-    gpio_clear_pin(USER_LED_2);
-
-    gpio_set_pin(USER_LED_3);
-    UART_LED_Test_Wait();
-    gpio_clear_pin(USER_LED_3);
-}
-#endif
 
 /**
  * @brief Disables all PWM outputs immediately to prevent shoot-through.
@@ -575,17 +487,6 @@ int main(void)
     test_env_init(TEST_INIT_CLOCK | TEST_INIT_GPIO | TEST_INIT_BOARD |
                   TEST_INIT_IRQ | TEST_INIT_OSAL);
 
-#if defined(LED_ONLY_TEST) && !defined(OPEN_LOOP_FOC_TEST)
-    /* Standalone board check: no driver or motor-control initialization. */
-    UART_LED_Test_Init();
-    UART_LED_Test_SendString("UART1 test: 38400 8-N-1, type to echo.\r\n");
-    for (;;)
-    {
-        UART_LED_Test_Poll();
-        UART_LED_Test_ReportHall();
-        UART_LED_Test_Blink();
-    }
-#else
     /* Enable interrupts before starting the motor-control application. */
   osal_sys_unlock();
   
@@ -665,7 +566,7 @@ int main(void)
   /* Disable the MCTK serial protocol so raw text diagnostics own UART1. */
   LL_USART_DisableIT_RXNE(UART1);
   LL_USART_DisableIT_TXE(UART1);
-  UART_LED_Test_SendString("Open-loop FOC angle monitor\r\ns=start, x=stop, ?=help\r\n");
+  UART1_SendString("Open-loop FOC angle monitor\r\ns=start, x=stop, ?=help\r\n");
 #endif
   LL_TIM_IC_SetActiveInput(TIM2, LL_TIM_CHANNEL_CH3, LL_TIM_ACTIVEINPUT_DIRECTTI);
 	LL_TIM_IC_SetPrescaler(TIM2, LL_TIM_CHANNEL_CH3, LL_TIM_ICPSC_DIV1);
@@ -819,7 +720,6 @@ int main(void)
     OpenLoop_UpdateLEDs();
 #endif
   }
-#endif /* LED_ONLY_TEST */
 }
 
 /* IRQ handler for STDRIVE_EN pin */
