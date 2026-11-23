@@ -168,6 +168,58 @@ machine; nó không chờ motor vào RUN. Ứng dụng phải kiểm tra kết q
 và tiếp tục chạy `MC_RunMotorControlTasks()`/scheduler. Prototype và điều kiện
 này được ghi trong `mc_api.h`/`mc_api.c` tại SDK cục bộ.
 
+### FOC, Clarke/Park, PI và PWM nằm ở đâu?
+
+Đường chạy nhanh của MCTK nằm trong SDK, không nằm trong `src/main.c`. `main.c`
+khởi tạo và gửi lệnh; phép tính dòng và phát PWM được gọi theo chu kỳ ngắt ADC:
+
+```text
+ADC injected-conversion interrupt
+  -> TSK_HighFrequencyTask()                 mc_tasks.c
+     -> cập nhật góc Hall: HALL_CalcElAngle()
+     -> FOC_CurrControllerM1()               mc_tasks.c
+        -> PWMC_GetPhaseCurrents()            đọc dòng pha
+        -> MCM_Clarke()                       Ia, Ib -> Ialpha, Ibeta
+        -> MCM_Park(..., góc Hall)            Ialpha, Ibeta -> Id, Iq
+        -> PI_Controller() cho Iq và Id        bộ điều khiển dòng
+        -> Circle_Limitation()                giới hạn vector Vd/Vq
+        -> Open-loop override (nếu bật)        Vd/Vq và góc Hall bị thay
+        -> MCM_Rev_Park()                     Vd, Vq -> Valpha, Vbeta
+        -> PWMC_SetPhaseVoltage()             SVPWM, cập nhật compare PWM
+```
+
+Các vị trí trong `.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/`:
+
+| Khối | Hàm/file | Ý nghĩa trong project |
+|---|---|---|
+| Điều phối FOC nhanh | `mc_tasks.c`: `TSK_HighFrequencyTask()`, `FOC_CurrControllerM1()` | Nối việc lấy dòng, biến đổi tọa độ, điều khiển và phát điện áp. ISR gọi task này trong `sr5e1xx_mc_it.c`. |
+| Góc rotor Hall | `hall_speed_pos_fdbk.c`: `HALL_CalcElAngle()`; được gọi từ `mc_tasks.c` | Cập nhật góc điện Hall nội suy. Góc này hiện dùng để Park dòng đo. |
+| Clarke | `mc_math.c`: `MCM_Clarke()` | Biến dòng hai pha đo được sang hệ tọa độ đứng yên alpha-beta. |
+| Park | `mc_math.c`: `MCM_Park()` | Dùng góc điện để biến dòng alpha-beta sang Id/Iq gắn với rotor. |
+| PI dòng | `mc_tasks.c`: hai lời gọi `PI_Controller()`; phần tính ở `pid_regulator.c` | PI Iq tạo Vq; PI Id tạo Vd. Tham số/handle là `pPIDIq[M1]` và `pPIDId[M1]`. |
+| Giới hạn vector | `circle_limitation.c`: `Circle_Limitation()` | Giới hạn tổng vector Vd/Vq trước khi đổi ngược; trong open-loop lệnh OL thay kết quả sau bước này. |
+| Inverse Park | `mc_math.c`: `MCM_Rev_Park()` | Đổi Vd/Vq về Valpha/Vbeta để tổng hợp điện áp ba pha. |
+| SVPWM và compare | `pwm_curr_fdbk.c`: `PWMC_SetPhaseVoltage()` | Tính sector/thời gian PWM từ Valpha/Vbeta rồi ghi compare timer; đồng thời chọn thời điểm lấy mẫu dòng chu kỳ kế tiếp. |
+
+Khi `OPEN_LOOP_FOC == TRUE`, Clarke, Park và cả hai phép tính PI vẫn chạy mỗi
+chu kỳ. Tuy nhiên, ngay sau `Circle_Limitation()`, nhánh open-loop gán lại
+`Vd = 0`, `Vq = OL_VOLT` và thay góc Hall bằng `OL_angle`. PI dòng **chưa điều
+khiển điện áp phát ra** vì đầu ra PI bị bỏ qua. Dòng đo vẫn được biến đổi bằng
+góc Hall, còn điện áp phát ra được inverse-Park bằng góc open-loop. `OL_VOLT`
+cũng đi vòng qua `Circle_Limitation()` hiện tại; đừng coi giới hạn đó là bảo vệ
+cho điện áp open-loop.
+
+`OPEN_LOOP_FOC_TEST` trong `include/main.h` chỉ chọn console/telemetry thử
+nghiệm ở ứng dụng. Macro quyết định ghi đè điều khiển trong SDK là
+`OPEN_LOOP_FOC`; hai macro có chức năng khác nhau.
+
+Khi chuyển sang Hall current PI, sau khi xác nhận an toàn phần cứng và Hall,
+đường điều khiển cần dùng góc Hall nhất quán cho Park và inverse Park, và không
+được chạy nhánh ghi đè open-loop. Trước đó phải xác nhận polarity/scale/offset
+dòng, thứ tự Hall/pha, giới hạn dòng và tham số PI. PI tốc độ là vòng khác, nằm
+ở medium-frequency task và `speed_torq_ctrl.c`; nó tạo torque/current
+reference, không trực tiếp tạo PWM.
+
 ## 5. Cách chạy Open-loop angle monitor
 
 Trong `include/main.h`, mode Open-loop hiện được chọn rõ ràng:
