@@ -17,13 +17,18 @@ Nguồn cấu hình có trách nhiệm cao nhất là các file nguồn trong pr
 
 ### Trạng thái vòng điều khiển
 
-- Open-loop đã thực hiện trong giai đoạn bring-up.
+- Open-loop đã từng được thử trong giai đoạn bring-up; cấu hình `main` hiện tại
+  chưa chạy motor.
 - Hall voltage/Hall feedback đã được chọn làm hướng phát triển tiếp theo.
-- `OPEN_LOOP_FOC FALSE` trong `include/main.h` hiện biểu thị trạng thái mở vòng
-  không được bật, không phải chưa từng test Open-loop.
+- `LED_ONLY_TEST` hiện đang bật trong `include/main.h`; firmware dừng trong
+  nhánh test UART/Hall/LED trước phần khởi tạo driver và MotorControl.
+- `OPEN_LOOP_FOC FALSE` nên các giá trị `OL_VOLT`, `OL_ANGLE`, `OL_DPP` chưa
+  được áp dụng.
 - Hall được chọn từ `HALL_SENSORS` trong `src-gen/drive_parameters.h`.
 - Các giai đoạn Open-loop, Hall voltage, Hall current PI và speed PI là các
   bước bring-up/debug, không phải 4 mode đã được xác nhận an toàn trên motor.
+- Xem [Codex.md](Codex.md) để biết vị trí code, thứ tự triển khai FOC và các
+  bước kiểm tra trước khi cấp nguồn cho motor.
 
 ## 2. Luồng cấu hình và sinh code
 
@@ -493,3 +498,18 @@ Makefile -> SDK/MCTK -> linker -> build/.../Debug/
 Dùng `MCI_*` khi cần handle motor-interface trực tiếp. Dùng `ICS_*` chỉ cho
 khởi tạo/PWM/current-sensing ở tầng thấp. Không bịa API hoặc tên type; tìm
 prototype trong header MCTK rồi mới dùng.
+
+## 14. Lộ trình phát triển FOC
+
+Điểm bắt đầu là tạo một mode thử motor riêng, giữ `LED_ONLY_TEST` làm mode an
+toàn mặc định, rồi dùng API MCTK trong `src/main.c` để start/stop và chạy
+MotorControl tasks. Không gọi các helper đóng cắt pha Hall 6-step để chạy FOC.
+
+Trước lần chạy đầu, phải chạy Generate Code trong StellarStudio vì cấu hình
+nguồn của chân STDRIVE_FAULT và số cặp cực mới thay đổi. Không sửa tay
+`src-gen/`. Cấu hình `OPEN_LOOP_FOC TRUE` trong MCTK hiện ghi đè đầu ra PI dòng
+bằng điện áp q-axis đặt trực tiếp, nên cần kiểm tra current sensing và bảo vệ
+quá dòng phần cứng trước khi quay motor.
+
+Chi tiết code, cách build/nạp, từng giai đoạn thử và tiêu chí pass/fail nằm
+trong [Codex.md](Codex.md).

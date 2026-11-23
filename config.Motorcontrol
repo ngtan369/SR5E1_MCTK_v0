@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <com.st.stellar.component.motorcontrol.model:Motorcontrol xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:com.st.stellar.component.motorcontrol.model="http://com.st.stellar.component.motorcontrol.model" name="config">
   <motor_settings>
-    <electrical_parameters pole_pairs="14" max_rated_speed="64000.0" nominal_current="150.0" nominal_dc_voltage="72.0" rs="0.012" ld="0.01" lq="0.015" ls="0.015" demagnetizing_current="150.0" back_emfconstant="4.8"/>
+    <electrical_parameters pole_pairs="28" max_rated_speed="64000.0" nominal_current="150.0" nominal_dc_voltage="72.0" rs="0.012" ld="0.01" lq="0.015" ls="0.015" demagnetizing_current="150.0" back_emfconstant="4.8"/>
     <sensors sensors_displacement="120" quadrature_encoder="false" pulses_per_mechanical_revolution="512" resolver="false" resolver_phase_shift="180.0"/>
   </motor_settings>
   <power_stage>

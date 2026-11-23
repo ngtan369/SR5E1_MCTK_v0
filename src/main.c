@@ -99,7 +99,7 @@ void L9907_En2_Button(void);
 
 /* DEBUG PIN ADC TRIG SIN /COS (Reolver) */
 /* #define TIM15_CH1 gpio_iopack(GPIO_PORT_H, GPIO_PIN_6) */
-/* #define PADPC5 gpio_iopack(GPIO_PORT_C, GPIO_PIN_5) */
+/* #define PADPD2 gpio_iopack(GPIO_PORT_D, GPIO_PIN_2) */
 
 /* ISR priority */
 /* ADC EOC - TSK High freq. */
@@ -154,16 +154,6 @@ int16_t duty, current;
 uint8_t current_hall;
 volatile int16_t dbg_foc, dbg_hall;
 
-/* #define TEST_TOGGLE_PIN_LED */
-
-//#ifdef TEST_TOGGLE_PIN_LED
-//static void user_led_toggling(void) {
-//
-//    gpio_toggle_pin(USER_LED_1);
-//   // gpio_toggle_pin(USER_LED_2);
-//    //gpio_toggle_pin(USER_LED_3);
-//}
-//#endif
 
 /**
  * @brief   Callback function triggered when CAN2 receives a frame.
@@ -459,23 +449,9 @@ int main(void)
     /* Enable interrupts before starting the motor-control application. */
   osal_sys_unlock();
   
-//#ifdef TEST_TOGGLE_PIN_LED
-//  for ( ; ; ) {
-//        /* Blink USER_LED_2.*/
-//        user_led_toggling();
-//        osal_delay_millisec(250U);
-//  }
-//#endif
 
 //  /* L9907 Initial configuration */
 //  L9907_init();
-
-  /* Ensure all LEDs are turned off at startup */
-//  for (int i = 0; i < 10; i++)
-//  {
-//	gpio_toggle_pin(USER_LED_1);
-//	osal_delay_millisec(300U);
-//  }
 
   gpio_set_pin(USER_LED_1);
 
@@ -530,11 +506,7 @@ int main(void)
   irq_set_priority(IRQ_UART1_VECTOR, IRQ_UART1_PRIO);
   irq_enable(IRQ_UART1_VECTOR);
 #endif
-  /* EXTI - Port C Pin 5 - STDRIVE601_FAULT */
-  irq_set_priority(IRQ_EXTI9_5_VECTOR, IRQ_EXTI_PRIO);
-  irq_enable(IRQ_EXTI9_5_VECTOR);
-//
-//  /* EXTI - Port I Pin 2 -  */
+  /* EXTI - Port D Pin 2 - STDRIVE601_FAULT */
   irq_set_priority(IRQ_EXTI2_VECTOR, IRQ_EXTI_PRIO);
   irq_enable(IRQ_EXTI2_VECTOR);
 #if defined(RESOLVER) || defined(AUX_RESOLVER)
@@ -700,11 +672,11 @@ int main(void)
 }
 
 /* IRQ handler for STDRIVE_EN pin */
-IRQ_HANDLER(IRQ_EXTI9_5_HANDLER)
+IRQ_HANDLER(IRQ_EXTI2_HANDLER)
 {
-    if (LL_EXTI_ReadFlag_0_31(LL_EXTI_LINE_5))
+    if (LL_EXTI_ReadFlag_0_31(LL_EXTI_LINE_2))
     {
-        LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_5);
+        LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_2);
         gpio_toggle_pin(USER_LED_2);
         faults ++;
         if (faults == 50)
@@ -819,10 +791,10 @@ static void EXTI_Init(void)
 
   LL_EXTI_InitTypeDef EXTI_InitStruct = {0};
 
-  /* STDRIVE601 FAULT - PAD_PC5  */
-  LL_SYSCFG_SetEXTISource(LL_SYSCFG_EXTI_PORTC, LL_SYSCFG_EXTI_LINE5);
+  /* STDRIVE601 FAULT - PAD_PD2  */
+  LL_SYSCFG_SetEXTISource(LL_SYSCFG_EXTI_PORTD, LL_SYSCFG_EXTI_LINE2);
 
-  EXTI_InitStruct.Line_0_31 = LL_EXTI_LINE_5;
+  EXTI_InitStruct.Line_0_31 = LL_EXTI_LINE_2;
   EXTI_InitStruct.LineCommand = ENABLE;
   EXTI_InitStruct.Mode = LL_EXTI_MODE_IT;
   EXTI_InitStruct.Trigger = LL_EXTI_TRIGGER_FALLING;

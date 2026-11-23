@@ -267,17 +267,17 @@ GPIO {
 		SFS1 = 'Disabled',
 		SFV1 = 'Low'
 	;
-	inout GPIO2_5 -> E7_57 as STDRIVE_FAULT
+	inout GPIO3_2 -> E7_71 as STDRIVE_FAULT
 	IO
-		MODER5 = 'Input',
-		OT5 = 'PushPull',
-		OSPEEDR5 = 'Low',
-		PUPDR5 = 'Floating',
-		AFRL5 = 0,
-		IHYSTR5 = 'CMOS',
-		TR5 = 'Disabled',
-		SFS5 = 'Disabled',
-		SFV5 = 'Low'
+		MODER2 = 'Input',
+		OT2 = 'PushPull',
+		OSPEEDR2 = 'Low',
+		PUPDR2 = 'Floating',
+		AFRL2 = 0,
+		IHYSTR2 = 'CMOS',
+		TR2 = 'Disabled',
+		SFS2 = 'Disabled',
+		SFV2 = 'Low'
 	;
 inout GPIO0_13 -> E7_16 as S1
 	IO
