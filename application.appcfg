@@ -3,6 +3,6 @@
   <components uri="Config.gpio"/>
   <components uri="clock_cfg.Sr5e1_clk"/>
   <components uri="config.Motorcontrol"/>
-  <components uri="config.Sr5e1_can"/>
+  <components enabled="false" uri="config.Sr5e1_can"/>
   <components uri="config1.Sr5e1_can"/>
 </com.st.stellar.component:Application>

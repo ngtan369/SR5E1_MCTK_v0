@@ -296,7 +296,7 @@
 	 GPIO_MODE_SAFESELR_DISABLED |                  \
 	 GPIO_MODE_SAFEVALR_LOW)
 
-#define STDRIVE_FAULT gpio_iopack(GPIO_PORT_C, GPIO_PIN_5) /* PC[5] */
+#define STDRIVE_FAULT gpio_iopack(GPIO_PORT_D, GPIO_PIN_2) /* PD[2] */
 #define STDRIVE_FAULT_CFG                           \
 	(GPIO_MODE_MODER_INPUT |                        \
 	 GPIO_MODE_OTYPER_PUSHPULL |                    \
