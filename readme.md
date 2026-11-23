@@ -17,18 +17,23 @@ Nguồn cấu hình có trách nhiệm cao nhất là các file nguồn trong pr
 
 ### Trạng thái vòng điều khiển
 
-- Open-loop đã từng được thử trong giai đoạn bring-up; cấu hình `main` hiện tại
-  chưa chạy motor.
+- Trên branch `main`, Open-loop đã từng được thử trong giai đoạn bring-up;
+  cấu hình hiện tại chưa chạy motor.
 - Hall voltage/Hall feedback đã được chọn làm hướng phát triển tiếp theo.
-- `LED_ONLY_TEST` hiện đang bật trong `include/main.h`; firmware dừng trong
-  nhánh test UART/Hall/LED trước phần khởi tạo driver và MotorControl.
-- `OPEN_LOOP_FOC FALSE` nên các giá trị `OL_VOLT`, `OL_ANGLE`, `OL_DPP` chưa
-  được áp dụng.
+- Trên branch `main`, `LED_ONLY_TEST` bật; firmware vào nhánh UART/Hall/LED
+  trước phần khởi tạo driver và MotorControl.
+- Trên branch `main`, `OPEN_LOOP_FOC FALSE` nên `OL_VOLT`, `OL_ANGLE`, `OL_DPP`
+  chưa được áp dụng.
 - Hall được chọn từ `HALL_SENSORS` trong `src-gen/drive_parameters.h`.
 - Các giai đoạn Open-loop, Hall voltage, Hall current PI và speed PI là các
   bước bring-up/debug, không phải 4 mode đã được xác nhận an toàn trên motor.
 - Xem [Codex.md](Codex.md) để biết vị trí code, thứ tự triển khai FOC và các
   bước kiểm tra trước khi cấp nguồn cho motor.
+
+Trên branch `openloop`, `OPEN_LOOP_FOC_TEST` bật riêng đường chạy FOC thử:
+UART1 nhận `s`/`x` để start/stop, in góc FOC so với góc Hall khi state là RUN,
+và ba LED chớp tuần tự. Đây là chế độ thử điện áp vòng hở; cần kiểm tra giới hạn
+dòng và bảo vệ phần cứng trước khi chạy motor.
 
 ## 2. Luồng cấu hình và sinh code
 
@@ -501,9 +506,9 @@ prototype trong header MCTK rồi mới dùng.
 
 ## 14. Lộ trình phát triển FOC
 
-Điểm bắt đầu là tạo một mode thử motor riêng, giữ `LED_ONLY_TEST` làm mode an
-toàn mặc định, rồi dùng API MCTK trong `src/main.c` để start/stop và chạy
-MotorControl tasks. Không gọi các helper đóng cắt pha Hall 6-step để chạy FOC.
+Branch `openloop` hiện có mode thử motor riêng; dùng API MCTK trong `src/main.c`
+để start/stop và chạy MotorControl tasks. Không gọi các helper đóng cắt pha
+Hall 6-step để chạy FOC.
 
 Trước lần chạy đầu, phải chạy Generate Code trong StellarStudio vì cấu hình
 nguồn của chân STDRIVE_FAULT và số cặp cực mới thay đổi. Không sửa tay

@@ -39,8 +39,9 @@ extern "C" {
 #define MCTK_DEBUG_ANGLE_SENSOR
 #define MCTK_DEBUG_ANGLE_SENSOR_BUFFER_SIZE 4000
 
-/* Run UART echo, Hall readout, and LED blink without initializing the motor. */
-#define LED_ONLY_TEST
+/* Select the motor-control application on branch openloop. */
+//#define LED_ONLY_TEST
+#define OPEN_LOOP_FOC_TEST
 
 /* Enable debug to diff main sensor vs aux sensor (DebugTestEncHallDiff) */
 #define MCTK_DEBUG_ANGLE_DIFF
@@ -62,7 +63,7 @@ extern "C" {
 /* #define REG_CONV_DISABLE */
 
 /* Enable/Disable minimal OPEN LOOP */
-#define OPEN_LOOP_FOC                   FALSE
+#define OPEN_LOOP_FOC                   TRUE
 #define OL_VOLT                          2600
 //#define OL_ANGLE                        16383
 #define OL_ANGLE                        800

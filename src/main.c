@@ -34,6 +34,7 @@
 #include "mc_interface.h"
 #include "parameters_conversion.h"
 #include "mc_config.h"
+#include "ui_task.h"
 #include "sr5e1_ll_usart.h"
 //extern Mci_Handle_t oMCInterface[M1];
 volatile int16_t debug_Ia, elec_ang;
@@ -66,12 +67,17 @@ volatile uint8_t hall_position = 99U;
 
 static void EXTI_Init(void);
 static void STDRIVE601_Init(void);
+#if defined(LED_ONLY_TEST) && !defined(OPEN_LOOP_FOC_TEST)
 static void UART_LED_Test_Init(void);
-static void UART_LED_Test_SendString(const char *text);
 static void UART_LED_Test_Poll(void);
 static void UART_LED_Test_ReportHall(void);
 static void UART_LED_Test_Wait(void);
 static void UART_LED_Test_Blink(void);
+#endif
+static void UART_LED_Test_SendString(const char *text);
+static void OpenLoop_UART_PollCommand(void);
+static void OpenLoop_UART_ReportAngles(void);
+static void OpenLoop_UpdateLEDs(void);
 #ifdef USE_L9502
 void L9502_En_Button(void);
 #endif
@@ -154,6 +160,135 @@ int16_t duty, current;
 uint8_t current_hall;
 volatile int16_t dbg_foc, dbg_hall;
 
+#ifdef OPEN_LOOP_FOC_TEST
+/* Replace the MCTK protocol scheduler: UART1 is used as a text console here. */
+void UI_Scheduler(void)
+{
+}
+
+static char *OpenLoop_AppendInt(char *buffer, int32_t value)
+{
+    char digits[11];
+    uint32_t magnitude;
+    uint8_t count = 0U;
+
+    if (value < 0)
+    {
+        *buffer++ = '-';
+        magnitude = (uint32_t)(-(value + 1)) + 1U;
+    }
+    else
+    {
+        magnitude = (uint32_t)value;
+    }
+
+    do
+    {
+        digits[count++] = (char)('0' + (magnitude % 10U));
+        magnitude /= 10U;
+    } while (magnitude != 0U);
+
+    while (count != 0U)
+    {
+        *buffer++ = digits[--count];
+    }
+    return buffer;
+}
+
+static void OpenLoop_UART_PollCommand(void)
+{
+    if (LL_USART_IsActiveFlag_RXNE(UART1) != 0U)
+    {
+        uint8_t command = LL_USART_ReceiveData8(UART1);
+
+        if ((command == 's' || command == 'S') &&
+            (MC_GetSTMStateMotor1() == IDLE) &&
+            (MC_GetCurrentFaultsMotor1() == 0U))
+        {
+            /* Open-loop voltage is applied by the FOC task; issue a valid MCI
+             * command first so the MCTK state machine accepts the start. */
+            MC_ProgramTorqueRampMotor1(0, 0U);
+            if (MC_StartMotor1())
+            {
+                UART_LED_Test_SendString("Open-loop start requested\r\n");
+            }
+            else
+            {
+                UART_LED_Test_SendString("Open-loop start rejected\r\n");
+            }
+        }
+        else if (command == 'x' || command == 'X')
+        {
+            (void)MC_StopMotor1();
+            UART_LED_Test_SendString("Stop requested\r\n");
+        }
+        else if (command == '?')
+        {
+            UART_LED_Test_SendString("s=start, x=stop, ?=help\r\n");
+        }
+    }
+}
+
+static void OpenLoop_UART_ReportAngles(void)
+{
+    static uint64_t last_report_ms;
+    uint64_t now_ms = osal_tk2ms(osal_get_tick());
+
+    if (MC_GetSTMStateMotor1() != RUN)
+    {
+        return;
+    }
+
+    if ((now_ms - last_report_ms) >= 100U)
+    {
+        int16_t foc_angle = FOCVars[M1].hElAngle;
+        int16_t hall_angle = HALL_M1._Super.hElAngle;
+        int32_t delta = (int32_t)foc_angle - (int32_t)hall_angle;
+        if (delta > 32767) { delta -= 65536; }
+        else if (delta < -32768) { delta += 65536; }
+        int16_t delta_dpp = (int16_t)delta;
+        int32_t delta_degrees = ((int32_t)delta_dpp * 360) / 65536;
+        char line[96];
+        char *out = line;
+
+        last_report_ms = now_ms;
+        out = OpenLoop_AppendInt(out, foc_angle);
+        *out++ = ',';
+        out = OpenLoop_AppendInt(out, hall_angle);
+        *out++ = ',';
+        out = OpenLoop_AppendInt(out, delta_dpp);
+        *out++ = ',';
+        out = OpenLoop_AppendInt(out, delta_degrees);
+        *out++ = '\r';
+        *out++ = '\n';
+        *out = '\0';
+        UART_LED_Test_SendString("ANGLE_DPP foc,hall,delta,delta_deg: ");
+        UART_LED_Test_SendString(line);
+    }
+}
+
+static void OpenLoop_UpdateLEDs(void)
+{
+    static uint64_t last_change_ms;
+    static uint8_t led_index;
+    uint64_t now_ms = osal_tk2ms(osal_get_tick());
+
+    if ((now_ms - last_change_ms) >= 250U)
+    {
+        last_change_ms = now_ms;
+        gpio_clear_pin(USER_LED_1);
+        gpio_clear_pin(USER_LED_2);
+        gpio_clear_pin(USER_LED_3);
+
+        if (led_index == 0U) { gpio_set_pin(USER_LED_1); }
+        else if (led_index == 1U) { gpio_set_pin(USER_LED_2); }
+        else { gpio_set_pin(USER_LED_3); }
+
+        led_index = (uint8_t)((led_index + 1U) % 3U);
+    }
+}
+#endif /* OPEN_LOOP_FOC_TEST */
+
 
 /**
  * @brief   Callback function triggered when CAN2 receives a frame.
@@ -171,7 +306,8 @@ static inline uint8_t HW_Read_Hall_Sensors(void)
                       gpio_read_pin(MC_HALL_CH1));
 }
 
-/* UART1 polling helpers are used only by the low-risk bring-up path. */
+/* Standalone LED/Hall bring-up UART initialization. */
+#if defined(LED_ONLY_TEST) && !defined(OPEN_LOOP_FOC_TEST)
 static void UART_LED_Test_Init(void)
 {
     LL_USART_InitTypeDef config = {0};
@@ -194,7 +330,9 @@ static void UART_LED_Test_Init(void)
     while ((LL_USART_IsActiveFlag_TEACK(UART1) == 0U) ||
            (LL_USART_IsActiveFlag_REACK(UART1) == 0U)) { }
 }
+#endif
 
+/* Blocking UART1 transmit helper for low-rate diagnostic text. */
 static void UART_LED_Test_SendString(const char *text)
 {
     while (*text != '\0')
@@ -205,6 +343,7 @@ static void UART_LED_Test_SendString(const char *text)
     while (LL_USART_IsActiveFlag_TC(UART1) == 0U) { }
 }
 
+#if defined(LED_ONLY_TEST) && !defined(OPEN_LOOP_FOC_TEST)
 static void UART_LED_Test_Poll(void)
 {
     if (LL_USART_IsActiveFlag_RXNE(UART1) != 0U)
@@ -257,6 +396,7 @@ static void UART_LED_Test_Blink(void)
     UART_LED_Test_Wait();
     gpio_clear_pin(USER_LED_3);
 }
+#endif
 
 /**
  * @brief Disables all PWM outputs immediately to prevent shoot-through.
@@ -435,7 +575,7 @@ int main(void)
     test_env_init(TEST_INIT_CLOCK | TEST_INIT_GPIO | TEST_INIT_BOARD |
                   TEST_INIT_IRQ | TEST_INIT_OSAL);
 
-#ifdef LED_ONLY_TEST
+#if defined(LED_ONLY_TEST) && !defined(OPEN_LOOP_FOC_TEST)
     /* Standalone board check: no driver or motor-control initialization. */
     UART_LED_Test_Init();
     UART_LED_Test_SendString("UART1 test: 38400 8-N-1, type to echo.\r\n");
@@ -501,7 +641,7 @@ int main(void)
 //  irq_enable(IRQ_CAN1_LINE0_VECTOR);
 //#endif  
 //
-#ifdef SERIAL_COMMUNICATION
+#if defined(SERIAL_COMMUNICATION) && !defined(OPEN_LOOP_FOC_TEST)
   /* UART 1 */
   irq_set_priority(IRQ_UART1_VECTOR, IRQ_UART1_PRIO);
   irq_enable(IRQ_UART1_VECTOR);
@@ -521,6 +661,12 @@ int main(void)
   EXTI_Init();
 
   MX_MotorControl_Init();
+#ifdef OPEN_LOOP_FOC_TEST
+  /* Disable the MCTK serial protocol so raw text diagnostics own UART1. */
+  LL_USART_DisableIT_RXNE(UART1);
+  LL_USART_DisableIT_TXE(UART1);
+  UART_LED_Test_SendString("Open-loop FOC angle monitor\r\ns=start, x=stop, ?=help\r\n");
+#endif
   LL_TIM_IC_SetActiveInput(TIM2, LL_TIM_CHANNEL_CH3, LL_TIM_ACTIVEINPUT_DIRECTTI);
 	LL_TIM_IC_SetPrescaler(TIM2, LL_TIM_CHANNEL_CH3, LL_TIM_ICPSC_DIV1);
 	LL_TIM_IC_SetPolarity(TIM2, LL_TIM_CHANNEL_CH3, LL_TIM_IC_POLARITY_RISING);
@@ -600,7 +746,7 @@ int main(void)
 
 #endif
 
-#ifdef TEST_ADC_REG_CONV
+#if defined(TEST_ADC_REG_CONV) && !defined(OPEN_LOOP_FOC_TEST)
   MC_StartMotor1();
 #endif
 //  MC_StartMotor1();
@@ -638,7 +784,7 @@ int main(void)
 
 
     /* Idle loop.*/
-#ifdef TEST_ADC_REG_CONV
+#if defined(TEST_ADC_REG_CONV) && !defined(OPEN_LOOP_FOC_TEST)
 	 rcm_state = RCM_GetUserConvState();
 	 if(RCM_GetUserConvState() == RCM_USERCONV_IDLE)
     {
@@ -667,6 +813,11 @@ int main(void)
 #ifdef MCTK_MC_MODE
     MC_RunMotorControlTasks();
 #endif
+#ifdef OPEN_LOOP_FOC_TEST
+    OpenLoop_UART_PollCommand();
+    OpenLoop_UART_ReportAngles();
+    OpenLoop_UpdateLEDs();
+#endif
   }
 #endif /* LED_ONLY_TEST */
 }
@@ -677,15 +828,11 @@ IRQ_HANDLER(IRQ_EXTI2_HANDLER)
     if (LL_EXTI_ReadFlag_0_31(LL_EXTI_LINE_2))
     {
         LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_2);
-        gpio_toggle_pin(USER_LED_2);
         faults ++;
-        if (faults == 50)
-        {
-        	/* STDRIVE601 FAULT detected - turn off motor */
-        	MC_StopMotor1();
-        	gpio_clear_pin(STDRIVE_EN);
-          gpio_set_pin(USER_LED_2);
-        }
+        /* A gate-driver fault must stop PWM immediately. */
+        (void)MC_StopMotor1();
+        gpio_clear_pin(STDRIVE_EN);
+        gpio_set_pin(USER_LED_2);
 
     }
 }

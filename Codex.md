@@ -8,16 +8,18 @@ motor, tài liệu power stage hoặc phép đo trên board.
 
 - MCU/board profile: SR5E1E7 / `evbe7000s`, core1.
 - SDK/MCTK: StellarESDK 1.7.0 / SR5E1_MCTK 1.3.0.
-- `LED_ONLY_TEST` đang bật trong `include/main.h`.
-- `OPEN_LOOP_FOC` đang là `FALSE`; `OL_VOLT`, `OL_ANGLE`, `OL_DPP` vì vậy
-  không hoạt động.
-- `MCTK_MC_MODE` đang comment. `MC_RunMotorControlTasks()` ở vòng lặp main
-  chỉ được gọi khi bật mode này.
-- Lời gọi `MC_StartMotor1()` hiện gắn với `TEST_ADC_REG_CONV`; test đó chỉ được
-  định nghĩa khi `EXTERNAL_THROTTLE` bật, và macro này hiện đang tắt.
-- Vì `LED_ONLY_TEST` vào vòng lặp vô hạn trước `STDRIVE601_Init()` và
-  `MX_MotorControl_Init()`, firmware hiện tại chỉ chạy UART/Hall/LED; nó không
-  khởi tạo hoặc chạy motor.
+- Tài liệu này mô tả branch `openloop`. `OPEN_LOOP_FOC_TEST` và
+  `OPEN_LOOP_FOC` đang bật; `LED_ONLY_TEST` đã tắt.
+- Gửi `s` qua UART1 để yêu cầu start, `x` để stop, `?` để xem lệnh. Firmware
+  không tự start motor khi reset.
+- Khi state machine ở `RUN`, UART1 xuất mỗi 100 ms:
+  `FOC angle, Hall angle, delta (DPP), delta (deg)`.
+- Ba LED vẫn chớp tuần tự, không blocking vòng lặp.
+- UART1 được dùng làm text console trong mode này; MCTK Live Monitor qua UART1
+  bị tắt để tránh trộn protocol với dòng text. `MC_RunMotorControlTasks()` chạy
+  từ OSAL tick hook.
+- `OL_VOLT=2600`, `OL_ANGLE=800`, `OL_DPP=78` là giá trị đang có trong header,
+  chưa được xác nhận an toàn cho motor/power stage.
 - Cấu hình nguồn trên nhánh `main` đặt `pole_pairs="28"` và `STDRIVE_FAULT`
   tại PD2/E7_71. Các header trong `src-gen/` vẫn có thể phản ánh cấu hình cũ
   cho đến khi chạy StellarStudio Generate Code.
@@ -88,49 +90,41 @@ machine; nó không chờ motor vào RUN. Ứng dụng phải kiểm tra kết q
 và tiếp tục chạy `MC_RunMotorControlTasks()`/scheduler. Prototype và điều kiện
 này được ghi trong `mc_api.h`/`mc_api.c` tại SDK cục bộ.
 
-## 5. Thiết kế mode ứng dụng trước khi code motor
+## 5. Cách chạy Open-loop angle monitor
 
-Đổi macro LED-only luôn bật thành lựa chọn mode tường minh, loại trừ lẫn nhau:
+Trong `include/main.h`, mode Open-loop hiện được chọn rõ ràng:
 
 ```text
-LED_ONLY_TEST             default ON / không có motor
-OPEN_LOOP_FOC_TEST        default OFF / chỉ bật trong build bench có kiểm soát
+OPEN_LOOP_FOC_TEST        enabled
+OPEN_LOOP_FOC             TRUE
 ```
 
-Không để cả hai mode cùng bật. Khi bật Open-loop test:
+Sau khi build/nạp firmware, mở terminal UART1 ở 38400 baud, 8-N-1. UART1 được
+MCTK khởi tạo theo pinmux generator; ứng dụng tắt ngắt serial protocol và dùng
+polling text console. Gửi `s` để start sau khi motor/bridge đã được kiểm tra,
+`x` để stop, `?` để in trợ giúp. Ba LED tiếp tục chớp trong khi chương trình
+theo dõi góc.
 
-1. Khởi tạo clock/GPIO/board/IRQ/OSAL.
-2. Init gate driver và kiểm tra trạng thái fault/enable.
-3. Init MCTK, ADC current feedback, timer và interrupt theo cấu hình đã sinh.
-4. Giữ trạng thái disarmed sau reset; chỉ nhận lệnh start sau khi interlock và
-   các giá trị VBUS/current/fault hợp lệ.
-5. Gửi lệnh MCTK cần thiết trước `MC_StartMotor1()`; kiểm tra giá trị trả về và
-   state machine. Không gọi start tự động khi boot.
-6. Trong loop, chạy tasks MCTK và đọc telemetry ở tần số thấp. Lệnh stop hoặc
-   bất kỳ lỗi nào phải gọi stop và đưa output về trạng thái disable.
+Khi `MC_GetSTMStateMotor1() == RUN`, dòng telemetry xuất mỗi 100 ms:
 
-Pseudo-code để định hướng, không phải code có thể copy chạy ngay:
-
-```c
-MX_MotorControl_Init();
-/* Init/check driver, IRQ, ADC feedback, bus voltage và safety interlocks. */
-
-while (true)
-{
-    MC_RunMotorControlTasks();
-
-    if (start_command && all_interlocks_ok)
-    {
-        /* Đặt speed/torque/current command đã được tính và review trước. */
-        /* Kiểm tra kết quả lệnh và state; sau đó mới MC_StartMotor1(). */
-    }
-
-    if (stop_command || fault_detected)
-    {
-        MC_StopMotor1();
-    }
-}
+```text
+ANGLE_DPP foc,hall,delta,delta_deg: <foc>,<hall>,<delta>,<delta_deg>
 ```
+
+`foc` đọc từ `FOCVars[M1].hElAngle`, tức góc điện mà FOC dùng cho biến đổi/
+phát vector điện áp; `hall` là góc điện nội suy trong handle Hall MCTK.
+`delta` là hiệu số wrap 16-bit theo miền DPP; `delta_deg` quy đổi gần đúng
+theo 65536 DPP/vòng điện. Góc Hall này không phải góc rotor tuyệt đối liên tục
+từ encoder; Hall có độ phân giải theo từng sector và MCTK nội suy giữa cạnh.
+
+UART1 không thể đồng thời dùng làm MCTK Live Monitor text/binary trong mode này.
+Để quay lại Live Monitor, tắt `OPEN_LOOP_FOC_TEST`, bật cấu hình serial phù hợp,
+rồi generate/build theo input StellarStudio.
+
+Lệnh `s` chỉ được nhận khi state là `IDLE` và không có current fault. Trước
+`MC_StartMotor1()`, ứng dụng đặt torque ramp 0 làm lệnh MCI hợp lệ. Lệnh `x`
+gọi `MC_StopMotor1()`; EXTI fault của STDRIVE601 gọi stop và kéo `STDRIVE_EN`
+thấp ngay.
 
 Không dùng polling UART test trong cùng lúc với UART1 của MCTK Live Monitor.
 `config.Motorcontrol` chọn UART1 cho serial interface; chọn một chủ sở hữu cho
@@ -167,14 +161,87 @@ inverter, gate driver, sensor và nguồn.
 | T0 | Build `LED_ONLY_TEST`, UART echo, raw Hall, LED; không chạy motor | Build/nạp đúng ELF; không vào driver/MCTK motor path |
 | T1 | Generate lại sau khi đổi `Config.gpio` và `config.Motorcontrol` | Header sinh khớp pin PD2, pole pairs và channel mapping |
 | T2 | Board logic-only: đọc VBUS, nhiệt, Hall và current offset | Đọc ổn định, scale/polarity phù hợp phép đo ngoài; fault input đúng |
-| T3 | Bridge chưa cấp DC motor: kiểm tra gate enable, break/fault, PWM/dead-time bằng thiết bị đo | Output disable khi disarmed; fault tắt PWM; dead-time/phase order đo được |
-| T4 | Open-loop voltage ở nguồn thấp, giới hạn năng lượng, motor không tải | Motor quay ổn định ở hướng dự kiến; dòng nằm trong ngưỡng đã duyệt; stop/fault tắt PWM |
-| T5 | Chuyển sang Hall feedback/current PI | TIM2 Hall sequence, góc/phase alignment và chiều quay khớp; current PI ổn định |
-| T6 | Thêm speed loop/tăng tốc | Speed tracking, ramp, nhiệt và OV/UV/OC ổn định qua nhiều lần start/stop |
+| T3 | VBUS ngắt: xác minh pinmux, trạng thái idle, EN và fault; kiểm tra gate outputs bị disable | Không có gate drive khi EN thấp; mapping logic/power được xác nhận theo schematic |
+| T4 | Tháo motor; bus cách ly/current-limit ở mức đã duyệt; kiểm tra HIN/LIN rồi HVG/LVG và U/V/W | Đúng channel/polarity/frequency; không overlap gate; phase switching đúng và không fault bất thường |
+| T5 | Tắt nguồn, xả bus, nối motor; thử Open-loop ở nguồn thấp, giới hạn năng lượng; gửi `s`, quan sát UART, gửi `x` | Motor quay ổn định; log góc hợp lý; dòng nằm trong ngưỡng đã duyệt; stop/fault tắt PWM |
+| T6 | Chuyển sang Hall feedback/current PI | TIM2 Hall sequence, góc/phase alignment và chiều quay khớp; current PI ổn định |
+| T7 | Thêm speed loop/tăng tốc | Speed tracking, ramp, nhiệt và OV/UV/OC ổn định qua nhiều lần start/stop |
 
 Open-loop voltage không tự giới hạn dòng pha. Nguồn DC có giới hạn dòng đầu
 vào không thay thế over-current protection phía pha. Phải xác minh phần cứng OC
-thực sự có đường trip độc lập trước T4; giữ khả năng ngắt nguồn và xử lý regen.
+thực sự có đường trip độc lập trước T5; giữ khả năng ngắt nguồn và xử lý regen.
+
+### T4 chi tiết — đo U/V/W khi chưa nối motor
+
+**Giữ motor tháo rời trong lần cấp VBUS đầu và khi đo switching U/V/W.** Chỉ
+nối motor sau khi T3/T4 pass, đã tắt nguồn, xả tụ bus và xác nhận bus về mức an
+toàn bằng đồng hồ. Tháo motor tránh quay ngoài ý muốn; bridge vẫn nguy hiểm khi
+có điện vì MOSFET và các đầu phase đang switching.
+
+1. Trước khi nối nguồn, xác định giới hạn điện áp thấp nhất của MOSFET/IGBT,
+   tụ bus, connector, shunt, power stage và nguồn. `nominal_dc_voltage=72 V`,
+   `max_rated_bus_voltage=100 V` trong XML là cấu hình MCTK, **không xác nhận**
+   rating phần cứng. Nếu chưa có schematic/BOM hoặc rating rõ, dừng ở T3.
+   Xác định terminal U/V/W trên schematic trước khi đo: `Config.gpio` đặt
+   HIN1/LIN1 = E7_67/E7_66, HIN2/LIN2 = E7_70/E7_69,
+   HIN3/LIN3 = E7_60/E7_59; đây là mapping gate input, không chứng minh
+   HIN1 tương ứng phase U. XML MCTK còn khai báo U=TIM1_CH3, W=TIM1_CH1;
+   đối chiếu pinmux sinh và schematic để xác nhận thứ tự phase.
+2. Tháo U/V/W khỏi motor, bọc cách điện từng đầu. Không để pha chạm nhau,
+   khung máy hoặc bàn đo. Xả bus qua mạch xả phù hợp; đo lại VBUS bằng DMM
+   trước khi chạm/đổi probe.
+3. Dùng nguồn DC cách ly, fuse và current limit đã duyệt cho board; bắt đầu ở
+   mức bus thấp nhất mà power stage và bootstrap cho phép. Không đặt con số thử
+   tùy ý từ thông số STDRIVE601; giới hạn dòng đầu vào không thay thế bảo vệ
+   quá dòng pha.
+4. Đo lần lượt `U–DC−`, `V–DC−`, `W–DC−`, sau đó `U–V`, `V–W`, `W–U`. Dùng
+   probe vi sai có common-mode/rating phù hợp với VBUS và xung switching. Không
+   kẹp ground của scope nối đất vào U/V/W, DC+, HVG hoặc switch-node; các kênh
+   scope dùng chung ground có thể tự nối tắt các phase. Gắn probe khi bus đã
+   xả, đặt scope từ xa rồi mới cấp nguồn.
+5. Giữ gate driver disable bằng `MCTK_DEBUG_OFF_STDRIVE601`; cấp bus thấp đã
+   được xác nhận và giới hạn dòng. MCTK config hiện đặt ngưỡng bus 20–100 V,
+   nhưng đây không phải rating phần cứng. Nếu firmware báo undervoltage hoặc
+   không nhận `s`, **không bypass bảo vệ**; kiểm tra dải bus đã sinh và rating
+   board trước khi tiếp tục. Khi PWM chạy, đo HIN1–3/LIN1–3 so với ground logic.
+   Xác nhận channel/polarity trước khi cho driver phát gate.
+6. Tắt nguồn và xả bus; chỉ bỏ gate-disable sau khi logic inputs đạt. Cấp lại
+   cùng bus đã giới hạn dòng, motor vẫn tháo rời, gửi `s`, quan sát HVG/LVG và
+   phase. Có người đứng ở công tắc ngắt nguồn. Dừng ngay nếu dòng tăng bất
+   thường, FAULT tác động, phase lệch mapping hoặc ringing vượt rating.
+7. Lặp lại đủ ba nhánh. Ghi VBUS thực, dòng nguồn, PWM frequency, HIN/LIN
+   polarity, dead-time, gate VGS, phase mapping, peak/overshoot và fault. Gửi
+   `x`, ngắt nguồn, xả bus và xác minh hết điện trước khi đổi kết nối.
+
+**Dạng sóng cần thấy:** cấu hình sinh hiện đặt `PWM_FREQUENCY=10000 Hz`, chu kỳ
+carrier khoảng `100 µs`; xác nhận lại trong `src-gen/drive_parameters.h` sau
+Generate Code. Ở mỗi `U/V/W–DC−`, node phase được PWM kéo gần DC− hoặc DC+
+(có sụt áp/overshoot thực tế). Điện áp `U–V`, `V–W`, `W–U` có xung PWM nhiều
+mức, xấp xỉ `−VBUS`, `0`, `+VBUS`; trung bình qua nhiều carrier tạo thành phần
+cơ bản ba pha lệch nhau khoảng 120° điện, tổng gần 0. Dạng oscilloscope **không
+phải sin sạch**. Đo line-line bằng probe vi sai. Không suy ra RMS/fundamental
+volts chỉ từ `OL_VOLT=2600`; còn phụ thuộc scale MCTK, VBUS thực và modulation.
+Để xem carrier, đặt timebase thấy vài chu kỳ 100 µs; để xem thành phần cơ bản,
+mở timebase đủ dài cho một vòng điện. Dùng acquisition/sample rate đủ cao để
+bắt dead-time và overshoot; tránh dây ground dài khi xem overshoot.
+
+Đo `LVGx` so với source low-side và `HVGx` so với `OUTx` (switch node) bằng
+probe vi sai. Khi bật, VGS đạt mức do nguồn gate-drive board quy định; khi tắt,
+VGS gần 0. Trong dead-time cả hai VGS của cùng half-bridge phải thấp; không
+được có khoảng hai transistor cùng dẫn. `EN` thấp phải ép HVG/LVG thấp.
+Bootstrap UVLO có thể giữ HVG tắt khi BOOT–OUT chưa đủ, nên xác minh bootstrap
+trước khi kết luận PWM lỗi. Các hành vi EN, active-low input, interlock/dead-time
+và UVLO được mô tả trong [datasheet STDRIVE601](https://www.st.com/resource/en/datasheet/stdrive601.pdf).
+Project XML hiện ghi `hw_inserted_dead_time=2000 ns` và
+`sw_inserted_dead_time=700 ns`; coi đây là cấu hình đầu vào, không phải phép đo.
+Datasheet ST nêu dead-time nội tại 200–400 ns (typ. 300 ns) trong điều kiện
+đo riêng của họ. Đo dead-time thực trên LIN/HIN và VGS của board, rồi đối chiếu
+với cấu hình TIM/generator; không cộng các con số này một cách máy móc.
+
+**Pass T4:** ba phase đúng mapping theo schematic, carrier đúng cấu hình, không
+có overlap gate, dead-time đo được, fault/EN ngắt switching, VBUS và overshoot
+nằm trong giới hạn đã xác nhận, không có lỗi bất thường. Không đánh dấu pass
+chỉ vì thấy xung hoặc vì motor đang tháo rời.
 
 Mỗi lượt test ghi: commit/config, ELF hash, bus voltage, peak phase current,
 speed, Hall sequence, chiều quay, fault flags, điều kiện stop và ảnh waveform
@@ -189,7 +256,7 @@ Chỉ chuyển `OPEN_LOOP_FOC` về `FALSE` và thử Hall/current closed-loop s
 - số cặp cực và motor parameters đúng với motor thực;
 - Hall state sequence theo một vòng quay không có trạng thái lỗi và map được
   theo thứ tự pha;
-- start, stop, break/fault và bus protection đã pass ở T0–T4;
+- start, stop, break/fault và bus protection đã pass ở T0–T5;
 - có telemetry đủ để bắt lỗi current/speed ngay trong lượt đầu.
 
 Sau đó mới tăng dần current PI, rồi speed PI. Không bật speed control đồng thời
