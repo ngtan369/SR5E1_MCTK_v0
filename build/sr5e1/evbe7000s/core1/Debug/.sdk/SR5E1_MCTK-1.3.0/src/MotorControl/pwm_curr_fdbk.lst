@@ -1,0 +1,2120 @@
+   1              		.cpu cortex-m7
+   2              		.arch armv7e-m
+   3              		.fpu fpv5-d16
+   4              		.eabi_attribute 28, 1
+   5              		.eabi_attribute 20, 1
+   6              		.eabi_attribute 21, 1
+   7              		.eabi_attribute 23, 3
+   8              		.eabi_attribute 24, 1
+   9              		.eabi_attribute 25, 1
+  10              		.eabi_attribute 26, 1
+  11              		.eabi_attribute 30, 6
+  12              		.eabi_attribute 34, 1
+  13              		.eabi_attribute 18, 4
+  14              		.file	"pwm_curr_fdbk.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.file 1 ".sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c"
+  19              		.section	.rodata.OFFSET_TAB_CCMRx,"a"
+  20              		.align	2
+  23              	OFFSET_TAB_CCMRx:
+  24 0000 00000000 		.ascii	"\000\000\000\000\004\004\004\00488"
+  24      04040404 
+  24      3838
+  25              		.section	.rodata.SHIFT_TAB_OCxx,"a"
+  26              		.align	2
+  29              	SHIFT_TAB_OCxx:
+  30 0000 00000800 		.ascii	"\000\000\010\000\000\000\010\000\000\010"
+  30      00000800 
+  30      0008
+  31              		.section	.rodata.SHIFT_TAB_ICxx,"a"
+  32              		.align	2
+  35              	SHIFT_TAB_ICxx:
+  36 0000 00000800 		.ascii	"\000\000\010\000\000\000\010\000\000\000"
+  36      00000800 
+  36      0000
+  37              		.section	.rodata.SHIFT_TAB_CCxP,"a"
+  38              		.align	2
+  41              	SHIFT_TAB_CCxP:
+  42 0000 00020406 		.ascii	"\000\002\004\006\010\012\014\016\020\024"
+  42      080A0C0E 
+  42      1014
+  43              		.section	.rodata.SHIFT_TAB_OISx,"a"
+  44              		.align	2
+  47              	SHIFT_TAB_OISx:
+  48 0000 00010203 		.ascii	"\000\001\002\003\004\005\006\007\010\012"
+  48      04050607 
+  48      080A
+  49              		.section	.rodata.USART_PRESCALER_TAB,"a"
+  50              		.align	2
+  53              	USART_PRESCALER_TAB:
+  54 0000 01000000 		.word	1
+  55 0004 02000000 		.word	2
+  56 0008 04000000 		.word	4
+  57 000c 06000000 		.word	6
+  58 0010 08000000 		.word	8
+  59 0014 0A000000 		.word	10
+  60 0018 0C000000 		.word	12
+  61 001c 10000000 		.word	16
+  62 0020 20000000 		.word	32
+  63 0024 40000000 		.word	64
+  64 0028 80000000 		.word	128
+  65 002c 00010000 		.word	256
+  66              		.section	.rodata.LL_DMA_STR_OFFSET_TAB,"a"
+  67              		.align	2
+  70              	LL_DMA_STR_OFFSET_TAB:
+  71 0000 10284058 		.ascii	"\020(@Xp\210\240\270"
+  71      7088A0B8 
+  72              		.section	.itcm,"ax",%progbits
+  73              		.align	1
+  74              		.p2align 4,,15
+  75              		.weak	PWMC_GetPhaseCurrents
+  76              		.syntax unified
+  77              		.thumb
+  78              		.thumb_func
+  80              	PWMC_GetPhaseCurrents:
+  81              	.LFB1248:
+   1:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** /****************************************************************************
+   2:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** *
+   3:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** * Copyright (c) 2023 STMicroelectronics - All Rights Reserved
+   4:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** *
+   5:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** * License terms: STMicroelectronics Proprietary in accordance with licensing
+   6:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** * terms SLA0098 at www.st.com.
+   7:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** *
+   8:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** * THIS SOFTWARE IS DISTRIBUTED "AS IS," AND ALL WARRANTIES ARE DISCLAIMED,
+   9:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** * INCLUDING MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+  10:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** *****************************************************************************/
+  11:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** /**
+  12:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** *   @file    pwm_curr_fdbk.c
+  13:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** *   @version M4_VERSION
+  14:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** *   @brief   This file provides firmware functions that implement the features
+  15:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** *            of the PWM & Current Feedback component of the Stellar Motor Control.
+  16:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** *
+  17:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** *   @details This file provides firmware functions that implement the features
+  18:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** *            of the PWM & Current Feedback component of the Stellar Motor Control.
+  19:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** *
+  20:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  */
+  21:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** 
+  22:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** /* Includes ------------------------------------------------------------------*/
+  23:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** #include "pwm_curr_fdbk.h"
+  24:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** #include "mc_type.h"
+  25:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** #include "mc_config.h"
+  26:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** /** @addtogroup STELLAR_PMSM_MC_FOC_LIBRARY
+  27:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * @{
+  28:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   */
+  29:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** 
+  30:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** /** @defgroup pwm_curr_fdbk PWM & Current Feedback
+  31:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   *
+  32:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * @brief PWM & Current Feedback components of the Stellar Motor Control
+  33:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   *
+  34:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * These components fulfill two functions in a Motor Control subsystem:
+  35:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   *
+  36:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * - The generation of the Space Vector Pulse Width Modulation on the motor's phases
+  37:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * - The sampling of the actual motor's phases current
+  38:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   *
+  39:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * Both these features are closely related as the instants when the values of the phase currents
+  40:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * should be sampled by the ADC channels are basically triggered by the timers used to generate
+  41:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * the duty cycles for the PWM.
+  42:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   *
+  43:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * Several implementation of PWM and Current Feedback components are provided by the Motor Control
+  44:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * SDK to account for the specificities of the application:
+  45:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   *
+  46:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * - The selected MCU: the number of ADCs available on a given MCU, the presence of internal
+  47:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * comparators or OpAmps, for instance, lead to different implementation of this feature
+  48:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * - The Current sensing topology also has an impact on the firmware: implementations are provided
+  49:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * for Insulated Current Sensors, Single Shunt and Three Shunt resistors current sensing topologie
+  50:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   *
+  51:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * The choice of the implementation mostly depend on these two factors and is performed by the
+  52:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * Motor Control Workbench tool.
+  53:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   *
+  54:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * All these implementations are built on a base PWM & Current Feedback component that they extend
+  55:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * and that provides the functions and data that are common to all of them. This base component is
+  56:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * never used directly as it does not provide a complete implementation of the features. Rather,
+  57:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * its handle structure (PWMC_Handle) is reused by all the PWM & Current Feedback specific
+  58:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * implementations and the functions it provides form the API of the PWM and Current feedback feat
+  59:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * Calling them results in calling functions of the component that actually implement the feature.
+  60:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * See PWMC_Handle for more details on this mechanism.
+  61:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * @{
+  62:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   */
+  63:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** /* Only for debug */
+  64:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** /* #define DUTY_PHA_DEBUG */
+  65:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** 
+  66:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** #if defined (DUTY_PHA_DEBUG)
+  67:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** #define DUTY_PHA_DEBUG_SIZE 1200
+  68:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** uint16_t DutyPhABufferDebug[DUTY_PHA_DEBUG_SIZE];
+  69:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** uint16_t DutyPhBBufferDebug[DUTY_PHA_DEBUG_SIZE];
+  70:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** uint16_t DutyPhCBufferDebug[DUTY_PHA_DEBUG_SIZE];
+  71:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** uint32_t wIndex;
+  72:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** #endif
+  73:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** 
+  74:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** /**
+  75:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * @brief Returns the phase current of the motor as read by the ADC (in s16A unit)
+  76:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   *
+  77:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * The function actually returns the current values of phase A & B. Phase C current
+  78:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * can be deduced thanks to the formula:
+  79:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   *
+  80:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * @f[
+  81:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * I_{C} = -I_{A} - I_{C}
+  82:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * @f]
+  83:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   *
+  84:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * @param  pHandle handle on the target PWMC component
+  85:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * @param  pStator_Currents Pointer to the structure that will receive motor current
+  86:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   *         of phase A and B in ElectricalValue format.
+  87:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** */
+  88:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** #if defined (MCTK_ITCM)
+  89:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** __weak void __attribute__((section(".itcm"))) PWMC_GetPhaseCurrents( PWMC_Handle_t * pHandle, ab_t 
+  90:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** #else
+  91:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** __weak void PWMC_GetPhaseCurrents( PWMC_Handle_t * pHandle, ab_t * Iab )
+  92:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** #endif
+  93:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** {
+  82              		.loc 1 93 1
+  83              		.cfi_startproc
+  84              		@ args = 0, pretend = 0, frame = 8
+  85              		@ frame_needed = 0, uses_anonymous_args = 0
+  86 0000 00B5     		push	{lr}
+  87              		.cfi_def_cfa_offset 4
+  88              		.cfi_offset 14, -4
+  89 0002 83B0     		sub	sp, sp, #12
+  90              		.cfi_def_cfa_offset 16
+  91 0004 0190     		str	r0, [sp, #4]
+  92 0006 0091     		str	r1, [sp]
+  94:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   pHandle->pFctGetPhaseCurrents( pHandle, Iab );
+  93              		.loc 1 94 10
+  94 0008 019B     		ldr	r3, [sp, #4]
+  95 000a 5B68     		ldr	r3, [r3, #4]
+  96              		.loc 1 94 3
+  97 000c 0099     		ldr	r1, [sp]
+  98 000e 0198     		ldr	r0, [sp, #4]
+  99 0010 9847     		blx	r3
+ 100              	.LVL0:
+  95:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** }
+ 101              		.loc 1 95 1
+ 102 0012 00BF     		nop
+ 103 0014 03B0     		add	sp, sp, #12
+ 104              		.cfi_def_cfa_offset 4
+ 105              		@ sp needed
+ 106 0016 5DF804FB 		ldr	pc, [sp], #4
+ 107              		.cfi_endproc
+ 108              	.LFE1248:
+ 110              		.align	1
+ 111 001a 00BFAFF3 		.p2align 4,,15
+ 111      0080
+ 112              		.weak	PWMC_SetPhaseVoltage
+ 113              		.syntax unified
+ 114              		.thumb
+ 115              		.thumb_func
+ 117              	PWMC_SetPhaseVoltage:
+ 118              	.LFB1249:
+  96:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** 
+  97:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** /**
+  98:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  * @brief Sets the PWM duty cycles
+  99:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  *
+ 100:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  *
+ 101:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  */
+ 102:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** 
+ 103:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** /**
+ 104:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * @brief  Converts input voltages @f$ V_{\alpha} @f$ and @f$ V_{\beta} @f$ into PWM duty cycles
+ 105:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   *         and feed them to the inverter.
+ 106:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * @param  pHandle handler on the target PWMC component.
+ 107:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * @param  Valfa_beta Voltage Components expressed in the @f$(\alpha, \beta)@f$ reference frame
+ 108:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   *
+ 109:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * This function computes the the time during wIch the transistors of each phase are to be switche
+ 110:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * a PWM cycle in order to achieve the reference phase voltage set by @p Valfa_beta. Then, the fun
+ 111:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * programs the resulting duty cycles in the related timer channels. It also sets the phase curren
+ 112:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * sampling point for the next PWM cycle accordingly.
+ 113:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   *
+ 114:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * This function is used in the FOC frequency loop and needs to complete before the next PWM cycle
+ 115:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * so that the duty cycles it computes can be taken into account. Failing to do so (for instance b
+ 116:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * the PWM Frequency is too high) results in the functions returning #MC_FOC_DURATION wIch entails
+ 117:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * Motor Control Fault that stops the motor.
+ 118:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   *
+ 119:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * @retval Returns #MC_NO_ERROR if no error occurred or #MC_FOC_DURATION if the duty cycles were
+ 120:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   *         set too late for being taken into account in the next PWM cycle.
+ 121:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   */
+ 122:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** #if defined (MCTK_ITCM)
+ 123:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** __weak uint16_t __attribute__((section(".itcm"))) PWMC_SetPhaseVoltage( PWMC_Handle_t * pHandle, al
+ 124:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** #else
+ 125:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** __weak uint16_t PWMC_SetPhaseVoltage( PWMC_Handle_t * pHandle, alphabeta_t Valfa_beta )
+ 126:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** #endif  
+ 127:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** {
+ 119              		.loc 1 127 1
+ 120              		.cfi_startproc
+ 121              		@ args = 0, pretend = 0, frame = 40
+ 122              		@ frame_needed = 0, uses_anonymous_args = 0
+ 123 0020 00B5     		push	{lr}
+ 124              		.cfi_def_cfa_offset 4
+ 125              		.cfi_offset 14, -4
+ 126 0022 8BB0     		sub	sp, sp, #44
+ 127              		.cfi_def_cfa_offset 48
+ 128 0024 0190     		str	r0, [sp, #4]
+ 129 0026 0091     		str	r1, [sp]
+ 128:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   int32_t wX, wY, wZ, wUAlpha, wUBeta, wTimePhA, wTimePhB, wTimePhC;
+ 129:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** 
+ 130:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   wUAlpha = Valfa_beta.alpha * ( int32_t )pHandle->hT_Sqrt3;
+ 130              		.loc 1 130 23
+ 131 0028 BDF90030 		ldrsh	r3, [sp]
+ 132 002c 1A46     		mov	r2, r3
+ 133              		.loc 1 130 50
+ 134 002e 019B     		ldr	r3, [sp, #4]
+ 135 0030 1B6B     		ldr	r3, [r3, #48]
+ 136              		.loc 1 130 11
+ 137 0032 02FB03F3 		mul	r3, r2, r3
+ 138 0036 0693     		str	r3, [sp, #24]
+ 131:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   wUBeta = -( Valfa_beta.beta * ( int32_t )( pHandle->PWMperiod ) ) * 2;
+ 139              		.loc 1 131 25
+ 140 0038 BDF90230 		ldrsh	r3, [sp, #2]
+ 141 003c 1A46     		mov	r2, r3
+ 142              		.loc 1 131 53
+ 143 003e 019B     		ldr	r3, [sp, #4]
+ 144 0040 B3F85230 		ldrh	r3, [r3, #82]
+ 145              		.loc 1 131 31
+ 146 0044 03FB02F2 		mul	r2, r3, r2
+ 147              		.loc 1 131 10
+ 148 0048 1346     		mov	r3, r2
+ 149 004a DB07     		lsls	r3, r3, #31
+ 150 004c 9B1A     		subs	r3, r3, r2
+ 151 004e 5B00     		lsls	r3, r3, #1
+ 152 0050 0593     		str	r3, [sp, #20]
+ 132:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** 
+ 133:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   wX = wUBeta;
+ 153              		.loc 1 133 6
+ 154 0052 059B     		ldr	r3, [sp, #20]
+ 155 0054 0493     		str	r3, [sp, #16]
+ 134:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   wY = ( wUBeta + wUAlpha ) / 2;
+ 156              		.loc 1 134 17
+ 157 0056 059A     		ldr	r2, [sp, #20]
+ 158 0058 069B     		ldr	r3, [sp, #24]
+ 159 005a 1344     		add	r3, r3, r2
+ 160              		.loc 1 134 6
+ 161 005c 002B     		cmp	r3, #0
+ 162 005e 00DA     		bge	.L3
+ 163 0060 0133     		adds	r3, r3, #1
+ 164              	.L3:
+ 165 0062 5B10     		asrs	r3, r3, #1
+ 166 0064 0393     		str	r3, [sp, #12]
+ 135:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   wZ = ( wUBeta - wUAlpha ) / 2;
+ 167              		.loc 1 135 17
+ 168 0066 059A     		ldr	r2, [sp, #20]
+ 169 0068 069B     		ldr	r3, [sp, #24]
+ 170 006a D31A     		subs	r3, r2, r3
+ 171              		.loc 1 135 6
+ 172 006c 002B     		cmp	r3, #0
+ 173 006e 00DA     		bge	.L4
+ 174 0070 0133     		adds	r3, r3, #1
+ 175              	.L4:
+ 176 0072 5B10     		asrs	r3, r3, #1
+ 177 0074 0293     		str	r3, [sp, #8]
+ 136:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** 
+ 137:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   /* Sector calculation from wX, wY, wZ */
+ 138:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   if ( wY < 0 )
+ 178              		.loc 1 138 6
+ 179 0076 039B     		ldr	r3, [sp, #12]
+ 180 0078 002B     		cmp	r3, #0
+ 181 007a 80F28D80 		bge	.L5
+ 139:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   {
+ 140:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     if ( wZ < 0 )
+ 182              		.loc 1 140 8
+ 183 007e 029B     		ldr	r3, [sp, #8]
+ 184 0080 002B     		cmp	r3, #0
+ 185 0082 2CDA     		bge	.L6
+ 141:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     {
+ 142:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****       pHandle->Sector = SECTOR_5;
+ 186              		.loc 1 142 23
+ 187 0084 019B     		ldr	r3, [sp, #4]
+ 188 0086 0422     		movs	r2, #4
+ 189 0088 83F83C20 		strb	r2, [r3, #60]
+ 143:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****       wTimePhA = ( int32_t )( pHandle->PWMperiod ) / 4 + ( ( wY - wZ ) / ( int32_t )262144 );
+ 190              		.loc 1 143 38
+ 191 008c 019B     		ldr	r3, [sp, #4]
+ 192 008e B3F85230 		ldrh	r3, [r3, #82]
+ 193              		.loc 1 143 52
+ 194 0092 9B08     		lsrs	r3, r3, #2
+ 195 0094 9BB2     		uxth	r3, r3
+ 196 0096 1946     		mov	r1, r3
+ 197              		.loc 1 143 65
+ 198 0098 039A     		ldr	r2, [sp, #12]
+ 199 009a 029B     		ldr	r3, [sp, #8]
+ 200 009c D31A     		subs	r3, r2, r3
+ 201              		.loc 1 143 72
+ 202 009e 002B     		cmp	r3, #0
+ 203 00a0 02DA     		bge	.L7
+ 204 00a2 954A     		ldr	r2, .L36
+ 205 00a4 1A44     		add	r2, r2, r3
+ 206 00a6 1346     		mov	r3, r2
+ 207              	.L7:
+ 208 00a8 9B14     		asrs	r3, r3, #18
+ 209              		.loc 1 143 16
+ 210 00aa 0B44     		add	r3, r3, r1
+ 211 00ac 0993     		str	r3, [sp, #36]
+ 144:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****       wTimePhB = wTimePhA + wZ / 131072;
+ 212              		.loc 1 144 32
+ 213 00ae 029B     		ldr	r3, [sp, #8]
+ 214 00b0 002B     		cmp	r3, #0
+ 215 00b2 02DA     		bge	.L8
+ 216 00b4 914A     		ldr	r2, .L36+4
+ 217 00b6 1A44     		add	r2, r2, r3
+ 218 00b8 1346     		mov	r3, r2
+ 219              	.L8:
+ 220 00ba 5B14     		asrs	r3, r3, #17
+ 221 00bc 1A46     		mov	r2, r3
+ 222              		.loc 1 144 16
+ 223 00be 099B     		ldr	r3, [sp, #36]
+ 224 00c0 1344     		add	r3, r3, r2
+ 225 00c2 0893     		str	r3, [sp, #32]
+ 145:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****       wTimePhC = wTimePhA - wY / 131072;
+ 226              		.loc 1 145 32
+ 227 00c4 039B     		ldr	r3, [sp, #12]
+ 228 00c6 002B     		cmp	r3, #0
+ 229 00c8 02DA     		bge	.L9
+ 230 00ca 8C4A     		ldr	r2, .L36+4
+ 231 00cc 1A44     		add	r2, r2, r3
+ 232 00ce 1346     		mov	r3, r2
+ 233              	.L9:
+ 234 00d0 5B14     		asrs	r3, r3, #17
+ 235 00d2 5B42     		rsbs	r3, r3, #0
+ 236 00d4 1A46     		mov	r2, r3
+ 237              		.loc 1 145 16
+ 238 00d6 099B     		ldr	r3, [sp, #36]
+ 239 00d8 1344     		add	r3, r3, r2
+ 240 00da 0793     		str	r3, [sp, #28]
+ 241 00dc E8E0     		b	.L10
+ 242              	.L6:
+ 146:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     }
+ 147:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     else /* wZ >= 0 */
+ 148:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****       if ( wX <= 0 )
+ 243              		.loc 1 148 10
+ 244 00de 049B     		ldr	r3, [sp, #16]
+ 245 00e0 002B     		cmp	r3, #0
+ 246 00e2 2CDC     		bgt	.L11
+ 149:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****       {
+ 150:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****         pHandle->Sector = SECTOR_4;
+ 247              		.loc 1 150 25
+ 248 00e4 019B     		ldr	r3, [sp, #4]
+ 249 00e6 0322     		movs	r2, #3
+ 250 00e8 83F83C20 		strb	r2, [r3, #60]
+ 151:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****         wTimePhA = ( int32_t )( pHandle->PWMperiod ) / 4 + ( ( wX - wZ ) / ( int32_t )262144 );
+ 251              		.loc 1 151 40
+ 252 00ec 019B     		ldr	r3, [sp, #4]
+ 253 00ee B3F85230 		ldrh	r3, [r3, #82]
+ 254              		.loc 1 151 54
+ 255 00f2 9B08     		lsrs	r3, r3, #2
+ 256 00f4 9BB2     		uxth	r3, r3
+ 257 00f6 1946     		mov	r1, r3
+ 258              		.loc 1 151 67
+ 259 00f8 049A     		ldr	r2, [sp, #16]
+ 260 00fa 029B     		ldr	r3, [sp, #8]
+ 261 00fc D31A     		subs	r3, r2, r3
+ 262              		.loc 1 151 74
+ 263 00fe 002B     		cmp	r3, #0
+ 264 0100 02DA     		bge	.L12
+ 265 0102 7D4A     		ldr	r2, .L36
+ 266 0104 1A44     		add	r2, r2, r3
+ 267 0106 1346     		mov	r3, r2
+ 268              	.L12:
+ 269 0108 9B14     		asrs	r3, r3, #18
+ 270              		.loc 1 151 18
+ 271 010a 0B44     		add	r3, r3, r1
+ 272 010c 0993     		str	r3, [sp, #36]
+ 152:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****         wTimePhB = wTimePhA + wZ / 131072;
+ 273              		.loc 1 152 34
+ 274 010e 029B     		ldr	r3, [sp, #8]
+ 275 0110 002B     		cmp	r3, #0
+ 276 0112 02DA     		bge	.L13
+ 277 0114 794A     		ldr	r2, .L36+4
+ 278 0116 1A44     		add	r2, r2, r3
+ 279 0118 1346     		mov	r3, r2
+ 280              	.L13:
+ 281 011a 5B14     		asrs	r3, r3, #17
+ 282 011c 1A46     		mov	r2, r3
+ 283              		.loc 1 152 18
+ 284 011e 099B     		ldr	r3, [sp, #36]
+ 285 0120 1344     		add	r3, r3, r2
+ 286 0122 0893     		str	r3, [sp, #32]
+ 153:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****         wTimePhC = wTimePhB - wX / 131072;
+ 287              		.loc 1 153 34
+ 288 0124 049B     		ldr	r3, [sp, #16]
+ 289 0126 002B     		cmp	r3, #0
+ 290 0128 02DA     		bge	.L14
+ 291 012a 744A     		ldr	r2, .L36+4
+ 292 012c 1A44     		add	r2, r2, r3
+ 293 012e 1346     		mov	r3, r2
+ 294              	.L14:
+ 295 0130 5B14     		asrs	r3, r3, #17
+ 296 0132 5B42     		rsbs	r3, r3, #0
+ 297 0134 1A46     		mov	r2, r3
+ 298              		.loc 1 153 18
+ 299 0136 089B     		ldr	r3, [sp, #32]
+ 300 0138 1344     		add	r3, r3, r2
+ 301 013a 0793     		str	r3, [sp, #28]
+ 302 013c B8E0     		b	.L10
+ 303              	.L11:
+ 154:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****       }
+ 155:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****       else /* wX > 0 */
+ 156:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****       {
+ 157:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****         pHandle->Sector = SECTOR_3;
+ 304              		.loc 1 157 25
+ 305 013e 019B     		ldr	r3, [sp, #4]
+ 306 0140 0222     		movs	r2, #2
+ 307 0142 83F83C20 		strb	r2, [r3, #60]
+ 158:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****         wTimePhA = ( int32_t )( pHandle->PWMperiod ) / 4 + ( ( wY - wX ) / ( int32_t )262144 );
+ 308              		.loc 1 158 40
+ 309 0146 019B     		ldr	r3, [sp, #4]
+ 310 0148 B3F85230 		ldrh	r3, [r3, #82]
+ 311              		.loc 1 158 54
+ 312 014c 9B08     		lsrs	r3, r3, #2
+ 313 014e 9BB2     		uxth	r3, r3
+ 314 0150 1946     		mov	r1, r3
+ 315              		.loc 1 158 67
+ 316 0152 039A     		ldr	r2, [sp, #12]
+ 317 0154 049B     		ldr	r3, [sp, #16]
+ 318 0156 D31A     		subs	r3, r2, r3
+ 319              		.loc 1 158 74
+ 320 0158 002B     		cmp	r3, #0
+ 321 015a 02DA     		bge	.L15
+ 322 015c 664A     		ldr	r2, .L36
+ 323 015e 1A44     		add	r2, r2, r3
+ 324 0160 1346     		mov	r3, r2
+ 325              	.L15:
+ 326 0162 9B14     		asrs	r3, r3, #18
+ 327              		.loc 1 158 18
+ 328 0164 0B44     		add	r3, r3, r1
+ 329 0166 0993     		str	r3, [sp, #36]
+ 159:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****         wTimePhC = wTimePhA - wY / 131072;
+ 330              		.loc 1 159 34
+ 331 0168 039B     		ldr	r3, [sp, #12]
+ 332 016a 002B     		cmp	r3, #0
+ 333 016c 02DA     		bge	.L16
+ 334 016e 634A     		ldr	r2, .L36+4
+ 335 0170 1A44     		add	r2, r2, r3
+ 336 0172 1346     		mov	r3, r2
+ 337              	.L16:
+ 338 0174 5B14     		asrs	r3, r3, #17
+ 339 0176 5B42     		rsbs	r3, r3, #0
+ 340 0178 1A46     		mov	r2, r3
+ 341              		.loc 1 159 18
+ 342 017a 099B     		ldr	r3, [sp, #36]
+ 343 017c 1344     		add	r3, r3, r2
+ 344 017e 0793     		str	r3, [sp, #28]
+ 160:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****         wTimePhB = wTimePhC + wX / 131072;
+ 345              		.loc 1 160 34
+ 346 0180 049B     		ldr	r3, [sp, #16]
+ 347 0182 002B     		cmp	r3, #0
+ 348 0184 02DA     		bge	.L17
+ 349 0186 5D4A     		ldr	r2, .L36+4
+ 350 0188 1A44     		add	r2, r2, r3
+ 351 018a 1346     		mov	r3, r2
+ 352              	.L17:
+ 353 018c 5B14     		asrs	r3, r3, #17
+ 354 018e 1A46     		mov	r2, r3
+ 355              		.loc 1 160 18
+ 356 0190 079B     		ldr	r3, [sp, #28]
+ 357 0192 1344     		add	r3, r3, r2
+ 358 0194 0893     		str	r3, [sp, #32]
+ 359 0196 8BE0     		b	.L10
+ 360              	.L5:
+ 161:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****       }
+ 162:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   }
+ 163:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   else /* wY > 0 */
+ 164:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   {
+ 165:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     if ( wZ >= 0 )
+ 361              		.loc 1 165 8
+ 362 0198 029B     		ldr	r3, [sp, #8]
+ 363 019a 002B     		cmp	r3, #0
+ 364 019c 2CDB     		blt	.L18
+ 166:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     {
+ 167:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****       pHandle->Sector = SECTOR_2;
+ 365              		.loc 1 167 23
+ 366 019e 019B     		ldr	r3, [sp, #4]
+ 367 01a0 0122     		movs	r2, #1
+ 368 01a2 83F83C20 		strb	r2, [r3, #60]
+ 168:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****       wTimePhA = ( int32_t )( pHandle->PWMperiod ) / 4 + ( ( wY - wZ ) / ( int32_t )262144 );
+ 369              		.loc 1 168 38
+ 370 01a6 019B     		ldr	r3, [sp, #4]
+ 371 01a8 B3F85230 		ldrh	r3, [r3, #82]
+ 372              		.loc 1 168 52
+ 373 01ac 9B08     		lsrs	r3, r3, #2
+ 374 01ae 9BB2     		uxth	r3, r3
+ 375 01b0 1946     		mov	r1, r3
+ 376              		.loc 1 168 65
+ 377 01b2 039A     		ldr	r2, [sp, #12]
+ 378 01b4 029B     		ldr	r3, [sp, #8]
+ 379 01b6 D31A     		subs	r3, r2, r3
+ 380              		.loc 1 168 72
+ 381 01b8 002B     		cmp	r3, #0
+ 382 01ba 02DA     		bge	.L19
+ 383 01bc 4E4A     		ldr	r2, .L36
+ 384 01be 1A44     		add	r2, r2, r3
+ 385 01c0 1346     		mov	r3, r2
+ 386              	.L19:
+ 387 01c2 9B14     		asrs	r3, r3, #18
+ 388              		.loc 1 168 16
+ 389 01c4 0B44     		add	r3, r3, r1
+ 390 01c6 0993     		str	r3, [sp, #36]
+ 169:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****       wTimePhB = wTimePhA + wZ / 131072;
+ 391              		.loc 1 169 32
+ 392 01c8 029B     		ldr	r3, [sp, #8]
+ 393 01ca 002B     		cmp	r3, #0
+ 394 01cc 02DA     		bge	.L20
+ 395 01ce 4B4A     		ldr	r2, .L36+4
+ 396 01d0 1A44     		add	r2, r2, r3
+ 397 01d2 1346     		mov	r3, r2
+ 398              	.L20:
+ 399 01d4 5B14     		asrs	r3, r3, #17
+ 400 01d6 1A46     		mov	r2, r3
+ 401              		.loc 1 169 16
+ 402 01d8 099B     		ldr	r3, [sp, #36]
+ 403 01da 1344     		add	r3, r3, r2
+ 404 01dc 0893     		str	r3, [sp, #32]
+ 170:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****       wTimePhC = wTimePhA - wY / 131072;
+ 405              		.loc 1 170 32
+ 406 01de 039B     		ldr	r3, [sp, #12]
+ 407 01e0 002B     		cmp	r3, #0
+ 408 01e2 02DA     		bge	.L21
+ 409 01e4 454A     		ldr	r2, .L36+4
+ 410 01e6 1A44     		add	r2, r2, r3
+ 411 01e8 1346     		mov	r3, r2
+ 412              	.L21:
+ 413 01ea 5B14     		asrs	r3, r3, #17
+ 414 01ec 5B42     		rsbs	r3, r3, #0
+ 415 01ee 1A46     		mov	r2, r3
+ 416              		.loc 1 170 16
+ 417 01f0 099B     		ldr	r3, [sp, #36]
+ 418 01f2 1344     		add	r3, r3, r2
+ 419 01f4 0793     		str	r3, [sp, #28]
+ 420 01f6 5BE0     		b	.L10
+ 421              	.L18:
+ 171:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     }
+ 172:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     else /* wZ < 0 */
+ 173:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****       if ( wX <= 0 )
+ 422              		.loc 1 173 10
+ 423 01f8 049B     		ldr	r3, [sp, #16]
+ 424 01fa 002B     		cmp	r3, #0
+ 425 01fc 2CDC     		bgt	.L22
+ 174:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****       {
+ 175:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****         pHandle->Sector = SECTOR_6;
+ 426              		.loc 1 175 25
+ 427 01fe 019B     		ldr	r3, [sp, #4]
+ 428 0200 0522     		movs	r2, #5
+ 429 0202 83F83C20 		strb	r2, [r3, #60]
+ 176:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****         wTimePhA = ( int32_t )( pHandle->PWMperiod ) / 4 + ( ( wY - wX ) / ( int32_t )262144 );
+ 430              		.loc 1 176 40
+ 431 0206 019B     		ldr	r3, [sp, #4]
+ 432 0208 B3F85230 		ldrh	r3, [r3, #82]
+ 433              		.loc 1 176 54
+ 434 020c 9B08     		lsrs	r3, r3, #2
+ 435 020e 9BB2     		uxth	r3, r3
+ 436 0210 1946     		mov	r1, r3
+ 437              		.loc 1 176 67
+ 438 0212 039A     		ldr	r2, [sp, #12]
+ 439 0214 049B     		ldr	r3, [sp, #16]
+ 440 0216 D31A     		subs	r3, r2, r3
+ 441              		.loc 1 176 74
+ 442 0218 002B     		cmp	r3, #0
+ 443 021a 02DA     		bge	.L23
+ 444 021c 364A     		ldr	r2, .L36
+ 445 021e 1A44     		add	r2, r2, r3
+ 446 0220 1346     		mov	r3, r2
+ 447              	.L23:
+ 448 0222 9B14     		asrs	r3, r3, #18
+ 449              		.loc 1 176 18
+ 450 0224 0B44     		add	r3, r3, r1
+ 451 0226 0993     		str	r3, [sp, #36]
+ 177:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****         wTimePhC = wTimePhA - wY / 131072;
+ 452              		.loc 1 177 34
+ 453 0228 039B     		ldr	r3, [sp, #12]
+ 454 022a 002B     		cmp	r3, #0
+ 455 022c 02DA     		bge	.L24
+ 456 022e 334A     		ldr	r2, .L36+4
+ 457 0230 1A44     		add	r2, r2, r3
+ 458 0232 1346     		mov	r3, r2
+ 459              	.L24:
+ 460 0234 5B14     		asrs	r3, r3, #17
+ 461 0236 5B42     		rsbs	r3, r3, #0
+ 462 0238 1A46     		mov	r2, r3
+ 463              		.loc 1 177 18
+ 464 023a 099B     		ldr	r3, [sp, #36]
+ 465 023c 1344     		add	r3, r3, r2
+ 466 023e 0793     		str	r3, [sp, #28]
+ 178:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****         wTimePhB = wTimePhC + wX / 131072;
+ 467              		.loc 1 178 34
+ 468 0240 049B     		ldr	r3, [sp, #16]
+ 469 0242 002B     		cmp	r3, #0
+ 470 0244 02DA     		bge	.L25
+ 471 0246 2D4A     		ldr	r2, .L36+4
+ 472 0248 1A44     		add	r2, r2, r3
+ 473 024a 1346     		mov	r3, r2
+ 474              	.L25:
+ 475 024c 5B14     		asrs	r3, r3, #17
+ 476 024e 1A46     		mov	r2, r3
+ 477              		.loc 1 178 18
+ 478 0250 079B     		ldr	r3, [sp, #28]
+ 479 0252 1344     		add	r3, r3, r2
+ 480 0254 0893     		str	r3, [sp, #32]
+ 481 0256 2BE0     		b	.L10
+ 482              	.L22:
+ 179:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****       }
+ 180:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****       else /* wX > 0 */
+ 181:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****       {
+ 182:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****         pHandle->Sector = SECTOR_1;
+ 483              		.loc 1 182 25
+ 484 0258 019B     		ldr	r3, [sp, #4]
+ 485 025a 0022     		movs	r2, #0
+ 486 025c 83F83C20 		strb	r2, [r3, #60]
+ 183:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****         wTimePhA = ( int32_t )( pHandle->PWMperiod ) / 4 + ( ( wX - wZ ) / ( int32_t )262144 );
+ 487              		.loc 1 183 40
+ 488 0260 019B     		ldr	r3, [sp, #4]
+ 489 0262 B3F85230 		ldrh	r3, [r3, #82]
+ 490              		.loc 1 183 54
+ 491 0266 9B08     		lsrs	r3, r3, #2
+ 492 0268 9BB2     		uxth	r3, r3
+ 493 026a 1946     		mov	r1, r3
+ 494              		.loc 1 183 67
+ 495 026c 049A     		ldr	r2, [sp, #16]
+ 496 026e 029B     		ldr	r3, [sp, #8]
+ 497 0270 D31A     		subs	r3, r2, r3
+ 498              		.loc 1 183 74
+ 499 0272 002B     		cmp	r3, #0
+ 500 0274 02DA     		bge	.L26
+ 501 0276 204A     		ldr	r2, .L36
+ 502 0278 1A44     		add	r2, r2, r3
+ 503 027a 1346     		mov	r3, r2
+ 504              	.L26:
+ 505 027c 9B14     		asrs	r3, r3, #18
+ 506              		.loc 1 183 18
+ 507 027e 0B44     		add	r3, r3, r1
+ 508 0280 0993     		str	r3, [sp, #36]
+ 184:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****         wTimePhB = wTimePhA + wZ / 131072;
+ 509              		.loc 1 184 34
+ 510 0282 029B     		ldr	r3, [sp, #8]
+ 511 0284 002B     		cmp	r3, #0
+ 512 0286 02DA     		bge	.L27
+ 513 0288 1C4A     		ldr	r2, .L36+4
+ 514 028a 1A44     		add	r2, r2, r3
+ 515 028c 1346     		mov	r3, r2
+ 516              	.L27:
+ 517 028e 5B14     		asrs	r3, r3, #17
+ 518 0290 1A46     		mov	r2, r3
+ 519              		.loc 1 184 18
+ 520 0292 099B     		ldr	r3, [sp, #36]
+ 521 0294 1344     		add	r3, r3, r2
+ 522 0296 0893     		str	r3, [sp, #32]
+ 185:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****         wTimePhC = wTimePhB - wX / 131072;
+ 523              		.loc 1 185 34
+ 524 0298 049B     		ldr	r3, [sp, #16]
+ 525 029a 002B     		cmp	r3, #0
+ 526 029c 02DA     		bge	.L28
+ 527 029e 174A     		ldr	r2, .L36+4
+ 528 02a0 1A44     		add	r2, r2, r3
+ 529 02a2 1346     		mov	r3, r2
+ 530              	.L28:
+ 531 02a4 5B14     		asrs	r3, r3, #17
+ 532 02a6 5B42     		rsbs	r3, r3, #0
+ 533 02a8 1A46     		mov	r2, r3
+ 534              		.loc 1 185 18
+ 535 02aa 089B     		ldr	r3, [sp, #32]
+ 536 02ac 1344     		add	r3, r3, r2
+ 537 02ae 0793     		str	r3, [sp, #28]
+ 538              	.L10:
+ 186:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****       }
+ 187:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   }
+ 188:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** 
+ 189:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   pHandle->CntPhA = (uint16_t)(MAX(wTimePhA,0));
+ 539              		.loc 1 189 21
+ 540 02b0 099B     		ldr	r3, [sp, #36]
+ 541 02b2 002B     		cmp	r3, #0
+ 542 02b4 02DD     		ble	.L29
+ 543              		.loc 1 189 21 is_stmt 0 discriminator 1
+ 544 02b6 099B     		ldr	r3, [sp, #36]
+ 545 02b8 9AB2     		uxth	r2, r3
+ 546 02ba 00E0     		b	.L30
+ 547              	.L29:
+ 548              		.loc 1 189 21 discriminator 2
+ 549 02bc 0022     		movs	r2, #0
+ 550              	.L30:
+ 551              		.loc 1 189 19 is_stmt 1 discriminator 4
+ 552 02be 019B     		ldr	r3, [sp, #4]
+ 553 02c0 9A86     		strh	r2, [r3, #52]	@ movhi
+ 190:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   pHandle->CntPhB = (uint16_t)(MAX(wTimePhB,0));
+ 554              		.loc 1 190 21
+ 555 02c2 089B     		ldr	r3, [sp, #32]
+ 556 02c4 002B     		cmp	r3, #0
+ 557 02c6 02DD     		ble	.L31
+ 558              		.loc 1 190 21 is_stmt 0 discriminator 1
+ 559 02c8 089B     		ldr	r3, [sp, #32]
+ 560 02ca 9AB2     		uxth	r2, r3
+ 561 02cc 00E0     		b	.L32
+ 562              	.L31:
+ 563              		.loc 1 190 21 discriminator 2
+ 564 02ce 0022     		movs	r2, #0
+ 565              	.L32:
+ 566              		.loc 1 190 19 is_stmt 1 discriminator 4
+ 567 02d0 019B     		ldr	r3, [sp, #4]
+ 568 02d2 DA86     		strh	r2, [r3, #54]	@ movhi
+ 191:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   pHandle->CntPhC = (uint16_t)(MAX(wTimePhC,0));
+ 569              		.loc 1 191 21
+ 570 02d4 079B     		ldr	r3, [sp, #28]
+ 571 02d6 002B     		cmp	r3, #0
+ 572 02d8 02DD     		ble	.L33
+ 573              		.loc 1 191 21 is_stmt 0 discriminator 1
+ 574 02da 079B     		ldr	r3, [sp, #28]
+ 575 02dc 9AB2     		uxth	r2, r3
+ 576 02de 00E0     		b	.L34
+ 577              	.L33:
+ 578              		.loc 1 191 21 discriminator 2
+ 579 02e0 0022     		movs	r2, #0
+ 580              	.L34:
+ 581              		.loc 1 191 19 is_stmt 1 discriminator 4
+ 582 02e2 019B     		ldr	r3, [sp, #4]
+ 583 02e4 1A87     		strh	r2, [r3, #56]	@ movhi
+ 192:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** #if(0)
+ 193:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   pHandle->CntPhA = 6562; /* 70% ~43.75us */
+ 194:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   pHandle->CntPhB = 4687; /* 50% */
+ 195:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   pHandle->CntPhC = 4687; /* 50% */
+ 196:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** 
+ 197:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** #endif
+ 198:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** 
+ 199:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** #if defined (DUTY_PHA_DEBUG)
+ 200:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   if (wIndex < DUTY_PHA_DEBUG_SIZE)
+ 201:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   {
+ 202:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     DutyPhABufferDebug[wIndex]=(uint16_t)pHandle->CntPhA;
+ 203:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     DutyPhBBufferDebug[wIndex]=(uint16_t)pHandle->CntPhB;
+ 204:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     DutyPhCBufferDebug[wIndex]=(uint16_t)pHandle->CntPhC;
+ 205:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     wIndex++;
+ 206:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   }
+ 207:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   if (wIndex == DUTY_PHA_DEBUG_SIZE)
+ 208:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   {
+ 209:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     wIndex = 0;
+ 210:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   }
+ 211:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** #endif
+ 212:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** 
+ 213:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** #ifdef DTTEST
+ 214:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   if ( pHandle->DTTest == 1u )
+ 215:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   {
+ 216:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     /* Dead time compensation */
+ 217:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     if ( pHandle->Ia > 0 )
+ 218:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     {
+ 219:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****       pHandle->CntPhA += pHandle->DTCompCnt;
+ 220:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     }
+ 221:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     else
+ 222:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     {
+ 223:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****       pHandle->CntPhA -= pHandle->DTCompCnt;
+ 224:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     }
+ 225:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** 
+ 226:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     if ( pHandle->Ib > 0 )
+ 227:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     {
+ 228:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****       pHandle->CntPhB += pHandle->DTCompCnt;
+ 229:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     }
+ 230:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     else
+ 231:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     {
+ 232:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****       pHandle->CntPhB -= pHandle->DTCompCnt;
+ 233:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     }
+ 234:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** 
+ 235:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     if ( pHandle->Ic > 0 )
+ 236:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     {
+ 237:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****       pHandle->CntPhC += pHandle->DTCompCnt;
+ 238:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     }
+ 239:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     else
+ 240:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     {
+ 241:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****       pHandle->CntPhC -= pHandle->DTCompCnt;
+ 242:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     }
+ 243:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   }
+ 244:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** #endif 
+ 245:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   return ( pHandle->pFctSetADCSampPointSectX( pHandle ) );
+ 584              		.loc 1 245 19
+ 585 02e6 019B     		ldr	r3, [sp, #4]
+ 586 02e8 9B69     		ldr	r3, [r3, #24]
+ 587              		.loc 1 245 12
+ 588 02ea 0198     		ldr	r0, [sp, #4]
+ 589 02ec 9847     		blx	r3
+ 590              	.LVL1:
+ 591 02ee 0346     		mov	r3, r0
+ 246:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** }
+ 592              		.loc 1 246 1
+ 593 02f0 1846     		mov	r0, r3
+ 594 02f2 0BB0     		add	sp, sp, #44
+ 595              		.cfi_def_cfa_offset 4
+ 596              		@ sp needed
+ 597 02f4 5DF804FB 		ldr	pc, [sp], #4
+ 598              	.L37:
+ 599              		.align	2
+ 600              	.L36:
+ 601 02f8 FFFF0300 		.word	262143
+ 602 02fc FFFF0100 		.word	131071
+ 603              		.cfi_endproc
+ 604              	.LFE1249:
+ 606              		.section	.text.PWMC_SwitchOffPWM,"ax",%progbits
+ 607              		.align	1
+ 608              		.p2align 4,,15
+ 609              		.weak	PWMC_SwitchOffPWM
+ 610              		.syntax unified
+ 611              		.thumb
+ 612              		.thumb_func
+ 614              	PWMC_SwitchOffPWM:
+ 615              	.LFB1250:
+ 247:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** 
+ 248:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** /**
+ 249:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * @brief  Switches PWM generation off, inactivating the outputs.
+ 250:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * @param  pHandle Handle on the target instance of the PWMC component
+ 251:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   */
+ 252:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** __weak void PWMC_SwitchOffPWM( PWMC_Handle_t * pHandle )
+ 253:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** {
+ 616              		.loc 1 253 1
+ 617              		.cfi_startproc
+ 618              		@ args = 0, pretend = 0, frame = 8
+ 619              		@ frame_needed = 0, uses_anonymous_args = 0
+ 620 0000 00B5     		push	{lr}
+ 621              		.cfi_def_cfa_offset 4
+ 622              		.cfi_offset 14, -4
+ 623 0002 83B0     		sub	sp, sp, #12
+ 624              		.cfi_def_cfa_offset 16
+ 625 0004 0190     		str	r0, [sp, #4]
+ 254:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   pHandle->pFctSwitchOffPwm( pHandle );
+ 626              		.loc 1 254 10
+ 627 0006 019B     		ldr	r3, [sp, #4]
+ 628 0008 9B68     		ldr	r3, [r3, #8]
+ 629              		.loc 1 254 3
+ 630 000a 0198     		ldr	r0, [sp, #4]
+ 631 000c 9847     		blx	r3
+ 632              	.LVL2:
+ 255:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** }
+ 633              		.loc 1 255 1
+ 634 000e 00BF     		nop
+ 635 0010 03B0     		add	sp, sp, #12
+ 636              		.cfi_def_cfa_offset 4
+ 637              		@ sp needed
+ 638 0012 5DF804FB 		ldr	pc, [sp], #4
+ 639              		.cfi_endproc
+ 640              	.LFE1250:
+ 642 0016 00BF     		.section	.text.PWMC_SwitchOnPWM,"ax",%progbits
+ 643              		.align	1
+ 644              		.p2align 4,,15
+ 645              		.weak	PWMC_SwitchOnPWM
+ 646              		.syntax unified
+ 647              		.thumb
+ 648              		.thumb_func
+ 650              	PWMC_SwitchOnPWM:
+ 651              	.LFB1251:
+ 256:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** 
+ 257:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** /**
+ 258:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * @brief  Switches PWM generation on
+ 259:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * @param  pHandle Handle on the target instance of the PWMC component
+ 260:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   */
+ 261:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** __weak void PWMC_SwitchOnPWM( PWMC_Handle_t * pHandle )
+ 262:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** {
+ 652              		.loc 1 262 1
+ 653              		.cfi_startproc
+ 654              		@ args = 0, pretend = 0, frame = 8
+ 655              		@ frame_needed = 0, uses_anonymous_args = 0
+ 656 0000 00B5     		push	{lr}
+ 657              		.cfi_def_cfa_offset 4
+ 658              		.cfi_offset 14, -4
+ 659 0002 83B0     		sub	sp, sp, #12
+ 660              		.cfi_def_cfa_offset 16
+ 661 0004 0190     		str	r0, [sp, #4]
+ 263:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   pHandle->pFctSwitchOnPwm( pHandle );
+ 662              		.loc 1 263 10
+ 663 0006 019B     		ldr	r3, [sp, #4]
+ 664 0008 DB68     		ldr	r3, [r3, #12]
+ 665              		.loc 1 263 3
+ 666 000a 0198     		ldr	r0, [sp, #4]
+ 667 000c 9847     		blx	r3
+ 668              	.LVL3:
+ 264:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** }
+ 669              		.loc 1 264 1
+ 670 000e 00BF     		nop
+ 671 0010 03B0     		add	sp, sp, #12
+ 672              		.cfi_def_cfa_offset 4
+ 673              		@ sp needed
+ 674 0012 5DF804FB 		ldr	pc, [sp], #4
+ 675              		.cfi_endproc
+ 676              	.LFE1251:
+ 678 0016 00BF     		.section	.text.PWMC_CurrentReadingCalibr,"ax",%progbits
+ 679              		.align	1
+ 680              		.p2align 4,,15
+ 681              		.weak	PWMC_CurrentReadingCalibr
+ 682              		.syntax unified
+ 683              		.thumb
+ 684              		.thumb_func
+ 686              	PWMC_CurrentReadingCalibr:
+ 687              	.LFB1252:
+ 265:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** 
+ 266:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** /**
+ 267:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * @brief  Calibrates ADC current conversions by reading the offset voltage
+ 268:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   *         present on ADC pins when no motor current is flowing in.
+ 269:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   *
+ 270:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * This function should be called before each motor start-up.
+ 271:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   *
+ 272:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * @param  pHandle Handle on the target instance of the PWMC component
+ 273:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * @param  action Can be #CRC_START to initialize the offset calibration or
+ 274:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   *         #CRC_EXEC to execute the offset calibration.
+ 275:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * @retval true if the current calibration has been completed, false if it is
+ 276:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   *         still ongoing.
+ 277:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   */
+ 278:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** __weak bool PWMC_CurrentReadingCalibr( PWMC_Handle_t * pHandle, CRCAction_t action )
+ 279:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** {
+ 688              		.loc 1 279 1
+ 689              		.cfi_startproc
+ 690              		@ args = 0, pretend = 0, frame = 16
+ 691              		@ frame_needed = 0, uses_anonymous_args = 0
+ 692 0000 00B5     		push	{lr}
+ 693              		.cfi_def_cfa_offset 4
+ 694              		.cfi_offset 14, -4
+ 695 0002 85B0     		sub	sp, sp, #20
+ 696              		.cfi_def_cfa_offset 24
+ 697 0004 0190     		str	r0, [sp, #4]
+ 698 0006 0B46     		mov	r3, r1
+ 699 0008 8DF80330 		strb	r3, [sp, #3]
+ 280:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   bool retVal = false;
+ 700              		.loc 1 280 8
+ 701 000c 0023     		movs	r3, #0
+ 702 000e 8DF80F30 		strb	r3, [sp, #15]
+ 281:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   if ( action == CRC_START )
+ 703              		.loc 1 281 6
+ 704 0012 9DF80330 		ldrb	r3, [sp, #3]	@ zero_extendqisi2
+ 705 0016 002B     		cmp	r3, #0
+ 706 0018 15D1     		bne	.L41
+ 282:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   {
+ 283:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     PWMC_SwitchOffPWM( pHandle );
+ 707              		.loc 1 283 5
+ 708 001a 0198     		ldr	r0, [sp, #4]
+ 709 001c FFF7FEFF 		bl	PWMC_SwitchOffPWM
+ 284:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     pHandle->OffCalibrWaitTimeCounter = pHandle->OffCalibrWaitTicks;
+ 710              		.loc 1 284 48
+ 711 0020 019B     		ldr	r3, [sp, #4]
+ 712 0022 B3F85420 		ldrh	r2, [r3, #84]
+ 713              		.loc 1 284 39
+ 714 0026 019B     		ldr	r3, [sp, #4]
+ 715 0028 A3F84620 		strh	r2, [r3, #70]	@ movhi
+ 285:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     if ( pHandle->OffCalibrWaitTicks == 0u )
+ 716              		.loc 1 285 17
+ 717 002c 019B     		ldr	r3, [sp, #4]
+ 718 002e B3F85430 		ldrh	r3, [r3, #84]
+ 719              		.loc 1 285 8
+ 720 0032 002B     		cmp	r3, #0
+ 721 0034 28D1     		bne	.L42
+ 286:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     {
+ 287:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****       pHandle->pFctCurrReadingCalib( pHandle );
+ 722              		.loc 1 287 14
+ 723 0036 019B     		ldr	r3, [sp, #4]
+ 724 0038 1B69     		ldr	r3, [r3, #16]
+ 725              		.loc 1 287 7
+ 726 003a 0198     		ldr	r0, [sp, #4]
+ 727 003c 9847     		blx	r3
+ 728              	.LVL4:
+ 288:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****       retVal = true;
+ 729              		.loc 1 288 14
+ 730 003e 0123     		movs	r3, #1
+ 731 0040 8DF80F30 		strb	r3, [sp, #15]
+ 732 0044 20E0     		b	.L42
+ 733              	.L41:
+ 289:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     }
+ 290:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   }
+ 291:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   else if ( action == CRC_EXEC )
+ 734              		.loc 1 291 11
+ 735 0046 9DF80330 		ldrb	r3, [sp, #3]	@ zero_extendqisi2
+ 736 004a 012B     		cmp	r3, #1
+ 737 004c 1CD1     		bne	.L42
+ 292:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   {
+ 293:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     if ( pHandle->OffCalibrWaitTimeCounter > 0u )
+ 738              		.loc 1 293 17
+ 739 004e 019B     		ldr	r3, [sp, #4]
+ 740 0050 B3F84630 		ldrh	r3, [r3, #70]
+ 741              		.loc 1 293 8
+ 742 0054 002B     		cmp	r3, #0
+ 743 0056 14D0     		beq	.L43
+ 294:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     {
+ 295:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****       pHandle->OffCalibrWaitTimeCounter--;
+ 744              		.loc 1 295 14
+ 745 0058 019B     		ldr	r3, [sp, #4]
+ 746 005a B3F84630 		ldrh	r3, [r3, #70]
+ 747              		.loc 1 295 40
+ 748 005e 013B     		subs	r3, r3, #1
+ 749 0060 9AB2     		uxth	r2, r3
+ 750 0062 019B     		ldr	r3, [sp, #4]
+ 751 0064 A3F84620 		strh	r2, [r3, #70]	@ movhi
+ 296:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****       if ( pHandle->OffCalibrWaitTimeCounter == 0u )
+ 752              		.loc 1 296 19
+ 753 0068 019B     		ldr	r3, [sp, #4]
+ 754 006a B3F84630 		ldrh	r3, [r3, #70]
+ 755              		.loc 1 296 10
+ 756 006e 002B     		cmp	r3, #0
+ 757 0070 0AD1     		bne	.L42
+ 297:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****       {
+ 298:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****         pHandle->pFctCurrReadingCalib( pHandle );
+ 758              		.loc 1 298 16
+ 759 0072 019B     		ldr	r3, [sp, #4]
+ 760 0074 1B69     		ldr	r3, [r3, #16]
+ 761              		.loc 1 298 9
+ 762 0076 0198     		ldr	r0, [sp, #4]
+ 763 0078 9847     		blx	r3
+ 764              	.LVL5:
+ 299:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****         retVal = true;
+ 765              		.loc 1 299 16
+ 766 007a 0123     		movs	r3, #1
+ 767 007c 8DF80F30 		strb	r3, [sp, #15]
+ 768 0080 02E0     		b	.L42
+ 769              	.L43:
+ 300:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****       }
+ 301:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     }
+ 302:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     else
+ 303:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     {
+ 304:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****       retVal = true;
+ 770              		.loc 1 304 14
+ 771 0082 0123     		movs	r3, #1
+ 772 0084 8DF80F30 		strb	r3, [sp, #15]
+ 773              	.L42:
+ 305:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     }
+ 306:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   }
+ 307:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   else
+ 308:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   {
+ 309:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   }
+ 310:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   return retVal;
+ 774              		.loc 1 310 10
+ 775 0088 9DF80F30 		ldrb	r3, [sp, #15]	@ zero_extendqisi2
+ 311:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** }
+ 776              		.loc 1 311 1
+ 777 008c 1846     		mov	r0, r3
+ 778 008e 05B0     		add	sp, sp, #20
+ 779              		.cfi_def_cfa_offset 4
+ 780              		@ sp needed
+ 781 0090 5DF804FB 		ldr	pc, [sp], #4
+ 782              		.cfi_endproc
+ 783              	.LFE1252:
+ 785              		.section	.text.PWMC_TurnOnLowSides,"ax",%progbits
+ 786              		.align	1
+ 787              		.p2align 4,,15
+ 788              		.weak	PWMC_TurnOnLowSides
+ 789              		.syntax unified
+ 790              		.thumb
+ 791              		.thumb_func
+ 793              	PWMC_TurnOnLowSides:
+ 794              	.LFB1253:
+ 312:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** 
+ 313:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** /**
+ 314:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * @brief  Switches power stage Low Sides transistors on.
+ 315:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   *
+ 316:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * This function is meant for charging boot capacitors of the driving
+ 317:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * section. It has to be called on each motor start-up when using high
+ 318:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * voltage drivers.
+ 319:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   *
+ 320:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * @param  pHandle: handle on the target instance of the PWMC component
+ 321:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   */
+ 322:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** __weak void PWMC_TurnOnLowSides( PWMC_Handle_t * pHandle )
+ 323:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** {
+ 795              		.loc 1 323 1
+ 796              		.cfi_startproc
+ 797              		@ args = 0, pretend = 0, frame = 8
+ 798              		@ frame_needed = 0, uses_anonymous_args = 0
+ 799 0000 00B5     		push	{lr}
+ 800              		.cfi_def_cfa_offset 4
+ 801              		.cfi_offset 14, -4
+ 802 0002 83B0     		sub	sp, sp, #12
+ 803              		.cfi_def_cfa_offset 16
+ 804 0004 0190     		str	r0, [sp, #4]
+ 324:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   pHandle->pFctTurnOnLowSides( pHandle );
+ 805              		.loc 1 324 10
+ 806 0006 019B     		ldr	r3, [sp, #4]
+ 807 0008 5B69     		ldr	r3, [r3, #20]
+ 808              		.loc 1 324 3
+ 809 000a 0198     		ldr	r0, [sp, #4]
+ 810 000c 9847     		blx	r3
+ 811              	.LVL6:
+ 325:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** }
+ 812              		.loc 1 325 1
+ 813 000e 00BF     		nop
+ 814 0010 03B0     		add	sp, sp, #12
+ 815              		.cfi_def_cfa_offset 4
+ 816              		@ sp needed
+ 817 0012 5DF804FB 		ldr	pc, [sp], #4
+ 818              		.cfi_endproc
+ 819              	.LFE1253:
+ 821 0016 00BF     		.section	.text.PWMC_CheckOverCurrent,"ax",%progbits
+ 822              		.align	1
+ 823              		.p2align 4,,15
+ 824              		.weak	PWMC_CheckOverCurrent
+ 825              		.syntax unified
+ 826              		.thumb
+ 827              		.thumb_func
+ 829              	PWMC_CheckOverCurrent:
+ 830              	.LFB1254:
+ 326:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** 
+ 327:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** 
+ 328:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** /** @brief Returns #MC_BREAK_IN if an over current condition was detected on the power stage
+ 329:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  *         controlled by the PWMC component pointed by  @p pHandle, since the last call to this fun
+ 330:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  *         returns #MC_NO_FAULTS otherwise. */
+ 331:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** __weak uint16_t PWMC_CheckOverCurrent( PWMC_Handle_t * pHandle )
+ 332:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** {
+ 831              		.loc 1 332 1
+ 832              		.cfi_startproc
+ 833              		@ args = 0, pretend = 0, frame = 8
+ 834              		@ frame_needed = 0, uses_anonymous_args = 0
+ 835 0000 00B5     		push	{lr}
+ 836              		.cfi_def_cfa_offset 4
+ 837              		.cfi_offset 14, -4
+ 838 0002 83B0     		sub	sp, sp, #12
+ 839              		.cfi_def_cfa_offset 16
+ 840 0004 0190     		str	r0, [sp, #4]
+ 333:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   return pHandle->pFctIsOverCurrentOccurred( pHandle );
+ 841              		.loc 1 333 17
+ 842 0006 019B     		ldr	r3, [sp, #4]
+ 843 0008 DB69     		ldr	r3, [r3, #28]
+ 844              		.loc 1 333 10
+ 845 000a 0198     		ldr	r0, [sp, #4]
+ 846 000c 9847     		blx	r3
+ 847              	.LVL7:
+ 848 000e 0346     		mov	r3, r0
+ 334:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** }
+ 849              		.loc 1 334 1
+ 850 0010 1846     		mov	r0, r3
+ 851 0012 03B0     		add	sp, sp, #12
+ 852              		.cfi_def_cfa_offset 4
+ 853              		@ sp needed
+ 854 0014 5DF804FB 		ldr	pc, [sp], #4
+ 855              		.cfi_endproc
+ 856              	.LFE1254:
+ 858              		.section	.text.PWMC_OCPSetReferenceVoltage,"ax",%progbits
+ 859              		.align	1
+ 860              		.p2align 4,,15
+ 861              		.weak	PWMC_OCPSetReferenceVoltage
+ 862              		.syntax unified
+ 863              		.thumb
+ 864              		.thumb_func
+ 866              	PWMC_OCPSetReferenceVoltage:
+ 867              	.LFB1255:
+ 335:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** 
+ 336:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** /**
+ 337:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * @brief  Sets the over current threshold to be used
+ 338:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   *
+ 339:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * The value to be set is relative to the VDD_DAC DAC reference voltage with
+ 340:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * 0 standing for 0 V and 65536 standing for VDD_DAC.
+ 341:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   *
+ 342:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * @param  pHandle handle on the target instance of the PWMC component
+ 343:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * @param  hDACVref Value of DAC reference expressed as 16bit unsigned integer
+ 344:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   */
+ 345:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** __weak void PWMC_OCPSetReferenceVoltage( PWMC_Handle_t * pHandle, uint16_t hDACVref )
+ 346:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** {
+ 868              		.loc 1 346 1
+ 869              		.cfi_startproc
+ 870              		@ args = 0, pretend = 0, frame = 8
+ 871              		@ frame_needed = 0, uses_anonymous_args = 0
+ 872 0000 00B5     		push	{lr}
+ 873              		.cfi_def_cfa_offset 4
+ 874              		.cfi_offset 14, -4
+ 875 0002 83B0     		sub	sp, sp, #12
+ 876              		.cfi_def_cfa_offset 16
+ 877 0004 0190     		str	r0, [sp, #4]
+ 878 0006 0B46     		mov	r3, r1
+ 879 0008 ADF80230 		strh	r3, [sp, #2]	@ movhi
+ 347:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   if ( pHandle->pFctOCPSetReferenceVoltage )
+ 880              		.loc 1 347 15
+ 881 000c 019B     		ldr	r3, [sp, #4]
+ 882 000e 1B6A     		ldr	r3, [r3, #32]
+ 883              		.loc 1 347 6
+ 884 0010 002B     		cmp	r3, #0
+ 885 0012 06D0     		beq	.L50
+ 348:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   {
+ 349:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     pHandle->pFctOCPSetReferenceVoltage( pHandle, hDACVref );
+ 886              		.loc 1 349 12
+ 887 0014 019B     		ldr	r3, [sp, #4]
+ 888 0016 1B6A     		ldr	r3, [r3, #32]
+ 889              		.loc 1 349 5
+ 890 0018 BDF80220 		ldrh	r2, [sp, #2]
+ 891 001c 1146     		mov	r1, r2
+ 892 001e 0198     		ldr	r0, [sp, #4]
+ 893 0020 9847     		blx	r3
+ 894              	.LVL8:
+ 895              	.L50:
+ 350:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   }
+ 351:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** }
+ 896              		.loc 1 351 1
+ 897 0022 00BF     		nop
+ 898 0024 03B0     		add	sp, sp, #12
+ 899              		.cfi_def_cfa_offset 4
+ 900              		@ sp needed
+ 901 0026 5DF804FB 		ldr	pc, [sp], #4
+ 902              		.cfi_endproc
+ 903              	.LFE1255:
+ 905 002a 00BF     		.section	.text.PWMC_GetTurnOnLowSidesAction,"ax",%progbits
+ 906              		.align	1
+ 907              		.p2align 4,,15
+ 908              		.weak	PWMC_GetTurnOnLowSidesAction
+ 909              		.syntax unified
+ 910              		.thumb
+ 911              		.thumb_func
+ 913              	PWMC_GetTurnOnLowSidesAction:
+ 914              	.LFB1256:
+ 352:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** 
+ 353:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** /**
+ 354:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * @brief  It is used to retrieve the satus of TurnOnLowSides action.
+ 355:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * @param  pHandle: handler of the current instance of the PWMC component
+ 356:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * @retval bool It returns the state of TurnOnLowSides action:
+ 357:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   *         true if TurnOnLowSides action is active, false otherwise.
+ 358:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   */
+ 359:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** /** @brief Returns the status of the "TurnOnLowSide" action on the power stage
+ 360:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  *         controlled by the @p pHandle PWMC component: true if it
+ 361:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  *         is active, false otherwise*/
+ 362:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** __weak bool PWMC_GetTurnOnLowSidesAction( PWMC_Handle_t * pHandle )
+ 363:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** {
+ 915              		.loc 1 363 1
+ 916              		.cfi_startproc
+ 917              		@ args = 0, pretend = 0, frame = 8
+ 918              		@ frame_needed = 0, uses_anonymous_args = 0
+ 919              		@ link register save eliminated.
+ 920 0000 82B0     		sub	sp, sp, #8
+ 921              		.cfi_def_cfa_offset 8
+ 922 0002 0190     		str	r0, [sp, #4]
+ 364:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   return pHandle->TurnOnLowSidesAction;
+ 923              		.loc 1 364 17
+ 924 0004 019B     		ldr	r3, [sp, #4]
+ 925 0006 93F84430 		ldrb	r3, [r3, #68]	@ zero_extendqisi2
+ 365:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** }
+ 926              		.loc 1 365 1
+ 927 000a 1846     		mov	r0, r3
+ 928 000c 02B0     		add	sp, sp, #8
+ 929              		.cfi_def_cfa_offset 0
+ 930              		@ sp needed
+ 931 000e 7047     		bx	lr
+ 932              		.cfi_endproc
+ 933              	.LFE1256:
+ 935              		.section	.text.PWMC_RLDetectionModeEnable,"ax",%progbits
+ 936              		.align	1
+ 937              		.p2align 4,,15
+ 938              		.weak	PWMC_RLDetectionModeEnable
+ 939              		.syntax unified
+ 940              		.thumb
+ 941              		.thumb_func
+ 943              	PWMC_RLDetectionModeEnable:
+ 944              	.LFB1257:
+ 366:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** 
+ 367:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** /** @brief Enables the RL detection mode on the power stage controlled by the @p pHandle PWMC compo
+ 368:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** __weak void PWMC_RLDetectionModeEnable( PWMC_Handle_t * pHandle )
+ 369:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** {
+ 945              		.loc 1 369 1
+ 946              		.cfi_startproc
+ 947              		@ args = 0, pretend = 0, frame = 8
+ 948              		@ frame_needed = 0, uses_anonymous_args = 0
+ 949 0000 00B5     		push	{lr}
+ 950              		.cfi_def_cfa_offset 4
+ 951              		.cfi_offset 14, -4
+ 952 0002 83B0     		sub	sp, sp, #12
+ 953              		.cfi_def_cfa_offset 16
+ 954 0004 0190     		str	r0, [sp, #4]
+ 370:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   if ( pHandle->pFctRLDetectionModeEnable )
+ 955              		.loc 1 370 15
+ 956 0006 019B     		ldr	r3, [sp, #4]
+ 957 0008 5B6A     		ldr	r3, [r3, #36]
+ 958              		.loc 1 370 6
+ 959 000a 002B     		cmp	r3, #0
+ 960 000c 03D0     		beq	.L55
+ 371:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   {
+ 372:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     pHandle->pFctRLDetectionModeEnable( pHandle );
+ 961              		.loc 1 372 12
+ 962 000e 019B     		ldr	r3, [sp, #4]
+ 963 0010 5B6A     		ldr	r3, [r3, #36]
+ 964              		.loc 1 372 5
+ 965 0012 0198     		ldr	r0, [sp, #4]
+ 966 0014 9847     		blx	r3
+ 967              	.LVL9:
+ 968              	.L55:
+ 373:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   }
+ 374:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** }
+ 969              		.loc 1 374 1
+ 970 0016 00BF     		nop
+ 971 0018 03B0     		add	sp, sp, #12
+ 972              		.cfi_def_cfa_offset 4
+ 973              		@ sp needed
+ 974 001a 5DF804FB 		ldr	pc, [sp], #4
+ 975              		.cfi_endproc
+ 976              	.LFE1257:
+ 978 001e 00BF     		.section	.text.PWMC_RLDetectionModeDisable,"ax",%progbits
+ 979              		.align	1
+ 980              		.p2align 4,,15
+ 981              		.weak	PWMC_RLDetectionModeDisable
+ 982              		.syntax unified
+ 983              		.thumb
+ 984              		.thumb_func
+ 986              	PWMC_RLDetectionModeDisable:
+ 987              	.LFB1258:
+ 375:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** 
+ 376:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** /** @brief Disables the RL detection mode on the power stage controlled by the @p pHandle PWMC comp
+ 377:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** __weak void PWMC_RLDetectionModeDisable( PWMC_Handle_t * pHandle )
+ 378:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** {
+ 988              		.loc 1 378 1
+ 989              		.cfi_startproc
+ 990              		@ args = 0, pretend = 0, frame = 8
+ 991              		@ frame_needed = 0, uses_anonymous_args = 0
+ 992 0000 00B5     		push	{lr}
+ 993              		.cfi_def_cfa_offset 4
+ 994              		.cfi_offset 14, -4
+ 995 0002 83B0     		sub	sp, sp, #12
+ 996              		.cfi_def_cfa_offset 16
+ 997 0004 0190     		str	r0, [sp, #4]
+ 379:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   if ( pHandle->pFctRLDetectionModeDisable )
+ 998              		.loc 1 379 15
+ 999 0006 019B     		ldr	r3, [sp, #4]
+ 1000 0008 9B6A     		ldr	r3, [r3, #40]
+ 1001              		.loc 1 379 6
+ 1002 000a 002B     		cmp	r3, #0
+ 1003 000c 03D0     		beq	.L58
+ 380:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   {
+ 381:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     pHandle->pFctRLDetectionModeDisable( pHandle );
+ 1004              		.loc 1 381 12
+ 1005 000e 019B     		ldr	r3, [sp, #4]
+ 1006 0010 9B6A     		ldr	r3, [r3, #40]
+ 1007              		.loc 1 381 5
+ 1008 0012 0198     		ldr	r0, [sp, #4]
+ 1009 0014 9847     		blx	r3
+ 1010              	.LVL10:
+ 1011              	.L58:
+ 382:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   }
+ 383:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** }
+ 1012              		.loc 1 383 1
+ 1013 0016 00BF     		nop
+ 1014 0018 03B0     		add	sp, sp, #12
+ 1015              		.cfi_def_cfa_offset 4
+ 1016              		@ sp needed
+ 1017 001a 5DF804FB 		ldr	pc, [sp], #4
+ 1018              		.cfi_endproc
+ 1019              	.LFE1258:
+ 1021 001e 00BF     		.section	.text.PWMC_RLDetectionModeSetDuty,"ax",%progbits
+ 1022              		.align	1
+ 1023              		.p2align 4,,15
+ 1024              		.weak	PWMC_RLDetectionModeSetDuty
+ 1025              		.syntax unified
+ 1026              		.thumb
+ 1027              		.thumb_func
+ 1029              	PWMC_RLDetectionModeSetDuty:
+ 1030              	.LFB1259:
+ 384:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** 
+ 385:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** /**
+ 386:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * @brief  Sets the PWM duty cycle to apply in the RL Detection mode.
+ 387:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * @param  pHandle: handle on the target instance of the PWMC component
+ 388:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * @param  hDuty Duty cycle to apply
+ 389:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   *
+ 390:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * @todo TODO: Describe the unit of the hDuty variable.
+ 391:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   *
+ 392:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   * @retval If the Duty Cycle could be applied on time for the next PWM period,
+ 393:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   *         #MC_NO_ERROR is returned. Otherwise, #MC_FOC_DURATION is returned.
+ 394:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   */
+ 395:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** __weak uint16_t PWMC_RLDetectionModeSetDuty( PWMC_Handle_t * pHandle, uint16_t hDuty )
+ 396:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** {
+ 1031              		.loc 1 396 1
+ 1032              		.cfi_startproc
+ 1033              		@ args = 0, pretend = 0, frame = 16
+ 1034              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1035 0000 00B5     		push	{lr}
+ 1036              		.cfi_def_cfa_offset 4
+ 1037              		.cfi_offset 14, -4
+ 1038 0002 85B0     		sub	sp, sp, #20
+ 1039              		.cfi_def_cfa_offset 24
+ 1040 0004 0190     		str	r0, [sp, #4]
+ 1041 0006 0B46     		mov	r3, r1
+ 1042 0008 ADF80230 		strh	r3, [sp, #2]	@ movhi
+ 397:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   uint16_t hRetVal = MC_FOC_DURATION;
+ 1043              		.loc 1 397 12
+ 1044 000c 0123     		movs	r3, #1
+ 1045 000e ADF80E30 		strh	r3, [sp, #14]	@ movhi
+ 398:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   if ( pHandle->pFctRLDetectionModeSetDuty )
+ 1046              		.loc 1 398 15
+ 1047 0012 019B     		ldr	r3, [sp, #4]
+ 1048 0014 DB6A     		ldr	r3, [r3, #44]
+ 1049              		.loc 1 398 6
+ 1050 0016 002B     		cmp	r3, #0
+ 1051 0018 09D0     		beq	.L60
+ 399:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   {
+ 400:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     hRetVal = pHandle->pFctRLDetectionModeSetDuty( pHandle, hDuty );
+ 1052              		.loc 1 400 22
+ 1053 001a 019B     		ldr	r3, [sp, #4]
+ 1054 001c DB6A     		ldr	r3, [r3, #44]
+ 1055              		.loc 1 400 15
+ 1056 001e BDF80220 		ldrh	r2, [sp, #2]
+ 1057 0022 1146     		mov	r1, r2
+ 1058 0024 0198     		ldr	r0, [sp, #4]
+ 1059 0026 9847     		blx	r3
+ 1060              	.LVL11:
+ 1061 0028 0346     		mov	r3, r0
+ 1062 002a ADF80E30 		strh	r3, [sp, #14]	@ movhi
+ 1063              	.L60:
+ 401:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   }
+ 402:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   return hRetVal;
+ 1064              		.loc 1 402 10
+ 1065 002e BDF80E30 		ldrh	r3, [sp, #14]
+ 403:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** }
+ 1066              		.loc 1 403 1
+ 1067 0032 1846     		mov	r0, r3
+ 1068 0034 05B0     		add	sp, sp, #20
+ 1069              		.cfi_def_cfa_offset 4
+ 1070              		@ sp needed
+ 1071 0036 5DF804FB 		ldr	pc, [sp], #4
+ 1072              		.cfi_endproc
+ 1073              	.LFE1259:
+ 1075 003a 00BF     		.section	.text.PWMC_RegisterGetPhaseCurrentsCallBack,"ax",%progbits
+ 1076              		.align	1
+ 1077              		.p2align 4,,15
+ 1078              		.weak	PWMC_RegisterGetPhaseCurrentsCallBack
+ 1079              		.syntax unified
+ 1080              		.thumb
+ 1081              		.thumb_func
+ 1083              	PWMC_RegisterGetPhaseCurrentsCallBack:
+ 1084              	.LFB1260:
+ 404:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** 
+ 405:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** /**
+ 406:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  * @brief Sets the Callback that the PWMC component shall invoke to get phases current.
+ 407:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  * @param pCallBack pointer on the callback
+ 408:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  * @param pHandle pointer on the handle structure of the PWMC instance
+ 409:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  *
+ 410:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  */
+ 411:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** __weak void PWMC_RegisterGetPhaseCurrentsCallBack( PWMC_GetPhaseCurr_Cb_t pCallBack,
+ 412:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     PWMC_Handle_t * pHandle )
+ 413:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** {
+ 1085              		.loc 1 413 1
+ 1086              		.cfi_startproc
+ 1087              		@ args = 0, pretend = 0, frame = 8
+ 1088              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1089              		@ link register save eliminated.
+ 1090 0000 82B0     		sub	sp, sp, #8
+ 1091              		.cfi_def_cfa_offset 8
+ 1092 0002 0190     		str	r0, [sp, #4]
+ 1093 0004 0091     		str	r1, [sp]
+ 414:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   pHandle->pFctGetPhaseCurrents = pCallBack;
+ 1094              		.loc 1 414 33
+ 1095 0006 009B     		ldr	r3, [sp]
+ 1096 0008 019A     		ldr	r2, [sp, #4]
+ 1097 000a 5A60     		str	r2, [r3, #4]
+ 415:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** }
+ 1098              		.loc 1 415 1
+ 1099 000c 00BF     		nop
+ 1100 000e 02B0     		add	sp, sp, #8
+ 1101              		.cfi_def_cfa_offset 0
+ 1102              		@ sp needed
+ 1103 0010 7047     		bx	lr
+ 1104              		.cfi_endproc
+ 1105              	.LFE1260:
+ 1107 0012 00BF     		.section	.text.PWMC_RegisterSwitchOffPwmCallBack,"ax",%progbits
+ 1108              		.align	1
+ 1109              		.p2align 4,,15
+ 1110              		.weak	PWMC_RegisterSwitchOffPwmCallBack
+ 1111              		.syntax unified
+ 1112              		.thumb
+ 1113              		.thumb_func
+ 1115              	PWMC_RegisterSwitchOffPwmCallBack:
+ 1116              	.LFB1261:
+ 416:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** 
+ 417:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** /**
+ 418:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  * @brief Sets the Callback that the PWMC component shall invoke to switch PWM
+ 419:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  *        generation off.
+ 420:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  * @param pCallBack pointer on the callback
+ 421:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  * @param pHandle pointer on the handle structure of the PWMC instance
+ 422:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  *
+ 423:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  */
+ 424:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** __weak void PWMC_RegisterSwitchOffPwmCallBack( PWMC_Generic_Cb_t pCallBack,
+ 425:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****                                         PWMC_Handle_t * pHandle )
+ 426:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** {
+ 1117              		.loc 1 426 1
+ 1118              		.cfi_startproc
+ 1119              		@ args = 0, pretend = 0, frame = 8
+ 1120              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1121              		@ link register save eliminated.
+ 1122 0000 82B0     		sub	sp, sp, #8
+ 1123              		.cfi_def_cfa_offset 8
+ 1124 0002 0190     		str	r0, [sp, #4]
+ 1125 0004 0091     		str	r1, [sp]
+ 427:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   pHandle->pFctSwitchOffPwm = pCallBack;
+ 1126              		.loc 1 427 29
+ 1127 0006 009B     		ldr	r3, [sp]
+ 1128 0008 019A     		ldr	r2, [sp, #4]
+ 1129 000a 9A60     		str	r2, [r3, #8]
+ 428:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** }
+ 1130              		.loc 1 428 1
+ 1131 000c 00BF     		nop
+ 1132 000e 02B0     		add	sp, sp, #8
+ 1133              		.cfi_def_cfa_offset 0
+ 1134              		@ sp needed
+ 1135 0010 7047     		bx	lr
+ 1136              		.cfi_endproc
+ 1137              	.LFE1261:
+ 1139 0012 00BF     		.section	.text.PWMC_RegisterSwitchonPwmCallBack,"ax",%progbits
+ 1140              		.align	1
+ 1141              		.p2align 4,,15
+ 1142              		.weak	PWMC_RegisterSwitchonPwmCallBack
+ 1143              		.syntax unified
+ 1144              		.thumb
+ 1145              		.thumb_func
+ 1147              	PWMC_RegisterSwitchonPwmCallBack:
+ 1148              	.LFB1262:
+ 429:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** 
+ 430:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** /**
+ 431:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  * @brief Sets the Callback that the PWMC component shall invoke to switch PWM
+ 432:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  *        generation on.
+ 433:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  * @param pCallBack pointer on the callback
+ 434:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  * @param pHandle pointer on the handle structure of the PWMC instance
+ 435:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  *
+ 436:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  */
+ 437:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** __weak void PWMC_RegisterSwitchonPwmCallBack( PWMC_Generic_Cb_t pCallBack,
+ 438:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****                                        PWMC_Handle_t * pHandle )
+ 439:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** {
+ 1149              		.loc 1 439 1
+ 1150              		.cfi_startproc
+ 1151              		@ args = 0, pretend = 0, frame = 8
+ 1152              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1153              		@ link register save eliminated.
+ 1154 0000 82B0     		sub	sp, sp, #8
+ 1155              		.cfi_def_cfa_offset 8
+ 1156 0002 0190     		str	r0, [sp, #4]
+ 1157 0004 0091     		str	r1, [sp]
+ 440:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   pHandle->pFctSwitchOnPwm = pCallBack;
+ 1158              		.loc 1 440 28
+ 1159 0006 009B     		ldr	r3, [sp]
+ 1160 0008 019A     		ldr	r2, [sp, #4]
+ 1161 000a DA60     		str	r2, [r3, #12]
+ 441:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** }
+ 1162              		.loc 1 441 1
+ 1163 000c 00BF     		nop
+ 1164 000e 02B0     		add	sp, sp, #8
+ 1165              		.cfi_def_cfa_offset 0
+ 1166              		@ sp needed
+ 1167 0010 7047     		bx	lr
+ 1168              		.cfi_endproc
+ 1169              	.LFE1262:
+ 1171 0012 00BF     		.section	.text.PWMC_RegisterReadingCalibrationCallBack,"ax",%progbits
+ 1172              		.align	1
+ 1173              		.p2align 4,,15
+ 1174              		.weak	PWMC_RegisterReadingCalibrationCallBack
+ 1175              		.syntax unified
+ 1176              		.thumb
+ 1177              		.thumb_func
+ 1179              	PWMC_RegisterReadingCalibrationCallBack:
+ 1180              	.LFB1263:
+ 442:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** 
+ 443:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** /**
+ 444:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  * @brief Sets the Callback that the PWMC component shall invoke to execute a calibration
+ 445:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  *        of the current sensing system.
+ 446:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  * @param pCallBack pointer on the callback
+ 447:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  * @param pHandle pointer on the handle structure of the PWMC instance
+ 448:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  *
+ 449:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  */
+ 450:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** __weak void PWMC_RegisterReadingCalibrationCallBack( PWMC_Generic_Cb_t pCallBack,
+ 451:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     PWMC_Handle_t * pHandle )
+ 452:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** {
+ 1181              		.loc 1 452 1
+ 1182              		.cfi_startproc
+ 1183              		@ args = 0, pretend = 0, frame = 8
+ 1184              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1185              		@ link register save eliminated.
+ 1186 0000 82B0     		sub	sp, sp, #8
+ 1187              		.cfi_def_cfa_offset 8
+ 1188 0002 0190     		str	r0, [sp, #4]
+ 1189 0004 0091     		str	r1, [sp]
+ 453:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   pHandle->pFctCurrReadingCalib = pCallBack;
+ 1190              		.loc 1 453 33
+ 1191 0006 009B     		ldr	r3, [sp]
+ 1192 0008 019A     		ldr	r2, [sp, #4]
+ 1193 000a 1A61     		str	r2, [r3, #16]
+ 454:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** }
+ 1194              		.loc 1 454 1
+ 1195 000c 00BF     		nop
+ 1196 000e 02B0     		add	sp, sp, #8
+ 1197              		.cfi_def_cfa_offset 0
+ 1198              		@ sp needed
+ 1199 0010 7047     		bx	lr
+ 1200              		.cfi_endproc
+ 1201              	.LFE1263:
+ 1203 0012 00BF     		.section	.text.PWMC_RegisterTurnOnLowSidesCallBack,"ax",%progbits
+ 1204              		.align	1
+ 1205              		.p2align 4,,15
+ 1206              		.weak	PWMC_RegisterTurnOnLowSidesCallBack
+ 1207              		.syntax unified
+ 1208              		.thumb
+ 1209              		.thumb_func
+ 1211              	PWMC_RegisterTurnOnLowSidesCallBack:
+ 1212              	.LFB1264:
+ 455:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** 
+ 456:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** /**
+ 457:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  * @brief Sets the Callback that the PWMC component shall invoke to turn low sides on.
+ 458:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  * @param pCallBack pointer on the callback
+ 459:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  * @param pHandle pointer on the handle structure of the PWMC instance
+ 460:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  *
+ 461:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  */
+ 462:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** __weak void PWMC_RegisterTurnOnLowSidesCallBack( PWMC_Generic_Cb_t pCallBack,
+ 463:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     PWMC_Handle_t * pHandle )
+ 464:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** {
+ 1213              		.loc 1 464 1
+ 1214              		.cfi_startproc
+ 1215              		@ args = 0, pretend = 0, frame = 8
+ 1216              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1217              		@ link register save eliminated.
+ 1218 0000 82B0     		sub	sp, sp, #8
+ 1219              		.cfi_def_cfa_offset 8
+ 1220 0002 0190     		str	r0, [sp, #4]
+ 1221 0004 0091     		str	r1, [sp]
+ 465:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   pHandle->pFctTurnOnLowSides = pCallBack;
+ 1222              		.loc 1 465 31
+ 1223 0006 009B     		ldr	r3, [sp]
+ 1224 0008 019A     		ldr	r2, [sp, #4]
+ 1225 000a 5A61     		str	r2, [r3, #20]
+ 466:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** }
+ 1226              		.loc 1 466 1
+ 1227 000c 00BF     		nop
+ 1228 000e 02B0     		add	sp, sp, #8
+ 1229              		.cfi_def_cfa_offset 0
+ 1230              		@ sp needed
+ 1231 0010 7047     		bx	lr
+ 1232              		.cfi_endproc
+ 1233              	.LFE1264:
+ 1235 0012 00BF     		.section	.text.PWMC_RegisterSampPointSectXCallBack,"ax",%progbits
+ 1236              		.align	1
+ 1237              		.p2align 4,,15
+ 1238              		.weak	PWMC_RegisterSampPointSectXCallBack
+ 1239              		.syntax unified
+ 1240              		.thumb
+ 1241              		.thumb_func
+ 1243              	PWMC_RegisterSampPointSectXCallBack:
+ 1244              	.LFB1265:
+ 467:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** 
+ 468:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** /**
+ 469:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  * @brief Sets the Callback that the PWMC component shall invoke to compute ADC sampling point
+ 470:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  * @param pCallBack pointer on the callback
+ 471:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  * @param pHandle pointer on the handle structure of the PWMC instance
+ 472:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  *
+ 473:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  */
+ 474:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** __weak void PWMC_RegisterSampPointSectXCallBack( PWMC_SetSampPointSectX_Cb_t pCallBack,
+ 475:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     PWMC_Handle_t * pHandle )
+ 476:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** {
+ 1245              		.loc 1 476 1
+ 1246              		.cfi_startproc
+ 1247              		@ args = 0, pretend = 0, frame = 8
+ 1248              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1249              		@ link register save eliminated.
+ 1250 0000 82B0     		sub	sp, sp, #8
+ 1251              		.cfi_def_cfa_offset 8
+ 1252 0002 0190     		str	r0, [sp, #4]
+ 1253 0004 0091     		str	r1, [sp]
+ 477:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   pHandle->pFctSetADCSampPointSectX = pCallBack;
+ 1254              		.loc 1 477 37
+ 1255 0006 009B     		ldr	r3, [sp]
+ 1256 0008 019A     		ldr	r2, [sp, #4]
+ 1257 000a 9A61     		str	r2, [r3, #24]
+ 478:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** }
+ 1258              		.loc 1 478 1
+ 1259 000c 00BF     		nop
+ 1260 000e 02B0     		add	sp, sp, #8
+ 1261              		.cfi_def_cfa_offset 0
+ 1262              		@ sp needed
+ 1263 0010 7047     		bx	lr
+ 1264              		.cfi_endproc
+ 1265              	.LFE1265:
+ 1267 0012 00BF     		.section	.text.PWMC_RegisterIsOverCurrentOccurredCallBack,"ax",%progbits
+ 1268              		.align	1
+ 1269              		.p2align 4,,15
+ 1270              		.weak	PWMC_RegisterIsOverCurrentOccurredCallBack
+ 1271              		.syntax unified
+ 1272              		.thumb
+ 1273              		.thumb_func
+ 1275              	PWMC_RegisterIsOverCurrentOccurredCallBack:
+ 1276              	.LFB1266:
+ 479:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** 
+ 480:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** /**
+ 481:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  * @brief Sets the Callback that the PWMC component shall invoke to the overcurrent status
+ 482:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  * @param pCallBack pointer on the callback
+ 483:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  * @param pHandle pointer on the handle structure of the PWMC instance
+ 484:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  *
+ 485:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  */
+ 486:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** __weak void PWMC_RegisterIsOverCurrentOccurredCallBack( PWMC_OverCurr_Cb_t pCallBack,
+ 487:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     PWMC_Handle_t * pHandle )
+ 488:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** {
+ 1277              		.loc 1 488 1
+ 1278              		.cfi_startproc
+ 1279              		@ args = 0, pretend = 0, frame = 8
+ 1280              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1281              		@ link register save eliminated.
+ 1282 0000 82B0     		sub	sp, sp, #8
+ 1283              		.cfi_def_cfa_offset 8
+ 1284 0002 0190     		str	r0, [sp, #4]
+ 1285 0004 0091     		str	r1, [sp]
+ 489:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   pHandle->pFctIsOverCurrentOccurred = pCallBack;
+ 1286              		.loc 1 489 38
+ 1287 0006 009B     		ldr	r3, [sp]
+ 1288 0008 019A     		ldr	r2, [sp, #4]
+ 1289 000a DA61     		str	r2, [r3, #28]
+ 490:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** }
+ 1290              		.loc 1 490 1
+ 1291 000c 00BF     		nop
+ 1292 000e 02B0     		add	sp, sp, #8
+ 1293              		.cfi_def_cfa_offset 0
+ 1294              		@ sp needed
+ 1295 0010 7047     		bx	lr
+ 1296              		.cfi_endproc
+ 1297              	.LFE1266:
+ 1299 0012 00BF     		.section	.text.PWMC_RegisterOCPSetRefVoltageCallBack,"ax",%progbits
+ 1300              		.align	1
+ 1301              		.p2align 4,,15
+ 1302              		.weak	PWMC_RegisterOCPSetRefVoltageCallBack
+ 1303              		.syntax unified
+ 1304              		.thumb
+ 1305              		.thumb_func
+ 1307              	PWMC_RegisterOCPSetRefVoltageCallBack:
+ 1308              	.LFB1267:
+ 491:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** 
+ 492:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** /**
+ 493:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  * @brief Sets the Callback that the PWMC component shall invoke to set the reference
+ 494:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  *        voltage for the over current protection
+ 495:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  * @param pHandle pointer on the handle structure of the PWMC instance
+ 496:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  *
+ 497:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  */
+ 498:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** __weak void PWMC_RegisterOCPSetRefVoltageCallBack( PWMC_SetOcpRefVolt_Cb_t pCallBack,
+ 499:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     PWMC_Handle_t * pHandle )
+ 500:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** {
+ 1309              		.loc 1 500 1
+ 1310              		.cfi_startproc
+ 1311              		@ args = 0, pretend = 0, frame = 8
+ 1312              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1313              		@ link register save eliminated.
+ 1314 0000 82B0     		sub	sp, sp, #8
+ 1315              		.cfi_def_cfa_offset 8
+ 1316 0002 0190     		str	r0, [sp, #4]
+ 1317 0004 0091     		str	r1, [sp]
+ 501:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   pHandle->pFctOCPSetReferenceVoltage = pCallBack;
+ 1318              		.loc 1 501 39
+ 1319 0006 009B     		ldr	r3, [sp]
+ 1320 0008 019A     		ldr	r2, [sp, #4]
+ 1321 000a 1A62     		str	r2, [r3, #32]
+ 502:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** }
+ 1322              		.loc 1 502 1
+ 1323 000c 00BF     		nop
+ 1324 000e 02B0     		add	sp, sp, #8
+ 1325              		.cfi_def_cfa_offset 0
+ 1326              		@ sp needed
+ 1327 0010 7047     		bx	lr
+ 1328              		.cfi_endproc
+ 1329              	.LFE1267:
+ 1331 0012 00BF     		.section	.text.PWMC_RegisterRLDetectionModeEnableCallBack,"ax",%progbits
+ 1332              		.align	1
+ 1333              		.p2align 4,,15
+ 1334              		.weak	PWMC_RegisterRLDetectionModeEnableCallBack
+ 1335              		.syntax unified
+ 1336              		.thumb
+ 1337              		.thumb_func
+ 1339              	PWMC_RegisterRLDetectionModeEnableCallBack:
+ 1340              	.LFB1268:
+ 503:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** 
+ 504:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** /**
+ 505:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  * @brief Sets the Callback that the PWMC component shall invoke to enable the R/L detection mode
+ 506:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  * @param pHandle pointer on the handle structure of the PWMC instance
+ 507:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  *
+ 508:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  */
+ 509:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** __weak void PWMC_RegisterRLDetectionModeEnableCallBack( PWMC_Generic_Cb_t pCallBack,
+ 510:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     PWMC_Handle_t * pHandle )
+ 511:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** {
+ 1341              		.loc 1 511 1
+ 1342              		.cfi_startproc
+ 1343              		@ args = 0, pretend = 0, frame = 8
+ 1344              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1345              		@ link register save eliminated.
+ 1346 0000 82B0     		sub	sp, sp, #8
+ 1347              		.cfi_def_cfa_offset 8
+ 1348 0002 0190     		str	r0, [sp, #4]
+ 1349 0004 0091     		str	r1, [sp]
+ 512:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   pHandle->pFctRLDetectionModeEnable = pCallBack;
+ 1350              		.loc 1 512 38
+ 1351 0006 009B     		ldr	r3, [sp]
+ 1352 0008 019A     		ldr	r2, [sp, #4]
+ 1353 000a 5A62     		str	r2, [r3, #36]
+ 513:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** }
+ 1354              		.loc 1 513 1
+ 1355 000c 00BF     		nop
+ 1356 000e 02B0     		add	sp, sp, #8
+ 1357              		.cfi_def_cfa_offset 0
+ 1358              		@ sp needed
+ 1359 0010 7047     		bx	lr
+ 1360              		.cfi_endproc
+ 1361              	.LFE1268:
+ 1363 0012 00BF     		.section	.text.PWMC_RegisterRLDetectionModeDisableCallBack,"ax",%progbits
+ 1364              		.align	1
+ 1365              		.p2align 4,,15
+ 1366              		.weak	PWMC_RegisterRLDetectionModeDisableCallBack
+ 1367              		.syntax unified
+ 1368              		.thumb
+ 1369              		.thumb_func
+ 1371              	PWMC_RegisterRLDetectionModeDisableCallBack:
+ 1372              	.LFB1269:
+ 514:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** 
+ 515:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** /**
+ 516:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  * @brief Sets the Callback wIch PWMC shall invoke to disable the R/L detection mode
+ 517:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  * @param pHandle pointer on the handle structure of the PWMC instance
+ 518:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  *
+ 519:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  */
+ 520:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** __weak void PWMC_RegisterRLDetectionModeDisableCallBack( PWMC_Generic_Cb_t pCallBack,
+ 521:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     PWMC_Handle_t * pHandle )
+ 522:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** {
+ 1373              		.loc 1 522 1
+ 1374              		.cfi_startproc
+ 1375              		@ args = 0, pretend = 0, frame = 8
+ 1376              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1377              		@ link register save eliminated.
+ 1378 0000 82B0     		sub	sp, sp, #8
+ 1379              		.cfi_def_cfa_offset 8
+ 1380 0002 0190     		str	r0, [sp, #4]
+ 1381 0004 0091     		str	r1, [sp]
+ 523:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   pHandle->pFctRLDetectionModeDisable = pCallBack;
+ 1382              		.loc 1 523 39
+ 1383 0006 009B     		ldr	r3, [sp]
+ 1384 0008 019A     		ldr	r2, [sp, #4]
+ 1385 000a 9A62     		str	r2, [r3, #40]
+ 524:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** }
+ 1386              		.loc 1 524 1
+ 1387 000c 00BF     		nop
+ 1388 000e 02B0     		add	sp, sp, #8
+ 1389              		.cfi_def_cfa_offset 0
+ 1390              		@ sp needed
+ 1391 0010 7047     		bx	lr
+ 1392              		.cfi_endproc
+ 1393              	.LFE1269:
+ 1395 0012 00BF     		.section	.text.PWMC_RegisterRLDetectionModeSetDutyCallBack,"ax",%progbits
+ 1396              		.align	1
+ 1397              		.p2align 4,,15
+ 1398              		.weak	PWMC_RegisterRLDetectionModeSetDutyCallBack
+ 1399              		.syntax unified
+ 1400              		.thumb
+ 1401              		.thumb_func
+ 1403              	PWMC_RegisterRLDetectionModeSetDutyCallBack:
+ 1404              	.LFB1270:
+ 525:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** 
+ 526:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** /**
+ 527:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  * @brief Sets the Callback that the PWMC component shall invoke to set the duty cycle
+ 528:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  *        for the R/L detection mode
+ 529:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  * @param pHandle pointer on the handle structure of the PWMC instance
+ 530:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  *
+ 531:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  */
+ 532:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** __weak void PWMC_RegisterRLDetectionModeSetDutyCallBack( PWMC_RLDetectSetDuty_Cb_t pCallBack,
+ 533:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****     PWMC_Handle_t * pHandle )
+ 534:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** {
+ 1405              		.loc 1 534 1
+ 1406              		.cfi_startproc
+ 1407              		@ args = 0, pretend = 0, frame = 8
+ 1408              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1409              		@ link register save eliminated.
+ 1410 0000 82B0     		sub	sp, sp, #8
+ 1411              		.cfi_def_cfa_offset 8
+ 1412 0002 0190     		str	r0, [sp, #4]
+ 1413 0004 0091     		str	r1, [sp]
+ 535:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   pHandle->pFctRLDetectionModeSetDuty = pCallBack;
+ 1414              		.loc 1 535 39
+ 1415 0006 009B     		ldr	r3, [sp]
+ 1416 0008 019A     		ldr	r2, [sp, #4]
+ 1417 000a DA62     		str	r2, [r3, #44]
+ 536:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** }
+ 1418              		.loc 1 536 1
+ 1419 000c 00BF     		nop
+ 1420 000e 02B0     		add	sp, sp, #8
+ 1421              		.cfi_def_cfa_offset 0
+ 1422              		@ sp needed
+ 1423 0010 7047     		bx	lr
+ 1424              		.cfi_endproc
+ 1425              	.LFE1270:
+ 1427 0012 00BF     		.section	.text.PWMC_RegisterIrqHandlerCallBack,"ax",%progbits
+ 1428              		.align	1
+ 1429              		.p2align 4,,15
+ 1430              		.weak	PWMC_RegisterIrqHandlerCallBack
+ 1431              		.syntax unified
+ 1432              		.thumb
+ 1433              		.thumb_func
+ 1435              	PWMC_RegisterIrqHandlerCallBack:
+ 1436              	.LFB1271:
+ 537:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** 
+ 538:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** /**
+ 539:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  * @brief Sets the Callback that the PWMC component shall invoke to call PWMC instance IRQ handler
+ 540:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  * @param pHandle pointer on the handle structure of the PWMC instance
+ 541:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  *
+ 542:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  * @note this function is deprecated.
+ 543:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****  */
+ 544:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** __weak void PWMC_RegisterIrqHandlerCallBack( PWMC_IrqHandler_Cb_t pCallBack,
+ 545:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****                                       PWMC_Handle_t * pHandle )
+ 546:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** {
+ 1437              		.loc 1 546 1
+ 1438              		.cfi_startproc
+ 1439              		@ args = 0, pretend = 0, frame = 8
+ 1440              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1441              		@ link register save eliminated.
+ 1442 0000 82B0     		sub	sp, sp, #8
+ 1443              		.cfi_def_cfa_offset 8
+ 1444 0002 0190     		str	r0, [sp, #4]
+ 1445 0004 0091     		str	r1, [sp]
+ 547:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c ****   pHandle->pFctIrqHandler = pCallBack;
+ 1446              		.loc 1 547 27
+ 1447 0006 009B     		ldr	r3, [sp]
+ 1448 0008 019A     		ldr	r2, [sp, #4]
+ 1449 000a 1A60     		str	r2, [r3]
+ 548:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pwm_curr_fdbk.c **** }
+ 1450              		.loc 1 548 1
+ 1451 000c 00BF     		nop
+ 1452 000e 02B0     		add	sp, sp, #8
+ 1453              		.cfi_def_cfa_offset 0
+ 1454              		@ sp needed
+ 1455 0010 7047     		bx	lr
+ 1456              		.cfi_endproc
+ 1457              	.LFE1271:
+ 1459 0012 00BF     		.text
+ 1460              	.Letext0:
+ 1461              		.file 2 "C:/StellarStudio-9.2/SDKS/TOOLS/Toolchain/ARM/MINGW64_NT/13.3.1-2024.06/arm-none-eabi/inc
+ 1462              		.file 3 "C:/StellarStudio-9.2/SDKS/TOOLS/Toolchain/ARM/MINGW64_NT/13.3.1-2024.06/arm-none-eabi/inc
+ 1463              		.file 4 ".sdk/SR5E1_MCTK-1.3.0/include/LL_Library/sr5e1_ll_tim.h"
+ 1464              		.file 5 ".sdk/SR5E1_MCTK-1.3.0/include/LL_Library/sr5e1_ll_usart.h"
+ 1465              		.file 6 ".sdk/SR5E1_MCTK-1.3.0/include/LL_Library/sr5e1_ll_dma.h"
+ 1466              		.file 7 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/mc_type.h"
+ 1467              		.file 8 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/pwm_curr_fdbk.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 pwm_curr_fdbk.c
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:20     .rodata.OFFSET_TAB_CCMRx:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:23     .rodata.OFFSET_TAB_CCMRx:00000000 OFFSET_TAB_CCMRx
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:26     .rodata.SHIFT_TAB_OCxx:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:29     .rodata.SHIFT_TAB_OCxx:00000000 SHIFT_TAB_OCxx
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:32     .rodata.SHIFT_TAB_ICxx:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:35     .rodata.SHIFT_TAB_ICxx:00000000 SHIFT_TAB_ICxx
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:38     .rodata.SHIFT_TAB_CCxP:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:41     .rodata.SHIFT_TAB_CCxP:00000000 SHIFT_TAB_CCxP
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:44     .rodata.SHIFT_TAB_OISx:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:47     .rodata.SHIFT_TAB_OISx:00000000 SHIFT_TAB_OISx
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:50     .rodata.USART_PRESCALER_TAB:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:53     .rodata.USART_PRESCALER_TAB:00000000 USART_PRESCALER_TAB
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:67     .rodata.LL_DMA_STR_OFFSET_TAB:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:70     .rodata.LL_DMA_STR_OFFSET_TAB:00000000 LL_DMA_STR_OFFSET_TAB
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:73     .itcm:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:80     .itcm:00000000 PWMC_GetPhaseCurrents
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:117    .itcm:00000020 PWMC_SetPhaseVoltage
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:601    .itcm:000002f8 $d
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:607    .text.PWMC_SwitchOffPWM:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:614    .text.PWMC_SwitchOffPWM:00000000 PWMC_SwitchOffPWM
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:643    .text.PWMC_SwitchOnPWM:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:650    .text.PWMC_SwitchOnPWM:00000000 PWMC_SwitchOnPWM
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:679    .text.PWMC_CurrentReadingCalibr:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:686    .text.PWMC_CurrentReadingCalibr:00000000 PWMC_CurrentReadingCalibr
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:786    .text.PWMC_TurnOnLowSides:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:793    .text.PWMC_TurnOnLowSides:00000000 PWMC_TurnOnLowSides
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:822    .text.PWMC_CheckOverCurrent:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:829    .text.PWMC_CheckOverCurrent:00000000 PWMC_CheckOverCurrent
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:859    .text.PWMC_OCPSetReferenceVoltage:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:866    .text.PWMC_OCPSetReferenceVoltage:00000000 PWMC_OCPSetReferenceVoltage
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:906    .text.PWMC_GetTurnOnLowSidesAction:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:913    .text.PWMC_GetTurnOnLowSidesAction:00000000 PWMC_GetTurnOnLowSidesAction
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:936    .text.PWMC_RLDetectionModeEnable:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:943    .text.PWMC_RLDetectionModeEnable:00000000 PWMC_RLDetectionModeEnable
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:979    .text.PWMC_RLDetectionModeDisable:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:986    .text.PWMC_RLDetectionModeDisable:00000000 PWMC_RLDetectionModeDisable
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:1022   .text.PWMC_RLDetectionModeSetDuty:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:1029   .text.PWMC_RLDetectionModeSetDuty:00000000 PWMC_RLDetectionModeSetDuty
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:1076   .text.PWMC_RegisterGetPhaseCurrentsCallBack:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:1083   .text.PWMC_RegisterGetPhaseCurrentsCallBack:00000000 PWMC_RegisterGetPhaseCurrentsCallBack
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:1108   .text.PWMC_RegisterSwitchOffPwmCallBack:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:1115   .text.PWMC_RegisterSwitchOffPwmCallBack:00000000 PWMC_RegisterSwitchOffPwmCallBack
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:1140   .text.PWMC_RegisterSwitchonPwmCallBack:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:1147   .text.PWMC_RegisterSwitchonPwmCallBack:00000000 PWMC_RegisterSwitchonPwmCallBack
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:1172   .text.PWMC_RegisterReadingCalibrationCallBack:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:1179   .text.PWMC_RegisterReadingCalibrationCallBack:00000000 PWMC_RegisterReadingCalibrationCallBack
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:1204   .text.PWMC_RegisterTurnOnLowSidesCallBack:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:1211   .text.PWMC_RegisterTurnOnLowSidesCallBack:00000000 PWMC_RegisterTurnOnLowSidesCallBack
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:1236   .text.PWMC_RegisterSampPointSectXCallBack:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:1243   .text.PWMC_RegisterSampPointSectXCallBack:00000000 PWMC_RegisterSampPointSectXCallBack
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:1268   .text.PWMC_RegisterIsOverCurrentOccurredCallBack:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:1275   .text.PWMC_RegisterIsOverCurrentOccurredCallBack:00000000 PWMC_RegisterIsOverCurrentOccurredCallBack
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:1300   .text.PWMC_RegisterOCPSetRefVoltageCallBack:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:1307   .text.PWMC_RegisterOCPSetRefVoltageCallBack:00000000 PWMC_RegisterOCPSetRefVoltageCallBack
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:1332   .text.PWMC_RegisterRLDetectionModeEnableCallBack:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:1339   .text.PWMC_RegisterRLDetectionModeEnableCallBack:00000000 PWMC_RegisterRLDetectionModeEnableCallBack
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:1364   .text.PWMC_RegisterRLDetectionModeDisableCallBack:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:1371   .text.PWMC_RegisterRLDetectionModeDisableCallBack:00000000 PWMC_RegisterRLDetectionModeDisableCallBack
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:1396   .text.PWMC_RegisterRLDetectionModeSetDutyCallBack:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:1403   .text.PWMC_RegisterRLDetectionModeSetDutyCallBack:00000000 PWMC_RegisterRLDetectionModeSetDutyCallBack
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:1428   .text.PWMC_RegisterIrqHandlerCallBack:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\cc5EXt7Z.s:1435   .text.PWMC_RegisterIrqHandlerCallBack:00000000 PWMC_RegisterIrqHandlerCallBack
+                           .group:00000000 wm4.0.6093079fab0af1ca2c5a0ad5709343e3
+                           .group:00000000 wm4._newlib_version.h.4.411db44ea2338a62eca2f0777f81481b
+                           .group:00000000 wm4.features.h.33.5ea28ceb8be6621901b9d58b4c3ee651
+                           .group:00000000 wm4._default_types.h.15.247e5cd201eca3442cbf5404108c4935
+                           .group:00000000 wm4._intsup.h.10.48bafbb683905c4daa4565a85aeeb264
+                           .group:00000000 wm4._stdint.h.10.c24fa3af3bc1706662bb5593a907e841
+                           .group:00000000 wm4.stdint.h.23.d53047a68f4a85177f80b422d52785ed
+                           .group:00000000 wm4.stdbool.h.29.c08aa3eec75cf5b9b5003883f43253f0
+                           .group:00000000 wm4.mc_stm_types.h.20.2d7d6ac163527ff5d1947d422c918f78
+                           .group:00000000 wm4.sr5e1xx.h.22.e5c808533cc52ed19fb0830cd7d98924
+                           .group:00000000 wm4.cmsis_version.h.32.0f826810625204eca22a19868bdc7586
+                           .group:00000000 wm4.core_cm7.h.66.8ab2de36917d6fcae18019067fda13e0
+                           .group:00000000 wm4.cmsis_gcc.h.26.498d0ad17a45fc9ef20fdc01caf02259
+                           .group:00000000 wm4.core_cm7.h.174.43edb295ecdaadad738f48ba6011ffad
+                           .group:00000000 wm4.mpu_armv7.h.32.83326921a797fa9d6f70449916b4b839
+                           .group:00000000 wm4.cachel1_armv7.h.32.abd77761a989e008b0c60891114a33c7
+                           .group:00000000 wm4.SR5E1_ADC.h.14.21608e6aff125ba995dd767d6d8dc311
+                           .group:00000000 wm4.SR5E1_CEM.h.14.01fe5742c8f1ae35b1f3af05932f702e
+                           .group:00000000 wm4.SR5E1_CMU.h.14.2617b38b159abe38028862394531e06d
+                           .group:00000000 wm4.SR5E1_COMP.h.14.4b6fdfe4f5f7fd9bedf3a99b98bdf4cd
+                           .group:00000000 wm4.SR5E1_CORDIC.h.14.354fbf7c9eaf6963d38eaa25cf28ffe8
+                           .group:00000000 wm4.SR5E1_CRC.h.14.c64d0f7767671ddb92e9ead0a1162100
+                           .group:00000000 wm4.SR5E1_DAC.h.14.8c26a0ff04b0cfeb55306cc3f22187b8
+                           .group:00000000 wm4.SR5E1_DBGMCU.h.14.427df893d53a8044654f017ba01c25ed
+                           .group:00000000 wm4.SR5E1_DMA.h.14.a7f9a92f844b40a86965798c2e64240b
+                           .group:00000000 wm4.SR5E1_DMAMUX.h.14.471b3b4dfd4d41515f1df49493698866
+                           .group:00000000 wm4.SR5E1_EXTI.h.14.a325ea3fe89cd84894660551c33241ea
+                           .group:00000000 wm4.SR5E1_FCCU.h.14.0ebf0f0f36e079d28613ad2c80e17e23
+                           .group:00000000 wm4.SR5E1_FDCAN.h.14.ac57101fad5dbc798bfb93f34c899de7
+                           .group:00000000 wm4.SR5E1_FLASH_REG_ITF.h.14.d23d1d44923f9b20b8c8fdb51d66aefd
+                           .group:00000000 wm4.SR5E1_GPIO.h.14.1c84071e130d7c64b62470ab0e18a1f1
+                           .group:00000000 wm4.SR5E1_HRTIM.h.24.03932387d2522e6bd5c772a4edaf2f5d
+                           .group:00000000 wm4.SR5E1_HSEM.h.14.cbe70eee519f01b16452c3f8c99d8df1
+                           .group:00000000 wm4.SR5E1_I2C.h.14.350ba3e0f4fd57828457efa80135c36c
+                           .group:00000000 wm4.SR5E1_IMA.h.14.62b7088985ab2b7ce9b030a02daa1f7d
+                           .group:00000000 wm4.SR5E1_IWDG.h.14.20b7c5f05cf7ae94464c360d7af3660d
+                           .group:00000000 wm4.SR5E1_MEMU.h.14.04bad7ae4c52ce334a4fc900aad2ae5b
+                           .group:00000000 wm4.SR5E1_NVM_CTRL.h.14.5f442617f0628d4f16258f211c614ef9
+                           .group:00000000 wm4.SR5E1_PLLDIG.h.14.bd87a8e6917eee17dae2f312c8e5fa53
+                           .group:00000000 wm4.SR5E1_PMC_DIG.h.14.54173b566c6656344766ec4ef46c9281
+                           .group:00000000 wm4.SR5E1_RCC.h.14.56734803c71534de286e793a53649740
+                           .group:00000000 wm4.SR5E1_RTC.h.14.47037cbc7d8175dbf2be1dc0bb955e3f
+                           .group:00000000 wm4.SR5E1_SD_ADC.h.14.552b97d0b8f3c1fd4df6d8964b2f1a80
+                           .group:00000000 wm4.SR5E1_SMPU.h.14.8ce5bb6d5d7c579cd725f492f46e9085
+                           .group:00000000 wm4.SR5E1_SPI.h.14.42d52112e540f85ade4d9135f8b87d72
+                           .group:00000000 wm4.SR5E1_SSCM.h.14.8e6a2ad0ce5fca422fc3d69939b6125b
+                           .group:00000000 wm4.SR5E1_SYSCFG.h.14.02b969490118ce4069914b5e94f7ca65
+                           .group:00000000 wm4.SR5E1_TDM.h.14.a40ed7928cad243a57fd233fccf01ad2
+                           .group:00000000 wm4.SR5E1_TIM.h.14.05b8efc5395873619642d61a4b0b5a54
+                           .group:00000000 wm4.SR5E1_UART.h.14.eec3ab82b02b3bdb3de500483675b83f
+                           .group:00000000 wm4.SR5E1_WWDG.h.14.59b45efc70e442cc6ef03702aad4ad88
+                           .group:00000000 wm4.stddef.h.39.38eb7ec030421799c657b13be5aa21c7
+                           .group:00000000 wm4.typedefs.h.36.07fe3956b4e751037cfee70edcd0b397
+                           .group:00000000 wm4.irq_numbers.h.38.6294b95aed1bf7b3a2cda0eed8ce8f57
+                           .group:00000000 wm4.regs.h.23.2ac145b4f57126d16daed5fbd86d99c6
+                           .group:00000000 wm4.sr5e1_wrapper.h.20.64eb3ae8ac9b19f101ec010f065b27e0
+                           .group:00000000 wm4.sr5e1_macros.h.48.23238fd8be149bfd93a4b06f4d1d3e48
+                           .group:00000000 wm4.sr5e1_ll_system.h.75.323fef6699ff2ef93649a75fbc3b9dc0
+                           .group:00000000 wm4.sr5e1_ll_tim.h.21.35d0409c49249d40ffa0621f7fd1e49f
+                           .group:00000000 wm4.sr5e1_ll_adc.h.21.a09418770aae8e8540b1ce15e5fd6881
+                           .group:00000000 wm4.sr5e1_ll_dac.h.21.e617f768d26181c75ac38760d82ada91
+                           .group:00000000 wm4.sr5e1_ll_cordic.h.21.601660824250c93d03fb6b7dd46d0750
+                           .group:00000000 wm4.sr5e1_ll_usart.h.21.edc232fc61ffb518b3051f74f786aac1
+                           .group:00000000 wm4.sr5e1_ll_dmamux.h.21.e0f20dc23ecc4be39502f49d8383668f
+                           .group:00000000 wm4.sr5e1_ll_dma.h.74.155fcc98e704261e48b273dd9cbd510c
+                           .group:00000000 wm4.mc_stm_types.h.52.4cccb248a2fcd7dfda158e1610af49bf
+                           .group:00000000 wm4.mc_type.h.47.50da95e050e3bfbddab14d990c2d05af
+                           .group:00000000 wm4.pwm_curr_fdbk.h.44.008214b650bfdac51c410ab6c36732d7
+                           .group:00000000 wm4.motor_power_measurement.h.29.8342149da3785e7815d1120573fd9cfb
+                           .group:00000000 wm4.digital_output.h.25.02fba90b0f6ba87331476d93a103f49e
+                           .group:00000000 wm4.mp_self_com_ctrl.h.49.e6dcc6aedc61e25d555994ebab97d8b3
+                           .group:00000000 wm4.mc_math.h.24.97493115228829e070d95a4855b66df8
+                           .group:00000000 wm4.pmsm_motor_parameters.h.23.867a6fd3770391a9f66bba183e9e75b3
+                           .group:00000000 wm4.drive_parameters.h.23.dbf96a4337bbb9088dab9827bb0ccc4b
+                           .group:00000000 wm4.power_stage_parameters.h.22.736335d2c78f651593d5c3a7eabd2f7e
+                           .group:00000000 wm4.parameters_conversion_SR5E1.h.29.eabcdfadd7af4fdc121c865f8fc2acbd
+                           .group:00000000 wm4.parameters_conversion.h.29.c695296455e156423051d03c26fc218c
+                           .group:00000000 wm4.encoder_speed_pos_fdbk.h.54.a7b391f390958238bafe12d9ec286eba
+                           .group:00000000 wm4.trajectory_ctrl.h.36.88ccddbc168ae81030ff0d853fd72660
+                           .group:00000000 wm4.user_interface.h.220.79f4987d3bb68b2ddc49cbd0ba2c5f63
+                           .group:00000000 wm4.frame_communication_protocol.h.23.41250e506dcaa9b3bb0fb3b62addffac
+                           .group:00000000 wm4.dac_common_ui.h.26.3857a0f796702d55fc08b1c9fba1ab0f
+                           .group:00000000 wm4.dac_ui.h.48.4302a85d070412e322de9cfee8982dc0
+                           .group:00000000 wm4.can_frame_communication_protocol.h.22.33ba1ca3757fdb135afcb321b74128f5
+                           .group:00000000 wm4.dac_rctimer_ui.h.26.502751ff603279109795a0a74dd8775c
+                           .group:00000000 wm4.ics_SR5E1_pwm_curr_fdbk.h.25.0077b176383d68ec03d55e3ef8c6c349
+                           .group:00000000 wm4.gpio.h.25.d41a0c19fda8c2de42e666afb48ec15a
+                           .group:00000000 wm4.hall_speed_pos_fdbk.h.47.c079bfc346ef7d5d51093236881f5a4c
+                           .group:00000000 wm4.mc_config.h.84.9f66d495ae5fdd9c09aa66372a42b3d9
+
+NO UNDEFINED SYMBOLS

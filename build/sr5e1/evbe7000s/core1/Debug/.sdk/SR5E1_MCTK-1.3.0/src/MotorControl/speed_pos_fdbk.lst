@@ -1,0 +1,929 @@
+   1              		.cpu cortex-m7
+   2              		.arch armv7e-m
+   3              		.fpu fpv5-d16
+   4              		.eabi_attribute 28, 1
+   5              		.eabi_attribute 20, 1
+   6              		.eabi_attribute 21, 1
+   7              		.eabi_attribute 23, 3
+   8              		.eabi_attribute 24, 1
+   9              		.eabi_attribute 25, 1
+  10              		.eabi_attribute 26, 1
+  11              		.eabi_attribute 30, 6
+  12              		.eabi_attribute 34, 1
+  13              		.eabi_attribute 18, 4
+  14              		.file	"speed_pos_fdbk.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.file 1 ".sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c"
+  19              		.section	.rodata.OFFSET_TAB_CCMRx,"a"
+  20              		.align	2
+  23              	OFFSET_TAB_CCMRx:
+  24 0000 00000000 		.ascii	"\000\000\000\000\004\004\004\00488"
+  24      04040404 
+  24      3838
+  25              		.section	.rodata.SHIFT_TAB_OCxx,"a"
+  26              		.align	2
+  29              	SHIFT_TAB_OCxx:
+  30 0000 00000800 		.ascii	"\000\000\010\000\000\000\010\000\000\010"
+  30      00000800 
+  30      0008
+  31              		.section	.rodata.SHIFT_TAB_ICxx,"a"
+  32              		.align	2
+  35              	SHIFT_TAB_ICxx:
+  36 0000 00000800 		.ascii	"\000\000\010\000\000\000\010\000\000\000"
+  36      00000800 
+  36      0000
+  37              		.section	.rodata.SHIFT_TAB_CCxP,"a"
+  38              		.align	2
+  41              	SHIFT_TAB_CCxP:
+  42 0000 00020406 		.ascii	"\000\002\004\006\010\012\014\016\020\024"
+  42      080A0C0E 
+  42      1014
+  43              		.section	.rodata.SHIFT_TAB_OISx,"a"
+  44              		.align	2
+  47              	SHIFT_TAB_OISx:
+  48 0000 00010203 		.ascii	"\000\001\002\003\004\005\006\007\010\012"
+  48      04050607 
+  48      080A
+  49              		.section	.rodata.USART_PRESCALER_TAB,"a"
+  50              		.align	2
+  53              	USART_PRESCALER_TAB:
+  54 0000 01000000 		.word	1
+  55 0004 02000000 		.word	2
+  56 0008 04000000 		.word	4
+  57 000c 06000000 		.word	6
+  58 0010 08000000 		.word	8
+  59 0014 0A000000 		.word	10
+  60 0018 0C000000 		.word	12
+  61 001c 10000000 		.word	16
+  62 0020 20000000 		.word	32
+  63 0024 40000000 		.word	64
+  64 0028 80000000 		.word	128
+  65 002c 00010000 		.word	256
+  66              		.section	.rodata.LL_DMA_STR_OFFSET_TAB,"a"
+  67              		.align	2
+  70              	LL_DMA_STR_OFFSET_TAB:
+  71 0000 10284058 		.ascii	"\020(@Xp\210\240\270"
+  71      7088A0B8 
+  72              		.section	.itcm,"ax",%progbits
+  73              		.align	1
+  74              		.p2align 4,,15
+  75              		.weak	SPD_GetElAngle
+  76              		.syntax unified
+  77              		.thumb
+  78              		.thumb_func
+  80              	SPD_GetElAngle:
+  81              	.LFB1248:
+   1:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** /****************************************************************************
+   2:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** *
+   3:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** * Copyright (c) 2023 STMicroelectronics - All Rights Reserved
+   4:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** *
+   5:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** * License terms: STMicroelectronics Proprietary in accordance with licensing
+   6:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** * terms SLA0098 at www.st.com.
+   7:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** *
+   8:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** * THIS SOFTWARE IS DISTRIBUTED "AS IS," AND ALL WARRANTIES ARE DISCLAIMED,
+   9:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** * INCLUDING MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+  10:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** *****************************************************************************/
+  11:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** /**
+  12:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** *   @file    speed_pos_fdbk.c
+  13:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** *   @version M4_VERSION
+  14:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** *   @brief   This file provides firmware functions that implement the features
+  15:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** *            of the Speed & Position Feedback component of the Stellar Motor Control.
+  16:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** *
+  17:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** *   @details This file provides firmware functions that implement the features
+  18:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** *            of the Speed & Position Feedback component of the Stellar Motor Control.
+  19:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** *
+  20:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****  */
+  21:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** 
+  22:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** /* Includes ------------------------------------------------------------------*/
+  23:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** #include "speed_pos_fdbk.h"
+  24:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** #include "mc_config.h"
+  25:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** /** @addtogroup STELLAR_PMSM_MC_FOC_LIBRARY
+  26:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   * @{
+  27:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   */
+  28:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** 
+  29:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** /** @defgroup SpeednPosFdbk Speed & Position Feedback
+  30:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****  *
+  31:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   * @brief Speed & Position Feedback components of the Stellar Motor Control
+  32:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   *
+  33:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   * These components provide the speed and the angular position of the rotor of a motor (both
+  34:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   * electrical and mechanical).
+  35:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   *
+  36:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   * Several implementations of the Speed and Position Feedback feature are provided by the Motor
+  37:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   * to account for the specificities of the motor used on the application:
+  38:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   *
+  39:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   * - @ref hall_speed_pos_fdbk "Hall Speed & Position Feedback" for motors with Hall effect sensors
+  40:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   * - @ref Encoder  "Encoder Speed & Position Feedback" for motors with a quadrature encoder
+  41:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   * - two general purpose sensorless implementations are provided:
+  42:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   *   @ref SpeednPosFdbk_STO "State Observer with PLL" and
+  43:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   *   @ref STO_CORDIC_SpeednPosFdbk "State Observer with CORDIC"
+  44:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   * - "High Frequency Injection" for anisotropic I-PMSM motors (Not included in this release).
+  45:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   *
+  46:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   * @{
+  47:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   */
+  48:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** 
+  49:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** /**
+  50:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   * @brief  It returns the last computed rotor electrical angle, expressed in
+  51:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   *         s16degrees. 1 s16degree = 360ï¿½/65536
+  52:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   * @param  pHandle: handler of the current instance of the SpeednPosFdbk component
+  53:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   * @retval int16_t rotor electrical angle (s16degrees)
+  54:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   */
+  55:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** #if defined (MCTK_ITCM)
+  56:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** __weak int16_t __attribute__((section(".itcm"))) SPD_GetElAngle( SpeednPosFdbk_Handle_t * pHandle )
+  57:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** #else
+  58:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** __weak int16_t SPD_GetElAngle( SpeednPosFdbk_Handle_t * pHandle )
+  59:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** #endif
+  60:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** {
+  82              		.loc 1 60 1
+  83              		.cfi_startproc
+  84              		@ args = 0, pretend = 0, frame = 8
+  85              		@ frame_needed = 0, uses_anonymous_args = 0
+  86              		@ link register save eliminated.
+  87 0000 82B0     		sub	sp, sp, #8
+  88              		.cfi_def_cfa_offset 8
+  89 0002 0190     		str	r0, [sp, #4]
+  61:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   return ( pHandle->hElAngle );
+  90              		.loc 1 61 19
+  91 0004 019B     		ldr	r3, [sp, #4]
+  92 0006 B3F90430 		ldrsh	r3, [r3, #4]
+  62:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** }
+  93              		.loc 1 62 1
+  94 000a 1846     		mov	r0, r3
+  95 000c 02B0     		add	sp, sp, #8
+  96              		.cfi_def_cfa_offset 0
+  97              		@ sp needed
+  98 000e 7047     		bx	lr
+  99              		.cfi_endproc
+ 100              	.LFE1248:
+ 102              		.section	.text.SPD_GetMecAngle,"ax",%progbits
+ 103              		.align	1
+ 104              		.p2align 4,,15
+ 105              		.weak	SPD_GetMecAngle
+ 106              		.syntax unified
+ 107              		.thumb
+ 108              		.thumb_func
+ 110              	SPD_GetMecAngle:
+ 111              	.LFB1249:
+  63:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** 
+  64:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** /**
+  65:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   * @brief  It returns the last computed rotor mechanical angle, expressed in
+  66:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   *         s16degrees. Mechanical angle frame is based on parameter bElToMecRatio
+  67:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   *         and, if occasionally provided - through function SPD_SetMecAngle -
+  68:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   *         of a measured mechanical angle, on information computed thereof.
+  69:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   * @note   both Hall sensor and Sensor-less do not implement either
+  70:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   *         mechanical angle computation or acceleration computation.
+  71:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   * @param  pHandle: handler of the current instance of the SpeednPosFdbk component
+  72:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   * @retval int16_t rotor mechanical angle (s16degrees)
+  73:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   */
+  74:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** __weak int32_t SPD_GetMecAngle( SpeednPosFdbk_Handle_t * pHandle )
+  75:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** {
+ 112              		.loc 1 75 1
+ 113              		.cfi_startproc
+ 114              		@ args = 0, pretend = 0, frame = 8
+ 115              		@ frame_needed = 0, uses_anonymous_args = 0
+ 116              		@ link register save eliminated.
+ 117 0000 82B0     		sub	sp, sp, #8
+ 118              		.cfi_def_cfa_offset 8
+ 119 0002 0190     		str	r0, [sp, #4]
+  76:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   return ( pHandle->wMecAngle );
+ 120              		.loc 1 76 19
+ 121 0004 019B     		ldr	r3, [sp, #4]
+ 122 0006 9B68     		ldr	r3, [r3, #8]
+  77:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** }
+ 123              		.loc 1 77 1
+ 124 0008 1846     		mov	r0, r3
+ 125 000a 02B0     		add	sp, sp, #8
+ 126              		.cfi_def_cfa_offset 0
+ 127              		@ sp needed
+ 128 000c 7047     		bx	lr
+ 129              		.cfi_endproc
+ 130              	.LFE1249:
+ 132 000e 00BF     		.section	.text.SPD_GetAvrgMecSpeedUnit,"ax",%progbits
+ 133              		.align	1
+ 134              		.p2align 4,,15
+ 135              		.weak	SPD_GetAvrgMecSpeedUnit
+ 136              		.syntax unified
+ 137              		.thumb
+ 138              		.thumb_func
+ 140              	SPD_GetAvrgMecSpeedUnit:
+ 141              	.LFB1250:
+  78:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** 
+  79:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** /**
+  80:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   * @brief  Returns the last computed average mechanical speed, expressed in
+  81:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   *         the unit defined by #SPEED_UNIT.
+  82:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   * @param  pHandle: handler of the current instance of the SpeednPosFdbk component
+  83:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   */
+  84:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** __weak int16_t SPD_GetAvrgMecSpeedUnit( SpeednPosFdbk_Handle_t * pHandle )
+  85:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** {
+ 142              		.loc 1 85 1
+ 143              		.cfi_startproc
+ 144              		@ args = 0, pretend = 0, frame = 8
+ 145              		@ frame_needed = 0, uses_anonymous_args = 0
+ 146              		@ link register save eliminated.
+ 147 0000 82B0     		sub	sp, sp, #8
+ 148              		.cfi_def_cfa_offset 8
+ 149 0002 0190     		str	r0, [sp, #4]
+  86:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   return ( pHandle->hAvrMecSpeedUnit );
+ 150              		.loc 1 86 19
+ 151 0004 019B     		ldr	r3, [sp, #4]
+ 152 0006 B3F90C30 		ldrsh	r3, [r3, #12]
+  87:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** }
+ 153              		.loc 1 87 1
+ 154 000a 1846     		mov	r0, r3
+ 155 000c 02B0     		add	sp, sp, #8
+ 156              		.cfi_def_cfa_offset 0
+ 157              		@ sp needed
+ 158 000e 7047     		bx	lr
+ 159              		.cfi_endproc
+ 160              	.LFE1250:
+ 162              		.section	.text.SPD_GetElSpeedDpp,"ax",%progbits
+ 163              		.align	1
+ 164              		.p2align 4,,15
+ 165              		.weak	SPD_GetElSpeedDpp
+ 166              		.syntax unified
+ 167              		.thumb
+ 168              		.thumb_func
+ 170              	SPD_GetElSpeedDpp:
+ 171              	.LFB1251:
+  88:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** 
+  89:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** /**
+  90:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   * @brief  It returns the last computed electrical speed, expressed in Dpp.
+  91:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   *         1 Dpp = 1 s16Degree/control Period. The control period is the period
+  92:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   *         on which the rotor electrical angle is computed (through function
+  93:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   *         SPD_CalcElectricalAngle).
+  94:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   * @param  pHandle: handler of the current instance of the SpeednPosFdbk component
+  95:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   * @retval int16_t rotor electrical speed (Dpp)
+  96:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   */
+  97:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** __weak int16_t SPD_GetElSpeedDpp( SpeednPosFdbk_Handle_t * pHandle )
+  98:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** {
+ 172              		.loc 1 98 1
+ 173              		.cfi_startproc
+ 174              		@ args = 0, pretend = 0, frame = 8
+ 175              		@ frame_needed = 0, uses_anonymous_args = 0
+ 176              		@ link register save eliminated.
+ 177 0000 82B0     		sub	sp, sp, #8
+ 178              		.cfi_def_cfa_offset 8
+ 179 0002 0190     		str	r0, [sp, #4]
+  99:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   return ( pHandle->hElSpeedDpp );
+ 180              		.loc 1 99 19
+ 181 0004 019B     		ldr	r3, [sp, #4]
+ 182 0006 B3F90E30 		ldrsh	r3, [r3, #14]
+ 100:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** }
+ 183              		.loc 1 100 1
+ 184 000a 1846     		mov	r0, r3
+ 185 000c 02B0     		add	sp, sp, #8
+ 186              		.cfi_def_cfa_offset 0
+ 187              		@ sp needed
+ 188 000e 7047     		bx	lr
+ 189              		.cfi_endproc
+ 190              	.LFE1251:
+ 192              		.section	.itcm
+ 193              		.align	1
+ 194              		.p2align 4,,15
+ 195              		.weak	SPD_GetInstElSpeedDpp
+ 196              		.syntax unified
+ 197              		.thumb
+ 198              		.thumb_func
+ 200              	SPD_GetInstElSpeedDpp:
+ 201              	.LFB1252:
+ 101:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** 
+ 102:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** /**
+ 103:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   * @brief  It returns the last instantaneous computed electrical speed, expressed in Dpp.
+ 104:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   *         1 Dpp = 1 s16Degree/control Period. The control period is the period
+ 105:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   *         on which the rotor electrical angle is computed (through function
+ 106:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   *         SPD_CalcElectricalAngle).
+ 107:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   * @param  pHandle: handler of the current instance of the SpeednPosFdbk component
+ 108:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   * @retval int16_t rotor instantaneous electrical speed (Dpp)
+ 109:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   */
+ 110:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** #if defined (MCTK_ITCM)
+ 111:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** __weak int16_t __attribute__((section(".itcm"))) SPD_GetInstElSpeedDpp( SpeednPosFdbk_Handle_t * pH
+ 112:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** #else
+ 113:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** __weak int16_t SPD_GetInstElSpeedDpp( SpeednPosFdbk_Handle_t * pHandle )
+ 114:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** #endif
+ 115:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** {
+ 202              		.loc 1 115 1
+ 203              		.cfi_startproc
+ 204              		@ args = 0, pretend = 0, frame = 8
+ 205              		@ frame_needed = 0, uses_anonymous_args = 0
+ 206              		@ link register save eliminated.
+ 207 0010 82B0     		sub	sp, sp, #8
+ 208              		.cfi_def_cfa_offset 8
+ 209 0012 0190     		str	r0, [sp, #4]
+ 116:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   return ( pHandle->InstantaneousElSpeedDpp );
+ 210              		.loc 1 116 19
+ 211 0014 019B     		ldr	r3, [sp, #4]
+ 212 0016 B3F91030 		ldrsh	r3, [r3, #16]
+ 117:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** }
+ 213              		.loc 1 117 1
+ 214 001a 1846     		mov	r0, r3
+ 215 001c 02B0     		add	sp, sp, #8
+ 216              		.cfi_def_cfa_offset 0
+ 217              		@ sp needed
+ 218 001e 7047     		bx	lr
+ 219              		.cfi_endproc
+ 220              	.LFE1252:
+ 222              		.section	.text.SPD_Check,"ax",%progbits
+ 223              		.align	1
+ 224              		.p2align 4,,15
+ 225              		.weak	SPD_Check
+ 226              		.syntax unified
+ 227              		.thumb
+ 228              		.thumb_func
+ 230              	SPD_Check:
+ 231              	.LFB1253:
+ 118:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** 
+ 119:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** /**
+ 120:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   * @brief  It returns the result of the last reliability check performed.
+ 121:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   *         Reliability is measured with reference to parameters
+ 122:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   *         hMaxReliableElSpeedUnit, hMinReliableElSpeedUnit,
+ 123:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   *         bMaximumSpeedErrorsNumber and/or specific parameters of the derived
+ 124:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   *         true = sensor information is reliable
+ 125:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   *         false = sensor information is not reliable
+ 126:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   * @param  pHandle: handler of the current instance of the SpeednPosFdbk component
+ 127:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   * @retval bool sensor reliability state
+ 128:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   */
+ 129:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** __weak bool SPD_Check( SpeednPosFdbk_Handle_t * pHandle )
+ 130:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** {
+ 232              		.loc 1 130 1
+ 233              		.cfi_startproc
+ 234              		@ args = 0, pretend = 0, frame = 16
+ 235              		@ frame_needed = 0, uses_anonymous_args = 0
+ 236              		@ link register save eliminated.
+ 237 0000 84B0     		sub	sp, sp, #16
+ 238              		.cfi_def_cfa_offset 16
+ 239 0002 0190     		str	r0, [sp, #4]
+ 131:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   bool SpeedSensorReliability = true;
+ 240              		.loc 1 131 8
+ 241 0004 0123     		movs	r3, #1
+ 242 0006 8DF80F30 		strb	r3, [sp, #15]
+ 132:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   if ( pHandle->bSpeedErrorNumber ==
+ 243              		.loc 1 132 15
+ 244 000a 019B     		ldr	r3, [sp, #4]
+ 245 000c 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 133:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****        pHandle->bMaximumSpeedErrorsNumber )
+ 246              		.loc 1 133 15
+ 247 000e 019B     		ldr	r3, [sp, #4]
+ 248 0010 DB78     		ldrb	r3, [r3, #3]	@ zero_extendqisi2
+ 132:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   if ( pHandle->bSpeedErrorNumber ==
+ 249              		.loc 1 132 6
+ 250 0012 9A42     		cmp	r2, r3
+ 251 0014 02D1     		bne	.L12
+ 134:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   {
+ 135:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****     SpeedSensorReliability = false;
+ 252              		.loc 1 135 28
+ 253 0016 0023     		movs	r3, #0
+ 254 0018 8DF80F30 		strb	r3, [sp, #15]
+ 255              	.L12:
+ 136:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   }
+ 137:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   return ( SpeedSensorReliability );
+ 256              		.loc 1 137 10
+ 257 001c 9DF80F30 		ldrb	r3, [sp, #15]	@ zero_extendqisi2
+ 138:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** }
+ 258              		.loc 1 138 1
+ 259 0020 1846     		mov	r0, r3
+ 260 0022 04B0     		add	sp, sp, #16
+ 261              		.cfi_def_cfa_offset 0
+ 262              		@ sp needed
+ 263 0024 7047     		bx	lr
+ 264              		.cfi_endproc
+ 265              	.LFE1253:
+ 267 0026 00BF     		.section	.itcm
+ 268              		.align	1
+ 269              		.p2align 4,,15
+ 270              		.weak	SPD_IsMecSpeedReliable
+ 271              		.syntax unified
+ 272              		.thumb
+ 273              		.thumb_func
+ 275              	SPD_IsMecSpeedReliable:
+ 276              	.LFB1254:
+ 139:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** 
+ 140:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** /**
+ 141:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   * @brief  This method must be called - at least - with the same periodicity
+ 142:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   *         on which speed control is executed. It computes and returns - through
+ 143:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   *         parameter pMecSpeedUnit - the rotor average mechanical speed,
+ 144:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   *         expressed in the unit defined by #SPEED_UNIT. It computes and returns
+ 145:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   *         the reliability state of the sensor; reliability is measured with
+ 146:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   *         reference to parameters hMaxReliableElSpeedUnit, hMinReliableElSpeedUnit,
+ 147:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   *         bMaximumSpeedErrorsNumber and/or specific parameters of the derived
+ 148:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   *         true = sensor information is reliable
+ 149:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   *         false = sensor information is not reliable
+ 150:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   * @param  pHandle: handler of the current instance of the SpeednPosFdbk component
+ 151:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   * @param  pMecSpeedUnit pointer to int16_t, used to return the rotor average
+ 152:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   *         mechanical speed (expressed in the unit defined by #SPEED_UNIT)
+ 153:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   * @retval none
+ 154:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   */
+ 155:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** #if defined (MCTK_ITCM)
+ 156:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** __weak bool __attribute__((section(".itcm"))) SPD_IsMecSpeedReliable( SpeednPosFdbk_Handle_t * pHan
+ 157:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** #else
+ 158:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** __weak bool SPD_IsMecSpeedReliable( SpeednPosFdbk_Handle_t * pHandle, int16_t * pMecSpeedUnit )
+ 159:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** #endif
+ 160:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** {
+ 277              		.loc 1 160 1
+ 278              		.cfi_startproc
+ 279              		@ args = 0, pretend = 0, frame = 24
+ 280              		@ frame_needed = 0, uses_anonymous_args = 0
+ 281              		@ link register save eliminated.
+ 282 0020 86B0     		sub	sp, sp, #24
+ 283              		.cfi_def_cfa_offset 24
+ 284 0022 0190     		str	r0, [sp, #4]
+ 285 0024 0091     		str	r1, [sp]
+ 161:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   bool SpeedSensorReliability = true;
+ 286              		.loc 1 161 8
+ 287 0026 0123     		movs	r3, #1
+ 288 0028 8DF81730 		strb	r3, [sp, #23]
+ 162:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   uint8_t bSpeedErrorNumber;
+ 163:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   uint8_t bMaximumSpeedErrorsNumber = pHandle->bMaximumSpeedErrorsNumber;
+ 289              		.loc 1 163 11
+ 290 002c 019B     		ldr	r3, [sp, #4]
+ 291 002e DB78     		ldrb	r3, [r3, #3]
+ 292 0030 8DF80F30 		strb	r3, [sp, #15]
+ 164:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** 
+ 165:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   bool SpeedError = false;
+ 293              		.loc 1 165 8
+ 294 0034 0023     		movs	r3, #0
+ 295 0036 8DF81530 		strb	r3, [sp, #21]
+ 166:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   uint16_t hAbsMecSpeedUnit, hAbsMecAccelUnitP;
+ 167:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   int16_t hAux;
+ 168:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** 
+ 169:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   bSpeedErrorNumber = pHandle->bSpeedErrorNumber;
+ 296              		.loc 1 169 21
+ 297 003a 019B     		ldr	r3, [sp, #4]
+ 298 003c 1B78     		ldrb	r3, [r3]
+ 299 003e 8DF81630 		strb	r3, [sp, #22]
+ 170:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** 
+ 171:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   /* Compute absoulte value of mechanical speed */
+ 172:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   if ( *pMecSpeedUnit < 0 )
+ 300              		.loc 1 172 8
+ 301 0042 009B     		ldr	r3, [sp]
+ 302 0044 B3F90030 		ldrsh	r3, [r3]
+ 303              		.loc 1 172 6
+ 304 0048 002B     		cmp	r3, #0
+ 305 004a 0CDA     		bge	.L15
+ 173:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   {
+ 174:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****     hAux = -( *pMecSpeedUnit );
+ 306              		.loc 1 174 15
+ 307 004c 009B     		ldr	r3, [sp]
+ 308 004e B3F90030 		ldrsh	r3, [r3]
+ 309 0052 9BB2     		uxth	r3, r3
+ 310              		.loc 1 174 10
+ 311 0054 5B42     		rsbs	r3, r3, #0
+ 312 0056 9BB2     		uxth	r3, r3
+ 313 0058 ADF80C30 		strh	r3, [sp, #12]	@ movhi
+ 175:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****     hAbsMecSpeedUnit = ( uint16_t )( hAux );
+ 314              		.loc 1 175 22
+ 315 005c BDF80C30 		ldrh	r3, [sp, #12]	@ movhi
+ 316 0060 ADF81230 		strh	r3, [sp, #18]	@ movhi
+ 317 0064 04E0     		b	.L16
+ 318              	.L15:
+ 176:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   }
+ 177:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   else
+ 178:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   {
+ 179:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****     hAbsMecSpeedUnit = ( uint16_t )( *pMecSpeedUnit );
+ 319              		.loc 1 179 38
+ 320 0066 009B     		ldr	r3, [sp]
+ 321 0068 B3F90030 		ldrsh	r3, [r3]
+ 322              		.loc 1 179 22
+ 323 006c ADF81230 		strh	r3, [sp, #18]	@ movhi
+ 324              	.L16:
+ 180:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   }
+ 181:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** 
+ 182:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   if ( hAbsMecSpeedUnit > pHandle->hMaxReliableMecSpeedUnit )
+ 325              		.loc 1 182 34
+ 326 0070 019B     		ldr	r3, [sp, #4]
+ 327 0072 9B8A     		ldrh	r3, [r3, #20]
+ 328              		.loc 1 182 6
+ 329 0074 BDF81220 		ldrh	r2, [sp, #18]
+ 330 0078 9A42     		cmp	r2, r3
+ 331 007a 02D9     		bls	.L17
+ 183:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   {
+ 184:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****     SpeedError = true;
+ 332              		.loc 1 184 16
+ 333 007c 0123     		movs	r3, #1
+ 334 007e 8DF81530 		strb	r3, [sp, #21]
+ 335              	.L17:
+ 185:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   }
+ 186:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** 
+ 187:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   if ( hAbsMecSpeedUnit < pHandle->hMinReliableMecSpeedUnit )
+ 336              		.loc 1 187 34
+ 337 0082 019B     		ldr	r3, [sp, #4]
+ 338 0084 DB8A     		ldrh	r3, [r3, #22]
+ 339              		.loc 1 187 6
+ 340 0086 BDF81220 		ldrh	r2, [sp, #18]
+ 341 008a 9A42     		cmp	r2, r3
+ 342 008c 02D2     		bcs	.L18
+ 188:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   {
+ 189:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****     SpeedError = true;
+ 343              		.loc 1 189 16
+ 344 008e 0123     		movs	r3, #1
+ 345 0090 8DF81530 		strb	r3, [sp, #21]
+ 346              	.L18:
+ 190:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   }
+ 191:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** 
+ 192:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   /* Compute absoulte value of mechanical acceleration */
+ 193:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   if ( pHandle->hMecAccelUnitP < 0 )
+ 347              		.loc 1 193 15
+ 348 0094 019B     		ldr	r3, [sp, #4]
+ 349 0096 B3F91230 		ldrsh	r3, [r3, #18]
+ 350              		.loc 1 193 6
+ 351 009a 002B     		cmp	r3, #0
+ 352 009c 0CDA     		bge	.L19
+ 194:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   {
+ 195:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****     hAux = -( pHandle->hMecAccelUnitP );
+ 353              		.loc 1 195 22
+ 354 009e 019B     		ldr	r3, [sp, #4]
+ 355 00a0 B3F91230 		ldrsh	r3, [r3, #18]
+ 356 00a4 9BB2     		uxth	r3, r3
+ 357              		.loc 1 195 10
+ 358 00a6 5B42     		rsbs	r3, r3, #0
+ 359 00a8 9BB2     		uxth	r3, r3
+ 360 00aa ADF80C30 		strh	r3, [sp, #12]	@ movhi
+ 196:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****     hAbsMecAccelUnitP = ( uint16_t )( hAux );
+ 361              		.loc 1 196 23
+ 362 00ae BDF80C30 		ldrh	r3, [sp, #12]	@ movhi
+ 363 00b2 ADF81030 		strh	r3, [sp, #16]	@ movhi
+ 364 00b6 04E0     		b	.L20
+ 365              	.L19:
+ 197:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   }
+ 198:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   else
+ 199:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   {
+ 200:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****     hAbsMecAccelUnitP = ( uint16_t )( pHandle->hMecAccelUnitP );
+ 366              		.loc 1 200 46
+ 367 00b8 019B     		ldr	r3, [sp, #4]
+ 368 00ba B3F91230 		ldrsh	r3, [r3, #18]
+ 369              		.loc 1 200 23
+ 370 00be ADF81030 		strh	r3, [sp, #16]	@ movhi
+ 371              	.L20:
+ 201:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   }
+ 202:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** 
+ 203:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   if ( hAbsMecAccelUnitP > pHandle->hMaxReliableMecAccelUnitP )
+ 372              		.loc 1 203 35
+ 373 00c2 019B     		ldr	r3, [sp, #4]
+ 374 00c4 1B8B     		ldrh	r3, [r3, #24]
+ 375              		.loc 1 203 6
+ 376 00c6 BDF81020 		ldrh	r2, [sp, #16]
+ 377 00ca 9A42     		cmp	r2, r3
+ 378 00cc 02D9     		bls	.L21
+ 204:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   {
+ 205:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****     SpeedError = true;
+ 379              		.loc 1 205 16
+ 380 00ce 0123     		movs	r3, #1
+ 381 00d0 8DF81530 		strb	r3, [sp, #21]
+ 382              	.L21:
+ 206:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   }
+ 207:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** 
+ 208:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   if ( SpeedError == true )
+ 383              		.loc 1 208 6
+ 384 00d4 9DF81530 		ldrb	r3, [sp, #21]	@ zero_extendqisi2
+ 385 00d8 002B     		cmp	r3, #0
+ 386 00da 0BD0     		beq	.L22
+ 209:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   {
+ 210:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****     if ( bSpeedErrorNumber < bMaximumSpeedErrorsNumber )
+ 387              		.loc 1 210 8
+ 388 00dc 9DF81620 		ldrb	r2, [sp, #22]	@ zero_extendqisi2
+ 389 00e0 9DF80F30 		ldrb	r3, [sp, #15]	@ zero_extendqisi2
+ 390 00e4 9A42     		cmp	r2, r3
+ 391 00e6 0ED2     		bcs	.L23
+ 211:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****     {
+ 212:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****       bSpeedErrorNumber++;
+ 392              		.loc 1 212 24
+ 393 00e8 9DF81630 		ldrb	r3, [sp, #22]	@ zero_extendqisi2
+ 394 00ec 0133     		adds	r3, r3, #1
+ 395 00ee 8DF81630 		strb	r3, [sp, #22]
+ 396 00f2 08E0     		b	.L23
+ 397              	.L22:
+ 213:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****     }
+ 214:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   }
+ 215:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   else
+ 216:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   {
+ 217:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****     if ( bSpeedErrorNumber < bMaximumSpeedErrorsNumber )
+ 398              		.loc 1 217 8
+ 399 00f4 9DF81620 		ldrb	r2, [sp, #22]	@ zero_extendqisi2
+ 400 00f8 9DF80F30 		ldrb	r3, [sp, #15]	@ zero_extendqisi2
+ 401 00fc 9A42     		cmp	r2, r3
+ 402 00fe 02D2     		bcs	.L23
+ 218:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****     {
+ 219:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****       bSpeedErrorNumber = 0u;
+ 403              		.loc 1 219 25
+ 404 0100 0023     		movs	r3, #0
+ 405 0102 8DF81630 		strb	r3, [sp, #22]
+ 406              	.L23:
+ 220:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****     }
+ 221:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   }
+ 222:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** 
+ 223:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   if ( bSpeedErrorNumber == bMaximumSpeedErrorsNumber )
+ 407              		.loc 1 223 6
+ 408 0106 9DF81620 		ldrb	r2, [sp, #22]	@ zero_extendqisi2
+ 409 010a 9DF80F30 		ldrb	r3, [sp, #15]	@ zero_extendqisi2
+ 410 010e 9A42     		cmp	r2, r3
+ 411 0110 02D1     		bne	.L24
+ 224:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   {
+ 225:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****     SpeedSensorReliability = false;
+ 412              		.loc 1 225 28
+ 413 0112 0023     		movs	r3, #0
+ 414 0114 8DF81730 		strb	r3, [sp, #23]
+ 415              	.L24:
+ 226:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   }
+ 227:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** 
+ 228:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   pHandle->bSpeedErrorNumber = bSpeedErrorNumber;
+ 416              		.loc 1 228 30
+ 417 0118 019B     		ldr	r3, [sp, #4]
+ 418 011a 9DF81620 		ldrb	r2, [sp, #22]
+ 419 011e 1A70     		strb	r2, [r3]
+ 229:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** 
+ 230:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   return ( SpeedSensorReliability );
+ 420              		.loc 1 230 10
+ 421 0120 9DF81730 		ldrb	r3, [sp, #23]	@ zero_extendqisi2
+ 231:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** }
+ 422              		.loc 1 231 1
+ 423 0124 1846     		mov	r0, r3
+ 424 0126 06B0     		add	sp, sp, #24
+ 425              		.cfi_def_cfa_offset 0
+ 426              		@ sp needed
+ 427 0128 7047     		bx	lr
+ 428              		.cfi_endproc
+ 429              	.LFE1254:
+ 431 012a 00BF     		.section	.text.SPD_GetS16Speed,"ax",%progbits
+ 432              		.align	1
+ 433              		.p2align 4,,15
+ 434              		.weak	SPD_GetS16Speed
+ 435              		.syntax unified
+ 436              		.thumb
+ 437              		.thumb_func
+ 439              	SPD_GetS16Speed:
+ 440              	.LFB1255:
+ 232:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** 
+ 233:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** /**
+ 234:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   * @brief  This method returns the average mechanical rotor speed expressed in
+ 235:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   *         "S16Speed". It means that:\n
+ 236:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   *         - it is zero for zero speed,\n
+ 237:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   *         - it become INT16_MAX when the average mechanical speed is equal to
+ 238:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   *           hMaxReliableMecSpeedUnit,\n
+ 239:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   *         - it becomes -INT16_MAX when the average mechanical speed is equal to
+ 240:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   *         -hMaxReliableMecSpeedUnit.
+ 241:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   * @param  pHandle: handler of the current instance of the SpeednPosFdbk component
+ 242:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   * @retval int16_t The average mechanical rotor speed expressed in "S16Speed".
+ 243:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   */
+ 244:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** __weak int16_t SPD_GetS16Speed( SpeednPosFdbk_Handle_t * pHandle )
+ 245:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** {
+ 441              		.loc 1 245 1
+ 442              		.cfi_startproc
+ 443              		@ args = 0, pretend = 0, frame = 16
+ 444              		@ frame_needed = 0, uses_anonymous_args = 0
+ 445              		@ link register save eliminated.
+ 446 0000 84B0     		sub	sp, sp, #16
+ 447              		.cfi_def_cfa_offset 16
+ 448 0002 0190     		str	r0, [sp, #4]
+ 246:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   int32_t wAux = ( int32_t ) pHandle->hAvrMecSpeedUnit;
+ 449              		.loc 1 246 37
+ 450 0004 019B     		ldr	r3, [sp, #4]
+ 451 0006 B3F90C30 		ldrsh	r3, [r3, #12]
+ 452              		.loc 1 246 11
+ 453 000a 0393     		str	r3, [sp, #12]
+ 247:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   wAux *= INT16_MAX;
+ 454              		.loc 1 247 8
+ 455 000c 039A     		ldr	r2, [sp, #12]
+ 456 000e 1346     		mov	r3, r2
+ 457 0010 DB03     		lsls	r3, r3, #15
+ 458 0012 9B1A     		subs	r3, r3, r2
+ 459 0014 0393     		str	r3, [sp, #12]
+ 248:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   wAux /= ( int16_t ) pHandle->hMaxReliableMecSpeedUnit;
+ 460              		.loc 1 248 30
+ 461 0016 019B     		ldr	r3, [sp, #4]
+ 462 0018 9B8A     		ldrh	r3, [r3, #20]
+ 463              		.loc 1 248 11
+ 464 001a 1BB2     		sxth	r3, r3
+ 465 001c 1A46     		mov	r2, r3
+ 466              		.loc 1 248 8
+ 467 001e 039B     		ldr	r3, [sp, #12]
+ 468 0020 93FBF2F3 		sdiv	r3, r3, r2
+ 469 0024 0393     		str	r3, [sp, #12]
+ 249:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   return ( int16_t )wAux;
+ 470              		.loc 1 249 10
+ 471 0026 039B     		ldr	r3, [sp, #12]
+ 472 0028 1BB2     		sxth	r3, r3
+ 250:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** }
+ 473              		.loc 1 250 1
+ 474 002a 1846     		mov	r0, r3
+ 475 002c 04B0     		add	sp, sp, #16
+ 476              		.cfi_def_cfa_offset 0
+ 477              		@ sp needed
+ 478 002e 7047     		bx	lr
+ 479              		.cfi_endproc
+ 480              	.LFE1255:
+ 482              		.section	.text.SPD_GetElToMecRatio,"ax",%progbits
+ 483              		.align	1
+ 484              		.p2align 4,,15
+ 485              		.weak	SPD_GetElToMecRatio
+ 486              		.syntax unified
+ 487              		.thumb
+ 488              		.thumb_func
+ 490              	SPD_GetElToMecRatio:
+ 491              	.LFB1256:
+ 251:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** 
+ 252:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** /**
+ 253:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   * @brief  This method returns the coefficient used to transform electrical to
+ 254:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   *         mechanical quantities and viceversa. It usually coincides with motor
+ 255:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   *         pole pairs number.
+ 256:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   * @param  pHandle: handler of the current instance of the SpeednPosFdbk component
+ 257:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   * @retval uint8_t The motor pole pairs number.
+ 258:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   */
+ 259:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** __weak uint8_t SPD_GetElToMecRatio( SpeednPosFdbk_Handle_t * pHandle )
+ 260:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** {
+ 492              		.loc 1 260 1
+ 493              		.cfi_startproc
+ 494              		@ args = 0, pretend = 0, frame = 8
+ 495              		@ frame_needed = 0, uses_anonymous_args = 0
+ 496              		@ link register save eliminated.
+ 497 0000 82B0     		sub	sp, sp, #8
+ 498              		.cfi_def_cfa_offset 8
+ 499 0002 0190     		str	r0, [sp, #4]
+ 261:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   return ( pHandle->bElToMecRatio );
+ 500              		.loc 1 261 19
+ 501 0004 019B     		ldr	r3, [sp, #4]
+ 502 0006 5B78     		ldrb	r3, [r3, #1]	@ zero_extendqisi2
+ 262:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** }
+ 503              		.loc 1 262 1
+ 504 0008 1846     		mov	r0, r3
+ 505 000a 02B0     		add	sp, sp, #8
+ 506              		.cfi_def_cfa_offset 0
+ 507              		@ sp needed
+ 508 000c 7047     		bx	lr
+ 509              		.cfi_endproc
+ 510              	.LFE1256:
+ 512 000e 00BF     		.section	.text.SPD_SetElToMecRatio,"ax",%progbits
+ 513              		.align	1
+ 514              		.p2align 4,,15
+ 515              		.weak	SPD_SetElToMecRatio
+ 516              		.syntax unified
+ 517              		.thumb
+ 518              		.thumb_func
+ 520              	SPD_SetElToMecRatio:
+ 521              	.LFB1257:
+ 263:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** 
+ 264:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** /**
+ 265:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   * @brief  This method sets the coefficient used to transform electrical to
+ 266:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   *         mechanical quantities and viceversa. It usually coincides with motor
+ 267:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   *         pole pairs number.
+ 268:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   * @param  pHandle: handler of the current instance of the SpeednPosFdbk component
+ 269:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   * @param  bPP The motor pole pairs number to be set.
+ 270:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   */
+ 271:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** __weak void SPD_SetElToMecRatio( SpeednPosFdbk_Handle_t * pHandle, uint8_t bPP )
+ 272:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** {
+ 522              		.loc 1 272 1
+ 523              		.cfi_startproc
+ 524              		@ args = 0, pretend = 0, frame = 8
+ 525              		@ frame_needed = 0, uses_anonymous_args = 0
+ 526              		@ link register save eliminated.
+ 527 0000 82B0     		sub	sp, sp, #8
+ 528              		.cfi_def_cfa_offset 8
+ 529 0002 0190     		str	r0, [sp, #4]
+ 530 0004 0B46     		mov	r3, r1
+ 531 0006 8DF80330 		strb	r3, [sp, #3]
+ 273:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c ****   pHandle->bElToMecRatio = bPP;
+ 532              		.loc 1 273 26
+ 533 000a 019B     		ldr	r3, [sp, #4]
+ 534 000c 9DF80320 		ldrb	r2, [sp, #3]
+ 535 0010 5A70     		strb	r2, [r3, #1]
+ 274:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/speed_pos_fdbk.c **** }
+ 536              		.loc 1 274 1
+ 537 0012 00BF     		nop
+ 538 0014 02B0     		add	sp, sp, #8
+ 539              		.cfi_def_cfa_offset 0
+ 540              		@ sp needed
+ 541 0016 7047     		bx	lr
+ 542              		.cfi_endproc
+ 543              	.LFE1257:
+ 545              		.text
+ 546              	.Letext0:
+ 547              		.file 2 "C:/StellarStudio-9.2/SDKS/TOOLS/Toolchain/ARM/MINGW64_NT/13.3.1-2024.06/arm-none-eabi/inc
+ 548              		.file 3 "C:/StellarStudio-9.2/SDKS/TOOLS/Toolchain/ARM/MINGW64_NT/13.3.1-2024.06/arm-none-eabi/inc
+ 549              		.file 4 ".sdk/SR5E1_MCTK-1.3.0/include/LL_Library/sr5e1_ll_tim.h"
+ 550              		.file 5 ".sdk/SR5E1_MCTK-1.3.0/include/LL_Library/sr5e1_ll_usart.h"
+ 551              		.file 6 ".sdk/SR5E1_MCTK-1.3.0/include/LL_Library/sr5e1_ll_dma.h"
+ 552              		.file 7 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/speed_pos_fdbk.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 speed_pos_fdbk.c
+C:\Users\ttqpe\AppData\Local\Temp\ccmhw6Rf.s:20     .rodata.OFFSET_TAB_CCMRx:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccmhw6Rf.s:23     .rodata.OFFSET_TAB_CCMRx:00000000 OFFSET_TAB_CCMRx
+C:\Users\ttqpe\AppData\Local\Temp\ccmhw6Rf.s:26     .rodata.SHIFT_TAB_OCxx:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccmhw6Rf.s:29     .rodata.SHIFT_TAB_OCxx:00000000 SHIFT_TAB_OCxx
+C:\Users\ttqpe\AppData\Local\Temp\ccmhw6Rf.s:32     .rodata.SHIFT_TAB_ICxx:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccmhw6Rf.s:35     .rodata.SHIFT_TAB_ICxx:00000000 SHIFT_TAB_ICxx
+C:\Users\ttqpe\AppData\Local\Temp\ccmhw6Rf.s:38     .rodata.SHIFT_TAB_CCxP:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccmhw6Rf.s:41     .rodata.SHIFT_TAB_CCxP:00000000 SHIFT_TAB_CCxP
+C:\Users\ttqpe\AppData\Local\Temp\ccmhw6Rf.s:44     .rodata.SHIFT_TAB_OISx:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccmhw6Rf.s:47     .rodata.SHIFT_TAB_OISx:00000000 SHIFT_TAB_OISx
+C:\Users\ttqpe\AppData\Local\Temp\ccmhw6Rf.s:50     .rodata.USART_PRESCALER_TAB:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccmhw6Rf.s:53     .rodata.USART_PRESCALER_TAB:00000000 USART_PRESCALER_TAB
+C:\Users\ttqpe\AppData\Local\Temp\ccmhw6Rf.s:67     .rodata.LL_DMA_STR_OFFSET_TAB:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccmhw6Rf.s:70     .rodata.LL_DMA_STR_OFFSET_TAB:00000000 LL_DMA_STR_OFFSET_TAB
+C:\Users\ttqpe\AppData\Local\Temp\ccmhw6Rf.s:73     .itcm:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccmhw6Rf.s:80     .itcm:00000000 SPD_GetElAngle
+C:\Users\ttqpe\AppData\Local\Temp\ccmhw6Rf.s:103    .text.SPD_GetMecAngle:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccmhw6Rf.s:110    .text.SPD_GetMecAngle:00000000 SPD_GetMecAngle
+C:\Users\ttqpe\AppData\Local\Temp\ccmhw6Rf.s:133    .text.SPD_GetAvrgMecSpeedUnit:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccmhw6Rf.s:140    .text.SPD_GetAvrgMecSpeedUnit:00000000 SPD_GetAvrgMecSpeedUnit
+C:\Users\ttqpe\AppData\Local\Temp\ccmhw6Rf.s:163    .text.SPD_GetElSpeedDpp:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccmhw6Rf.s:170    .text.SPD_GetElSpeedDpp:00000000 SPD_GetElSpeedDpp
+C:\Users\ttqpe\AppData\Local\Temp\ccmhw6Rf.s:200    .itcm:00000010 SPD_GetInstElSpeedDpp
+C:\Users\ttqpe\AppData\Local\Temp\ccmhw6Rf.s:223    .text.SPD_Check:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccmhw6Rf.s:230    .text.SPD_Check:00000000 SPD_Check
+C:\Users\ttqpe\AppData\Local\Temp\ccmhw6Rf.s:275    .itcm:00000020 SPD_IsMecSpeedReliable
+C:\Users\ttqpe\AppData\Local\Temp\ccmhw6Rf.s:432    .text.SPD_GetS16Speed:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccmhw6Rf.s:439    .text.SPD_GetS16Speed:00000000 SPD_GetS16Speed
+C:\Users\ttqpe\AppData\Local\Temp\ccmhw6Rf.s:483    .text.SPD_GetElToMecRatio:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccmhw6Rf.s:490    .text.SPD_GetElToMecRatio:00000000 SPD_GetElToMecRatio
+C:\Users\ttqpe\AppData\Local\Temp\ccmhw6Rf.s:513    .text.SPD_SetElToMecRatio:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccmhw6Rf.s:520    .text.SPD_SetElToMecRatio:00000000 SPD_SetElToMecRatio
+                           .group:00000000 wm4.0.6093079fab0af1ca2c5a0ad5709343e3
+                           .group:00000000 wm4._newlib_version.h.4.411db44ea2338a62eca2f0777f81481b
+                           .group:00000000 wm4.features.h.33.5ea28ceb8be6621901b9d58b4c3ee651
+                           .group:00000000 wm4._default_types.h.15.247e5cd201eca3442cbf5404108c4935
+                           .group:00000000 wm4._intsup.h.10.48bafbb683905c4daa4565a85aeeb264
+                           .group:00000000 wm4._stdint.h.10.c24fa3af3bc1706662bb5593a907e841
+                           .group:00000000 wm4.stdint.h.23.d53047a68f4a85177f80b422d52785ed
+                           .group:00000000 wm4.stdbool.h.29.c08aa3eec75cf5b9b5003883f43253f0
+                           .group:00000000 wm4.mc_stm_types.h.20.2d7d6ac163527ff5d1947d422c918f78
+                           .group:00000000 wm4.sr5e1xx.h.22.e5c808533cc52ed19fb0830cd7d98924
+                           .group:00000000 wm4.cmsis_version.h.32.0f826810625204eca22a19868bdc7586
+                           .group:00000000 wm4.core_cm7.h.66.8ab2de36917d6fcae18019067fda13e0
+                           .group:00000000 wm4.cmsis_gcc.h.26.498d0ad17a45fc9ef20fdc01caf02259
+                           .group:00000000 wm4.core_cm7.h.174.43edb295ecdaadad738f48ba6011ffad
+                           .group:00000000 wm4.mpu_armv7.h.32.83326921a797fa9d6f70449916b4b839
+                           .group:00000000 wm4.cachel1_armv7.h.32.abd77761a989e008b0c60891114a33c7
+                           .group:00000000 wm4.SR5E1_ADC.h.14.21608e6aff125ba995dd767d6d8dc311
+                           .group:00000000 wm4.SR5E1_CEM.h.14.01fe5742c8f1ae35b1f3af05932f702e
+                           .group:00000000 wm4.SR5E1_CMU.h.14.2617b38b159abe38028862394531e06d
+                           .group:00000000 wm4.SR5E1_COMP.h.14.4b6fdfe4f5f7fd9bedf3a99b98bdf4cd
+                           .group:00000000 wm4.SR5E1_CORDIC.h.14.354fbf7c9eaf6963d38eaa25cf28ffe8
+                           .group:00000000 wm4.SR5E1_CRC.h.14.c64d0f7767671ddb92e9ead0a1162100
+                           .group:00000000 wm4.SR5E1_DAC.h.14.8c26a0ff04b0cfeb55306cc3f22187b8
+                           .group:00000000 wm4.SR5E1_DBGMCU.h.14.427df893d53a8044654f017ba01c25ed
+                           .group:00000000 wm4.SR5E1_DMA.h.14.a7f9a92f844b40a86965798c2e64240b
+                           .group:00000000 wm4.SR5E1_DMAMUX.h.14.471b3b4dfd4d41515f1df49493698866
+                           .group:00000000 wm4.SR5E1_EXTI.h.14.a325ea3fe89cd84894660551c33241ea
+                           .group:00000000 wm4.SR5E1_FCCU.h.14.0ebf0f0f36e079d28613ad2c80e17e23
+                           .group:00000000 wm4.SR5E1_FDCAN.h.14.ac57101fad5dbc798bfb93f34c899de7
+                           .group:00000000 wm4.SR5E1_FLASH_REG_ITF.h.14.d23d1d44923f9b20b8c8fdb51d66aefd
+                           .group:00000000 wm4.SR5E1_GPIO.h.14.1c84071e130d7c64b62470ab0e18a1f1
+                           .group:00000000 wm4.SR5E1_HRTIM.h.24.03932387d2522e6bd5c772a4edaf2f5d
+                           .group:00000000 wm4.SR5E1_HSEM.h.14.cbe70eee519f01b16452c3f8c99d8df1
+                           .group:00000000 wm4.SR5E1_I2C.h.14.350ba3e0f4fd57828457efa80135c36c
+                           .group:00000000 wm4.SR5E1_IMA.h.14.62b7088985ab2b7ce9b030a02daa1f7d
+                           .group:00000000 wm4.SR5E1_IWDG.h.14.20b7c5f05cf7ae94464c360d7af3660d
+                           .group:00000000 wm4.SR5E1_MEMU.h.14.04bad7ae4c52ce334a4fc900aad2ae5b
+                           .group:00000000 wm4.SR5E1_NVM_CTRL.h.14.5f442617f0628d4f16258f211c614ef9
+                           .group:00000000 wm4.SR5E1_PLLDIG.h.14.bd87a8e6917eee17dae2f312c8e5fa53
+                           .group:00000000 wm4.SR5E1_PMC_DIG.h.14.54173b566c6656344766ec4ef46c9281
+                           .group:00000000 wm4.SR5E1_RCC.h.14.56734803c71534de286e793a53649740
+                           .group:00000000 wm4.SR5E1_RTC.h.14.47037cbc7d8175dbf2be1dc0bb955e3f
+                           .group:00000000 wm4.SR5E1_SD_ADC.h.14.552b97d0b8f3c1fd4df6d8964b2f1a80
+                           .group:00000000 wm4.SR5E1_SMPU.h.14.8ce5bb6d5d7c579cd725f492f46e9085
+                           .group:00000000 wm4.SR5E1_SPI.h.14.42d52112e540f85ade4d9135f8b87d72
+                           .group:00000000 wm4.SR5E1_SSCM.h.14.8e6a2ad0ce5fca422fc3d69939b6125b
+                           .group:00000000 wm4.SR5E1_SYSCFG.h.14.02b969490118ce4069914b5e94f7ca65
+                           .group:00000000 wm4.SR5E1_TDM.h.14.a40ed7928cad243a57fd233fccf01ad2
+                           .group:00000000 wm4.SR5E1_TIM.h.14.05b8efc5395873619642d61a4b0b5a54
+                           .group:00000000 wm4.SR5E1_UART.h.14.eec3ab82b02b3bdb3de500483675b83f
+                           .group:00000000 wm4.SR5E1_WWDG.h.14.59b45efc70e442cc6ef03702aad4ad88
+                           .group:00000000 wm4.stddef.h.39.38eb7ec030421799c657b13be5aa21c7
+                           .group:00000000 wm4.typedefs.h.36.07fe3956b4e751037cfee70edcd0b397
+                           .group:00000000 wm4.irq_numbers.h.38.6294b95aed1bf7b3a2cda0eed8ce8f57
+                           .group:00000000 wm4.regs.h.23.2ac145b4f57126d16daed5fbd86d99c6
+                           .group:00000000 wm4.sr5e1_wrapper.h.20.64eb3ae8ac9b19f101ec010f065b27e0
+                           .group:00000000 wm4.sr5e1_macros.h.48.23238fd8be149bfd93a4b06f4d1d3e48
+                           .group:00000000 wm4.sr5e1_ll_system.h.75.323fef6699ff2ef93649a75fbc3b9dc0
+                           .group:00000000 wm4.sr5e1_ll_tim.h.21.35d0409c49249d40ffa0621f7fd1e49f
+                           .group:00000000 wm4.sr5e1_ll_adc.h.21.a09418770aae8e8540b1ce15e5fd6881
+                           .group:00000000 wm4.sr5e1_ll_dac.h.21.e617f768d26181c75ac38760d82ada91
+                           .group:00000000 wm4.sr5e1_ll_cordic.h.21.601660824250c93d03fb6b7dd46d0750
+                           .group:00000000 wm4.sr5e1_ll_usart.h.21.edc232fc61ffb518b3051f74f786aac1
+                           .group:00000000 wm4.sr5e1_ll_dmamux.h.21.e0f20dc23ecc4be39502f49d8383668f
+                           .group:00000000 wm4.sr5e1_ll_dma.h.74.155fcc98e704261e48b273dd9cbd510c
+                           .group:00000000 wm4.mc_stm_types.h.52.4cccb248a2fcd7dfda158e1610af49bf
+                           .group:00000000 wm4.mc_type.h.47.50da95e050e3bfbddab14d990c2d05af
+                           .group:00000000 wm4.pwm_curr_fdbk.h.25.8b72d58784715ceca81111ec103a103d
+                           .group:00000000 wm4.motor_power_measurement.h.29.8342149da3785e7815d1120573fd9cfb
+                           .group:00000000 wm4.digital_output.h.25.02fba90b0f6ba87331476d93a103f49e
+                           .group:00000000 wm4.mp_self_com_ctrl.h.49.e6dcc6aedc61e25d555994ebab97d8b3
+                           .group:00000000 wm4.mc_math.h.24.97493115228829e070d95a4855b66df8
+                           .group:00000000 wm4.pmsm_motor_parameters.h.23.867a6fd3770391a9f66bba183e9e75b3
+                           .group:00000000 wm4.drive_parameters.h.23.dbf96a4337bbb9088dab9827bb0ccc4b
+                           .group:00000000 wm4.power_stage_parameters.h.22.736335d2c78f651593d5c3a7eabd2f7e
+                           .group:00000000 wm4.parameters_conversion_SR5E1.h.29.eabcdfadd7af4fdc121c865f8fc2acbd
+                           .group:00000000 wm4.parameters_conversion.h.29.c695296455e156423051d03c26fc218c
+                           .group:00000000 wm4.encoder_speed_pos_fdbk.h.54.a7b391f390958238bafe12d9ec286eba
+                           .group:00000000 wm4.trajectory_ctrl.h.36.88ccddbc168ae81030ff0d853fd72660
+                           .group:00000000 wm4.user_interface.h.220.79f4987d3bb68b2ddc49cbd0ba2c5f63
+                           .group:00000000 wm4.frame_communication_protocol.h.23.41250e506dcaa9b3bb0fb3b62addffac
+                           .group:00000000 wm4.dac_common_ui.h.26.3857a0f796702d55fc08b1c9fba1ab0f
+                           .group:00000000 wm4.dac_ui.h.48.4302a85d070412e322de9cfee8982dc0
+                           .group:00000000 wm4.can_frame_communication_protocol.h.22.33ba1ca3757fdb135afcb321b74128f5
+                           .group:00000000 wm4.dac_rctimer_ui.h.26.502751ff603279109795a0a74dd8775c
+                           .group:00000000 wm4.ics_SR5E1_pwm_curr_fdbk.h.25.0077b176383d68ec03d55e3ef8c6c349
+                           .group:00000000 wm4.gpio.h.25.d41a0c19fda8c2de42e666afb48ec15a
+                           .group:00000000 wm4.hall_speed_pos_fdbk.h.47.c079bfc346ef7d5d51093236881f5a4c
+                           .group:00000000 wm4.mc_config.h.84.9f66d495ae5fdd9c09aa66372a42b3d9
+
+NO UNDEFINED SYMBOLS

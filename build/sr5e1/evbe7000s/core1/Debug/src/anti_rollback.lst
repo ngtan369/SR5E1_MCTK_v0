@@ -1,0 +1,736 @@
+   1              		.cpu cortex-m7
+   2              		.arch armv7e-m
+   3              		.fpu fpv5-d16
+   4              		.eabi_attribute 28, 1
+   5              		.eabi_attribute 20, 1
+   6              		.eabi_attribute 21, 1
+   7              		.eabi_attribute 23, 3
+   8              		.eabi_attribute 24, 1
+   9              		.eabi_attribute 25, 1
+  10              		.eabi_attribute 26, 1
+  11              		.eabi_attribute 30, 6
+  12              		.eabi_attribute 34, 1
+  13              		.eabi_attribute 18, 4
+  14              		.file	"anti_rollback.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.file 1 "src/anti_rollback.c"
+  19              		.section	.rodata.OFFSET_TAB_CCMRx,"a"
+  20              		.align	2
+  23              	OFFSET_TAB_CCMRx:
+  24 0000 00000000 		.ascii	"\000\000\000\000\004\004\004\00488"
+  24      04040404 
+  24      3838
+  25              		.section	.rodata.SHIFT_TAB_OCxx,"a"
+  26              		.align	2
+  29              	SHIFT_TAB_OCxx:
+  30 0000 00000800 		.ascii	"\000\000\010\000\000\000\010\000\000\010"
+  30      00000800 
+  30      0008
+  31              		.section	.rodata.SHIFT_TAB_ICxx,"a"
+  32              		.align	2
+  35              	SHIFT_TAB_ICxx:
+  36 0000 00000800 		.ascii	"\000\000\010\000\000\000\010\000\000\000"
+  36      00000800 
+  36      0000
+  37              		.section	.rodata.SHIFT_TAB_CCxP,"a"
+  38              		.align	2
+  41              	SHIFT_TAB_CCxP:
+  42 0000 00020406 		.ascii	"\000\002\004\006\010\012\014\016\020\024"
+  42      080A0C0E 
+  42      1014
+  43              		.section	.rodata.SHIFT_TAB_OISx,"a"
+  44              		.align	2
+  47              	SHIFT_TAB_OISx:
+  48 0000 00010203 		.ascii	"\000\001\002\003\004\005\006\007\010\012"
+  48      04050607 
+  48      080A
+  49              		.section	.rodata.USART_PRESCALER_TAB,"a"
+  50              		.align	2
+  53              	USART_PRESCALER_TAB:
+  54 0000 01000000 		.word	1
+  55 0004 02000000 		.word	2
+  56 0008 04000000 		.word	4
+  57 000c 06000000 		.word	6
+  58 0010 08000000 		.word	8
+  59 0014 0A000000 		.word	10
+  60 0018 0C000000 		.word	12
+  61 001c 10000000 		.word	16
+  62 0020 20000000 		.word	32
+  63 0024 40000000 		.word	64
+  64 0028 80000000 		.word	128
+  65 002c 00010000 		.word	256
+  66              		.section	.rodata.LL_DMA_STR_OFFSET_TAB,"a"
+  67              		.align	2
+  70              	LL_DMA_STR_OFFSET_TAB:
+  71 0000 10284058 		.ascii	"\020(@Xp\210\240\270"
+  71      7088A0B8 
+  72              		.section	.data.hAntiRollback,"aw"
+  73              		.align	2
+  76              	hAntiRollback:
+  77 0000 00004842 		.word	1112014848
+  78 0004 00004843 		.word	1128792064
+  79 0008 6F12033B 		.word	990057071
+  80 000c 00000000 		.word	0
+  81 0010 00000000 		.word	0
+  82 0014 0000FA44 		.word	1157234688
+  83 0018 00007AC4 		.word	-998637568
+  84 001c 0000C03F 		.word	1069547520
+  85              		.section	.text.AntiRollback_Reset,"ax",%progbits
+  86              		.align	1
+  87              		.p2align 4,,15
+  88              		.global	AntiRollback_Reset
+  89              		.syntax unified
+  90              		.thumb
+  91              		.thumb_func
+  93              	AntiRollback_Reset:
+  94              	.LFB1248:
+   1:src/anti_rollback.c **** /*******************************************************************************
+   2:src/anti_rollback.c ****   * @file    anti_rollback.c
+   3:src/anti_rollback.c ****   * @brief   Anti-Rollback / Hill Start Assist (HSA) Controller Implementation
+   4:src/anti_rollback.c ****   * @details Implements a PI controller to generate torque current reference (Iq)
+   5:src/anti_rollback.c ****   *          maintaining zero speed on inclines.
+   6:src/anti_rollback.c ****   *****************************************************************************/
+   7:src/anti_rollback.c **** 
+   8:src/anti_rollback.c **** #include <stdint.h>
+   9:src/anti_rollback.c **** #include <stdbool.h>
+  10:src/anti_rollback.c **** #include "motorcontrol.h"
+  11:src/anti_rollback.c **** #include "anti_rollback.h"
+  12:src/anti_rollback.c **** #include "drive_parameters.h"
+  13:src/anti_rollback.c **** 
+  14:src/anti_rollback.c **** /* Typedef for MISRA C compliance */
+  15:src/anti_rollback.c **** typedef float float32_t;
+  16:src/anti_rollback.c **** 
+  17:src/anti_rollback.c **** /**
+  18:src/anti_rollback.c ****   * @brief Anti-Rollback PI Controller structure definition
+  19:src/anti_rollback.c ****   */
+  20:src/anti_rollback.c **** typedef struct {
+  21:src/anti_rollback.c ****     float32_t kp;               /* Proportional gain */
+  22:src/anti_rollback.c ****     float32_t ki;               /* Integral gain */
+  23:src/anti_rollback.c ****     float32_t ts;               /* Sampling time in seconds (e.g., 0.001f = 1ms) */
+  24:src/anti_rollback.c ****     float32_t integral;         /* Integral term accumulator */
+  25:src/anti_rollback.c ****     float32_t iq_out;           /* Output torque current reference */
+  26:src/anti_rollback.c ****     float32_t iq_max;           /* Maximum allowable torque current limit */
+  27:src/anti_rollback.c ****     float32_t iq_min;           /* Minimum allowable torque current limit */
+  28:src/anti_rollback.c ****     float32_t speed_deadband;   /* Speed error deadband threshold (RPM) */
+  29:src/anti_rollback.c **** } AntiRollback_PI_t;
+  30:src/anti_rollback.c **** 
+  31:src/anti_rollback.c **** /* Static controller instance initialization */
+  32:src/anti_rollback.c **** static AntiRollback_PI_t hAntiRollback = {
+  33:src/anti_rollback.c ****     .kp = 50.0f,
+  34:src/anti_rollback.c ****     .ki = 200.0f,
+  35:src/anti_rollback.c ****     .ts = 0.002f,
+  36:src/anti_rollback.c ****     .integral = 0.0f,
+  37:src/anti_rollback.c ****     .iq_out = 0.0f,
+  38:src/anti_rollback.c ****     .iq_max = AR_MAX_IQ,
+  39:src/anti_rollback.c ****     .iq_min = AR_MIN_IQ,
+  40:src/anti_rollback.c ****     .speed_deadband = 1.5f
+  41:src/anti_rollback.c **** };
+  42:src/anti_rollback.c **** 
+  43:src/anti_rollback.c **** /**
+  44:src/anti_rollback.c ****   * @brief  Resets the Anti-Rollback PI integrator and output state.
+  45:src/anti_rollback.c ****   * @param  None
+  46:src/anti_rollback.c ****   * @retval None
+  47:src/anti_rollback.c ****   */
+  48:src/anti_rollback.c **** void AntiRollback_Reset(void) {
+  95              		.loc 1 48 31
+  96              		.cfi_startproc
+  97              		@ args = 0, pretend = 0, frame = 0
+  98              		@ frame_needed = 0, uses_anonymous_args = 0
+  99              		@ link register save eliminated.
+  49:src/anti_rollback.c ****     hAntiRollback.integral = 0.0f;
+ 100              		.loc 1 49 28
+ 101 0000 044B     		ldr	r3, .L2
+ 102 0002 4FF00002 		mov	r2, #0
+ 103 0006 DA60     		str	r2, [r3, #12]	@ float
+  50:src/anti_rollback.c ****     hAntiRollback.iq_out = 0.0f;
+ 104              		.loc 1 50 26
+ 105 0008 024B     		ldr	r3, .L2
+ 106 000a 4FF00002 		mov	r2, #0
+ 107 000e 1A61     		str	r2, [r3, #16]	@ float
+  51:src/anti_rollback.c **** }
+ 108              		.loc 1 51 1
+ 109 0010 00BF     		nop
+ 110 0012 7047     		bx	lr
+ 111              	.L3:
+ 112              		.align	2
+ 113              	.L2:
+ 114 0014 00000000 		.word	hAntiRollback
+ 115              		.cfi_endproc
+ 116              	.LFE1248:
+ 118              		.section	.text.AntiRollback_Execute,"ax",%progbits
+ 119              		.align	1
+ 120              		.p2align 4,,15
+ 121              		.global	AntiRollback_Execute
+ 122              		.syntax unified
+ 123              		.thumb
+ 124              		.thumb_func
+ 126              	AntiRollback_Execute:
+ 127              	.LFB1249:
+  52:src/anti_rollback.c **** 
+  53:src/anti_rollback.c **** /**
+  54:src/anti_rollback.c ****   * @brief  Executes the Anti-Rollback PI control algorithm.
+  55:src/anti_rollback.c ****   * @param  hMeasuredSpeed_RPM Currently measured motor speed in RPM.
+  56:src/anti_rollback.c ****   * @retval float32_t Required torque current reference (Iq).
+  57:src/anti_rollback.c ****   */
+  58:src/anti_rollback.c **** /* Edit by Nhat */
+  59:src/anti_rollback.c **** 
+  60:src/anti_rollback.c **** //float32_t AntiRollback_Execute(float32_t hMeasuredSpeed_RPM) {
+  61:src/anti_rollback.c **** //    const float32_t target_speed = 0.0f;
+  62:src/anti_rollback.c **** //    float32_t speed_error;
+  63:src/anti_rollback.c **** //    float32_t p_term;
+  64:src/anti_rollback.c **** //
+  65:src/anti_rollback.c **** //    /* Calculate speed error (Rollback -> MeasuredSpeed < 0 -> Positive Error -> Positive Iq) */
+  66:src/anti_rollback.c **** //    speed_error = target_speed - hMeasuredSpeed_RPM;
+  67:src/anti_rollback.c **** //
+  68:src/anti_rollback.c **** //    /* Apply deadband threshold to prevent hunting/vibration at zero speed */
+  69:src/anti_rollback.c **** ////    if ((speed_error > (-hAntiRollback.speed_deadband)) &&
+  70:src/anti_rollback.c **** ////        (speed_error < hAntiRollback.speed_deadband)) {
+  71:src/anti_rollback.c **** ////        speed_error = 0.0f;
+  72:src/anti_rollback.c **** ////    } else {
+  73:src/anti_rollback.c **** ////        /* Keep speed_error value */
+  74:src/anti_rollback.c **** ////    }
+  75:src/anti_rollback.c **** //
+  76:src/anti_rollback.c **** //    /* Edit by Nhat */
+  77:src/anti_rollback.c **** //    if (speed_error > 0.0f) hAntiRollback.integral += (hAntiRollback.ki * speed_error * hAntiRoll
+  78:src/anti_rollback.c **** //    else  hAntiRollback.integral *= 0.80f;
+  79:src/anti_rollback.c **** //    /* Edit by Nhat */
+  80:src/anti_rollback.c **** //
+  81:src/anti_rollback.c **** //    /* Proportional term calculation */
+  82:src/anti_rollback.c **** //    p_term = hAntiRollback.kp * speed_error;
+  83:src/anti_rollback.c **** //
+  84:src/anti_rollback.c **** //    /* Integral term calculation with anti-windup clamping */
+  85:src/anti_rollback.c **** ////    hAntiRollback.integral += (hAntiRollback.ki * speed_error * hAntiRollback.ts);
+  86:src/anti_rollback.c **** //
+  87:src/anti_rollback.c **** ////    if (hAntiRollback.integral > hAntiRollback.iq_max) {
+  88:src/anti_rollback.c **** ////        hAntiRollback.integral = hAntiRollback.iq_max;
+  89:src/anti_rollback.c **** ////    } else if (hAntiRollback.integral < hAntiRollback.iq_min) {
+  90:src/anti_rollback.c **** ////        hAntiRollback.integral = hAntiRollback.iq_min;
+  91:src/anti_rollback.c **** ////    } else {
+  92:src/anti_rollback.c **** ////        /* Do nothing */
+  93:src/anti_rollback.c **** ////    }
+  94:src/anti_rollback.c **** ////
+  95:src/anti_rollback.c **** ////    /* Total control output calculation */
+  96:src/anti_rollback.c **** ////    hAntiRollback.iq_out = p_term + hAntiRollback.integral;
+  97:src/anti_rollback.c **** ////
+  98:src/anti_rollback.c **** ////    /* Output saturation logic */
+  99:src/anti_rollback.c **** ////    if (hAntiRollback.iq_out > hAntiRollback.iq_max) {
+ 100:src/anti_rollback.c **** ////        hAntiRollback.iq_out = hAntiRollback.iq_max;
+ 101:src/anti_rollback.c **** ////    } else if (hAntiRollback.iq_out < hAntiRollback.iq_min) {
+ 102:src/anti_rollback.c **** ////        hAntiRollback.iq_out = hAntiRollback.iq_min;
+ 103:src/anti_rollback.c **** ////    } else {
+ 104:src/anti_rollback.c **** ////        /* Do nothing */
+ 105:src/anti_rollback.c **** ////    }
+ 106:src/anti_rollback.c **** //
+ 107:src/anti_rollback.c **** //    if (hMeasuredSpeed_RPM > 2.0f)
+ 108:src/anti_rollback.c **** //    {
+ 109:src/anti_rollback.c **** //		if (hAntiRollback.integral > 0.0f) hAntiRollback.integral = 0.0f;
+ 110:src/anti_rollback.c **** //	}
+ 111:src/anti_rollback.c **** //    /* Anti-windup clamping */
+ 112:src/anti_rollback.c **** //	if (hAntiRollback.integral > AR_MAX_IQ ) hAntiRollback.integral = AR_MAX_IQ;
+ 113:src/anti_rollback.c **** //	else if (hAntiRollback.integral < AR_MIN_IQ) hAntiRollback.integral = AR_MIN_IQ;
+ 114:src/anti_rollback.c **** //	/* Total Iq = Base Pre-load (600) + Dynamic PI boost */
+ 115:src/anti_rollback.c **** //	hAntiRollback.iq_out = AR_BASE_IQ + p_term + hAntiRollback.integral;
+ 116:src/anti_rollback.c **** //	/* Output saturation logic */
+ 117:src/anti_rollback.c **** //	if (hAntiRollback.iq_out > AR_MAX_IQ) {
+ 118:src/anti_rollback.c **** //		hAntiRollback.iq_out = AR_MAX_IQ;
+ 119:src/anti_rollback.c **** //	} else if (hAntiRollback.iq_out < AR_MIN_IQ) {
+ 120:src/anti_rollback.c **** //		hAntiRollback.iq_out = AR_MIN_IQ;
+ 121:src/anti_rollback.c **** //	}
+ 122:src/anti_rollback.c **** //
+ 123:src/anti_rollback.c **** //    return hAntiRollback.iq_out;
+ 124:src/anti_rollback.c **** //}
+ 125:src/anti_rollback.c **** 
+ 126:src/anti_rollback.c **** float32_t AntiRollback_Execute(float32_t hMeasuredSpeed_RPM) {
+ 128              		.loc 1 126 62
+ 129              		.cfi_startproc
+ 130              		@ args = 0, pretend = 0, frame = 24
+ 131              		@ frame_needed = 0, uses_anonymous_args = 0
+ 132              		@ link register save eliminated.
+ 133 0000 86B0     		sub	sp, sp, #24
+ 134              		.cfi_def_cfa_offset 24
+ 135 0002 8DED010A 		vstr.32	s0, [sp, #4]
+ 127:src/anti_rollback.c ****     float32_t iq_cmd = 0.0f;
+ 136              		.loc 1 127 15
+ 137 0006 4FF00003 		mov	r3, #0
+ 138 000a 0593     		str	r3, [sp, #20]	@ float
+ 128:src/anti_rollback.c ****     /* CASE 1: Motor is rolling backward (Negative RPM) */
+ 129:src/anti_rollback.c ****     if (hMeasuredSpeed_RPM < -0.5f) {
+ 139              		.loc 1 129 8
+ 140 000c DDED017A 		vldr.32	s15, [sp, #4]
+ 141 0010 BEEE007A 		vmov.f32	s14, #-5.0e-1
+ 142 0014 F4EEC77A 		vcmpe.f32	s15, s14
+ 143 0018 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 144 001c 44D5     		bpl	.L20
+ 145              	.LBB2:
+ 130:src/anti_rollback.c ****         float32_t speed_error = 0.0f - hMeasuredSpeed_RPM; /* Positive error */
+ 146              		.loc 1 130 19
+ 147 001e 9FED3A7A 		vldr.32	s14, .L22
+ 148 0022 DDED017A 		vldr.32	s15, [sp, #4]
+ 149 0026 77EE677A 		vsub.f32	s15, s14, s15
+ 150 002a CDED047A 		vstr.32	s15, [sp, #16]
+ 131:src/anti_rollback.c **** 
+ 132:src/anti_rollback.c ****         /* Kp = 120 gives 720 digits of immediate torque at the first -6 RPM Hall step */
+ 133:src/anti_rollback.c ****         float32_t p_term = 120.0f * speed_error;
+ 151              		.loc 1 133 19
+ 152 002e DDED047A 		vldr.32	s15, [sp, #16]
+ 153 0032 9FED367A 		vldr.32	s14, .L22+4
+ 154 0036 67EE877A 		vmul.f32	s15, s15, s14
+ 155 003a CDED037A 		vstr.32	s15, [sp, #12]
+ 134:src/anti_rollback.c ****         /* Integrate to build solid holding torque up to AR_MAX_IQ (e.g. 1200 - 1500) */
+ 135:src/anti_rollback.c ****         hAntiRollback.integral += (150.0f * speed_error * hAntiRollback.ts);
+ 156              		.loc 1 135 22
+ 157 003e 344B     		ldr	r3, .L22+8
+ 158 0040 93ED037A 		vldr.32	s14, [r3, #12]
+ 159              		.loc 1 135 43
+ 160 0044 DDED047A 		vldr.32	s15, [sp, #16]
+ 161 0048 DFED326A 		vldr.32	s13, .L22+12
+ 162 004c 67EEA66A 		vmul.f32	s13, s15, s13
+ 163              		.loc 1 135 72
+ 164 0050 2F4B     		ldr	r3, .L22+8
+ 165 0052 D3ED027A 		vldr.32	s15, [r3, #8]
+ 166              		.loc 1 135 57
+ 167 0056 66EEA77A 		vmul.f32	s15, s13, s15
+ 168              		.loc 1 135 32
+ 169 005a 77EE277A 		vadd.f32	s15, s14, s15
+ 170 005e 2C4B     		ldr	r3, .L22+8
+ 171 0060 C3ED037A 		vstr.32	s15, [r3, #12]
+ 136:src/anti_rollback.c ****         if (hAntiRollback.integral > AR_MAX_IQ) {
+ 172              		.loc 1 136 26
+ 173 0064 2A4B     		ldr	r3, .L22+8
+ 174 0066 D3ED037A 		vldr.32	s15, [r3, #12]
+ 175              		.loc 1 136 12
+ 176 006a 9FED2B7A 		vldr.32	s14, .L22+16
+ 177 006e F4EEC77A 		vcmpe.f32	s15, s14
+ 178 0072 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 179 0076 02DD     		ble	.L7
+ 137:src/anti_rollback.c ****             hAntiRollback.integral = AR_MAX_IQ;
+ 180              		.loc 1 137 36
+ 181 0078 254B     		ldr	r3, .L22+8
+ 182 007a 284A     		ldr	r2, .L22+20
+ 183 007c DA60     		str	r2, [r3, #12]	@ float
+ 184              	.L7:
+ 138:src/anti_rollback.c ****         }
+ 139:src/anti_rollback.c ****         iq_cmd = p_term + hAntiRollback.integral;
+ 185              		.loc 1 139 40
+ 186 007e 244B     		ldr	r3, .L22+8
+ 187 0080 D3ED037A 		vldr.32	s15, [r3, #12]
+ 188              		.loc 1 139 16
+ 189 0084 9DED037A 		vldr.32	s14, [sp, #12]
+ 190 0088 77EE277A 		vadd.f32	s15, s14, s15
+ 191 008c CDED057A 		vstr.32	s15, [sp, #20]
+ 140:src/anti_rollback.c ****         if (iq_cmd > AR_MAX_IQ) {
+ 192              		.loc 1 140 12
+ 193 0090 DDED057A 		vldr.32	s15, [sp, #20]
+ 194 0094 9FED207A 		vldr.32	s14, .L22+16
+ 195 0098 F4EEC77A 		vcmpe.f32	s15, s14
+ 196 009c F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 197 00a0 26DD     		ble	.L9
+ 141:src/anti_rollback.c ****             iq_cmd = AR_MAX_IQ;
+ 198              		.loc 1 141 20
+ 199 00a2 1E4B     		ldr	r3, .L22+20
+ 200 00a4 0593     		str	r3, [sp, #20]	@ float
+ 201 00a6 23E0     		b	.L9
+ 202              	.L20:
+ 203              	.LBE2:
+ 142:src/anti_rollback.c ****         }
+ 143:src/anti_rollback.c ****     }
+ 144:src/anti_rollback.c ****     /* CASE 2: Hand released or pushed forward (Positive RPM) */
+ 145:src/anti_rollback.c ****     else if (hMeasuredSpeed_RPM > 0.5f) {
+ 204              		.loc 1 145 13
+ 205 00a8 DDED017A 		vldr.32	s15, [sp, #4]
+ 206 00ac B6EE007A 		vmov.f32	s14, #5.0e-1
+ 207 00b0 F4EEC77A 		vcmpe.f32	s15, s14
+ 208 00b4 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 209 00b8 17DD     		ble	.L21
+ 146:src/anti_rollback.c ****         /* WIPE holding torque instantly so it never catapults forward! */
+ 147:src/anti_rollback.c ****         hAntiRollback.integral = 0.0f;
+ 210              		.loc 1 147 32
+ 211 00ba 154B     		ldr	r3, .L22+8
+ 212 00bc 4FF00002 		mov	r2, #0
+ 213 00c0 DA60     		str	r2, [r3, #12]	@ float
+ 148:src/anti_rollback.c ****         /* Apply gentle soft braking to stop forward rotation */
+ 149:src/anti_rollback.c ****         iq_cmd = -30.0f * hMeasuredSpeed_RPM;
+ 214              		.loc 1 149 16
+ 215 00c2 DDED017A 		vldr.32	s15, [sp, #4]
+ 216 00c6 BBEE0E7A 		vmov.f32	s14, #-3.0e+1
+ 217 00ca 67EE877A 		vmul.f32	s15, s15, s14
+ 218 00ce CDED057A 		vstr.32	s15, [sp, #20]
+ 150:src/anti_rollback.c ****         if (iq_cmd < AR_MIN_IQ) {
+ 219              		.loc 1 150 12
+ 220 00d2 DDED057A 		vldr.32	s15, [sp, #20]
+ 221 00d6 9FED127A 		vldr.32	s14, .L22+24
+ 222 00da F4EEC77A 		vcmpe.f32	s15, s14
+ 223 00de F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 224 00e2 05D5     		bpl	.L9
+ 151:src/anti_rollback.c ****             iq_cmd = AR_MIN_IQ;
+ 225              		.loc 1 151 20
+ 226 00e4 0F4B     		ldr	r3, .L22+28
+ 227 00e6 0593     		str	r3, [sp, #20]	@ float
+ 228 00e8 02E0     		b	.L9
+ 229              	.L21:
+ 152:src/anti_rollback.c ****         }
+ 153:src/anti_rollback.c ****     }
+ 154:src/anti_rollback.c ****     /* CASE 3: Motor is held at 0 RPM (-0.5 RPM <= speed <= +0.5 RPM) */
+ 155:src/anti_rollback.c ****     else {
+ 156:src/anti_rollback.c ****         /* MAINTAIN the holding torque that stopped the rollback!
+ 157:src/anti_rollback.c ****            Do NOT drain it here, so it continues holding against your hand/incline. */
+ 158:src/anti_rollback.c ****         iq_cmd = hAntiRollback.integral;
+ 230              		.loc 1 158 16
+ 231 00ea 094B     		ldr	r3, .L22+8
+ 232 00ec DB68     		ldr	r3, [r3, #12]	@ float
+ 233 00ee 0593     		str	r3, [sp, #20]	@ float
+ 234              	.L9:
+ 159:src/anti_rollback.c ****     }
+ 160:src/anti_rollback.c ****     hAntiRollback.iq_out = iq_cmd;
+ 235              		.loc 1 160 26
+ 236 00f0 074A     		ldr	r2, .L22+8
+ 237 00f2 059B     		ldr	r3, [sp, #20]	@ float
+ 238 00f4 1361     		str	r3, [r2, #16]	@ float
+ 161:src/anti_rollback.c ****     return hAntiRollback.iq_out;
+ 239              		.loc 1 161 25
+ 240 00f6 064B     		ldr	r3, .L22+8
+ 241 00f8 1B69     		ldr	r3, [r3, #16]	@ float
+ 242              		.loc 1 161 25 is_stmt 0 discriminator 1
+ 243 00fa 07EE903A 		vmov	s15, r3
+ 162:src/anti_rollback.c **** }
+ 244              		.loc 1 162 1 is_stmt 1
+ 245 00fe B0EE670A 		vmov.f32	s0, s15
+ 246 0102 06B0     		add	sp, sp, #24
+ 247              		.cfi_def_cfa_offset 0
+ 248              		@ sp needed
+ 249 0104 7047     		bx	lr
+ 250              	.L23:
+ 251 0106 00BF     		.align	2
+ 252              	.L22:
+ 253 0108 00000000 		.word	0
+ 254 010c 0000F042 		.word	1123024896
+ 255 0110 00000000 		.word	hAntiRollback
+ 256 0114 00001643 		.word	1125515264
+ 257 0118 0000FA44 		.word	1157234688
+ 258 011c 0000FA44 		.word	1157234688
+ 259 0120 00007AC4 		.word	-998637568
+ 260 0124 00007AC4 		.word	-998637568
+ 261              		.cfi_endproc
+ 262              	.LFE1249:
+ 264              		.section	.text.Hill_Start_Assist_Task,"ax",%progbits
+ 265              		.align	1
+ 266              		.p2align 4,,15
+ 267              		.global	Hill_Start_Assist_Task
+ 268              		.syntax unified
+ 269              		.thumb
+ 270              		.thumb_func
+ 272              	Hill_Start_Assist_Task:
+ 273              	.LFB1250:
+ 163:src/anti_rollback.c **** 
+ 164:src/anti_rollback.c **** /* Edit by Nhat */
+ 165:src/anti_rollback.c **** 
+ 166:src/anti_rollback.c **** /**
+ 167:src/anti_rollback.c ****   * @brief  Manages the Hill Start Assist state machine and transitions.
+ 168:src/anti_rollback.c ****   * @param  is_brake_pressed  State of the brake input (true = pressed).
+ 169:src/anti_rollback.c ****   * @param  throttle_percent  Throttle position in percentage (0.0f to 100.0f).
+ 170:src/anti_rollback.c ****   * @param  measured_speed_rpm Current motor speed in RPM.
+ 171:src/anti_rollback.c ****   * @retval None
+ 172:src/anti_rollback.c ****   */
+ 173:src/anti_rollback.c **** void Hill_Start_Assist_Task(bool is_brake_pressed, float32_t throttle_percent, float32_t measured_s
+ 274              		.loc 1 173 110
+ 275              		.cfi_startproc
+ 276              		@ args = 0, pretend = 0, frame = 32
+ 277              		@ frame_needed = 0, uses_anonymous_args = 0
+ 278 0000 00B5     		push	{lr}
+ 279              		.cfi_def_cfa_offset 4
+ 280              		.cfi_offset 14, -4
+ 281 0002 89B0     		sub	sp, sp, #36
+ 282              		.cfi_def_cfa_offset 40
+ 283 0004 0346     		mov	r3, r0
+ 284 0006 8DED020A 		vstr.32	s0, [sp, #8]
+ 285 000a CDED010A 		vstr.32	s1, [sp, #4]
+ 286 000e 8DF80F30 		strb	r3, [sp, #15]
+ 174:src/anti_rollback.c **** 
+ 175:src/anti_rollback.c **** 	qd_t iqd_cmd;
+ 176:src/anti_rollback.c **** 	/* CONDITION 1: Brake released and no throttle command (Holding position on incline) */
+ 177:src/anti_rollback.c ****     if ((!is_brake_pressed) && (throttle_percent < 2.0f)) {
+ 287              		.loc 1 177 10
+ 288 0012 9DF80F30 		ldrb	r3, [sp, #15]
+ 289 0016 83F00103 		eor	r3, r3, #1
+ 290 001a DBB2     		uxtb	r3, r3
+ 291              		.loc 1 177 8
+ 292 001c 002B     		cmp	r3, #0
+ 293 001e 1FD0     		beq	.L25
+ 294              		.loc 1 177 29 discriminator 1
+ 295 0020 DDED027A 		vldr.32	s15, [sp, #8]
+ 296 0024 B0EE007A 		vmov.f32	s14, #2.0e+0
+ 297 0028 F4EEC77A 		vcmpe.f32	s15, s14
+ 298 002c F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 299 0030 16D5     		bpl	.L25
+ 300              	.LBB3:
+ 178:src/anti_rollback.c ****         /* Edit by Nhat */
+ 179:src/anti_rollback.c **** //    	float32_t required_Iq;
+ 180:src/anti_rollback.c **** 
+ 181:src/anti_rollback.c **** //        /* Switch FOC state machine to Torque Control mode */
+ 182:src/anti_rollback.c **** //        MC_SetControlModeMotor1(MCM_TORQUE_MODE);
+ 183:src/anti_rollback.c **** //
+ 184:src/anti_rollback.c **** //        /* Compute anti-rollback current reference */
+ 185:src/anti_rollback.c **** //        required_Iq = AntiRollback_Execute(measured_speed_rpm);
+ 186:src/anti_rollback.c **** //
+ 187:src/anti_rollback.c **** //        /* Apply calculated Iq reference to FOC loop (Flux current Id = 0) */
+ 188:src/anti_rollback.c **** //        MC_SetCurrentReferenceMotor1((int16_t)required_Iq, 0);
+ 189:src/anti_rollback.c **** 
+ 190:src/anti_rollback.c ****     	float32_t required_Iq = AntiRollback_Execute(measured_speed_rpm);
+ 301              		.loc 1 190 30
+ 302 0032 9DED010A 		vldr.32	s0, [sp, #4]
+ 303 0036 FFF7FEFF 		bl	AntiRollback_Execute
+ 304 003a 8DED070A 		vstr.32	s0, [sp, #28]
+ 191:src/anti_rollback.c **** 		/* Apply calculated Iq reference to FOC loop (Flux current Id = 0) */
+ 192:src/anti_rollback.c **** 		iqd_cmd.q = (int16_t)required_Iq;
+ 305              		.loc 1 192 15
+ 306 003e DDED077A 		vldr.32	s15, [sp, #28]
+ 307 0042 FDEEE77A 		vcvt.s32.f32	s15, s15
+ 308 0046 17EE903A 		vmov	r3, s15	@ int
+ 309 004a 1BB2     		sxth	r3, r3
+ 310              		.loc 1 192 13
+ 311 004c ADF81430 		strh	r3, [sp, #20]	@ movhi
+ 193:src/anti_rollback.c **** 		iqd_cmd.d = 0;
+ 312              		.loc 1 193 13
+ 313 0050 0023     		movs	r3, #0
+ 314 0052 ADF81630 		strh	r3, [sp, #22]	@ movhi
+ 194:src/anti_rollback.c **** 		MC_SetCurrentReferenceMotor1(iqd_cmd);
+ 315              		.loc 1 194 3
+ 316 0056 0598     		ldr	r0, [sp, #20]
+ 317 0058 FFF7FEFF 		bl	MC_SetCurrentReferenceMotor1
+ 318              	.LBE3:
+ 177:src/anti_rollback.c ****         /* Edit by Nhat */
+ 319              		.loc 1 177 59
+ 320 005c 00BF     		nop
+ 195:src/anti_rollback.c **** 		/* Edit by Nhat */
+ 196:src/anti_rollback.c ****     }
+ 197:src/anti_rollback.c **** 
+ 198:src/anti_rollback.c ****     /* CONDITION 2: Throttle applied by operator (Smooth transition to driving) */
+ 199:src/anti_rollback.c ****     else if (throttle_percent >= 2.0f) {
+ 200:src/anti_rollback.c ****         int16_t target_ramp_speed;
+ 201:src/anti_rollback.c **** 
+ 202:src/anti_rollback.c ****         /* Reset integrator state to prevent torque surge upon launch */
+ 203:src/anti_rollback.c ****         AntiRollback_Reset();
+ 204:src/anti_rollback.c **** 
+ 205:src/anti_rollback.c ****         /* Edit by Nhat */
+ 206:src/anti_rollback.c **** 
+ 207:src/anti_rollback.c **** //        /* Switch back to Speed Control mode */
+ 208:src/anti_rollback.c **** //        MC_SetControlModeMotor1(MCM_SPEED_MODE);
+ 209:src/anti_rollback.c **** //
+ 210:src/anti_rollback.c **** //        /* Calculate speed ramp reference based on throttle input */
+ 211:src/anti_rollback.c **** //        target_ramp_speed = (int16_t)((throttle_percent * ((float32_t)MAX_MOTOR_RPM)) / 100.0f);
+ 212:src/anti_rollback.c **** 
+ 213:src/anti_rollback.c ****         target_ramp_speed = (int16_t)((throttle_percent * ((float32_t)MAX_APPLICATION_SPEED_RPM)) /
+ 214:src/anti_rollback.c **** 
+ 215:src/anti_rollback.c ****         /* Execute speed ramp with 500ms duration */
+ 216:src/anti_rollback.c ****         MC_ProgramSpeedRampMotor1(target_ramp_speed, 500U);
+ 217:src/anti_rollback.c ****     }
+ 218:src/anti_rollback.c **** 
+ 219:src/anti_rollback.c ****     /* CONDITION 3: Brake actively engaged */
+ 220:src/anti_rollback.c ****     else {
+ 221:src/anti_rollback.c ****         AntiRollback_Reset();
+ 222:src/anti_rollback.c **** //        MC_SetCurrentReferenceMotor1(0, 0);
+ 223:src/anti_rollback.c ****         iqd_cmd.q = 0;
+ 224:src/anti_rollback.c **** 	    iqd_cmd.d = 0;
+ 225:src/anti_rollback.c **** 	    MC_SetCurrentReferenceMotor1(iqd_cmd);
+ 226:src/anti_rollback.c ****     }
+ 227:src/anti_rollback.c **** }
+ 321              		.loc 1 227 1
+ 322 005e 2DE0     		b	.L33
+ 323              	.L25:
+ 199:src/anti_rollback.c ****         int16_t target_ramp_speed;
+ 324              		.loc 1 199 13
+ 325 0060 DDED027A 		vldr.32	s15, [sp, #8]
+ 326 0064 B0EE007A 		vmov.f32	s14, #2.0e+0
+ 327 0068 F4EEC77A 		vcmpe.f32	s15, s14
+ 328 006c F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 329 0070 19DB     		blt	.L32
+ 330              	.LBB4:
+ 203:src/anti_rollback.c **** 
+ 331              		.loc 1 203 9
+ 332 0072 FFF7FEFF 		bl	AntiRollback_Reset
+ 213:src/anti_rollback.c **** 
+ 333              		.loc 1 213 57
+ 334 0076 DDED027A 		vldr.32	s15, [sp, #8]
+ 335 007a 9FED127A 		vldr.32	s14, .L34
+ 336 007e 27EE877A 		vmul.f32	s14, s15, s14
+ 213:src/anti_rollback.c **** 
+ 337              		.loc 1 213 99
+ 338 0082 DFED116A 		vldr.32	s13, .L34+4
+ 339 0086 C7EE267A 		vdiv.f32	s15, s14, s13
+ 213:src/anti_rollback.c **** 
+ 340              		.loc 1 213 27
+ 341 008a FDEEE77A 		vcvt.s32.f32	s15, s15
+ 342 008e 17EE903A 		vmov	r3, s15	@ int
+ 343 0092 ADF81A30 		strh	r3, [sp, #26]	@ movhi
+ 216:src/anti_rollback.c ****     }
+ 344              		.loc 1 216 9
+ 345 0096 BDF91A30 		ldrsh	r3, [sp, #26]
+ 346 009a 4FF4FA71 		mov	r1, #500
+ 347 009e 1846     		mov	r0, r3
+ 348 00a0 FFF7FEFF 		bl	MC_ProgramSpeedRampMotor1
+ 349              	.LBE4:
+ 350              		.loc 1 227 1
+ 351 00a4 0AE0     		b	.L33
+ 352              	.L32:
+ 221:src/anti_rollback.c **** //        MC_SetCurrentReferenceMotor1(0, 0);
+ 353              		.loc 1 221 9
+ 354 00a6 FFF7FEFF 		bl	AntiRollback_Reset
+ 223:src/anti_rollback.c **** 	    iqd_cmd.d = 0;
+ 355              		.loc 1 223 19
+ 356 00aa 0023     		movs	r3, #0
+ 357 00ac ADF81430 		strh	r3, [sp, #20]	@ movhi
+ 224:src/anti_rollback.c **** 	    MC_SetCurrentReferenceMotor1(iqd_cmd);
+ 358              		.loc 1 224 16
+ 359 00b0 0023     		movs	r3, #0
+ 360 00b2 ADF81630 		strh	r3, [sp, #22]	@ movhi
+ 225:src/anti_rollback.c ****     }
+ 361              		.loc 1 225 6
+ 362 00b6 0598     		ldr	r0, [sp, #20]
+ 363 00b8 FFF7FEFF 		bl	MC_SetCurrentReferenceMotor1
+ 364              	.L33:
+ 365              		.loc 1 227 1
+ 366 00bc 00BF     		nop
+ 367 00be 09B0     		add	sp, sp, #36
+ 368              		.cfi_def_cfa_offset 4
+ 369              		@ sp needed
+ 370 00c0 5DF804FB 		ldr	pc, [sp], #4
+ 371              	.L35:
+ 372              		.align	2
+ 373              	.L34:
+ 374 00c4 00007A47 		.word	1199177728
+ 375 00c8 0000C842 		.word	1120403456
+ 376              		.cfi_endproc
+ 377              	.LFE1250:
+ 379              		.text
+ 380              	.Letext0:
+ 381              		.file 2 "C:/StellarStudio-9.2/SDKS/TOOLS/Toolchain/ARM/MINGW64_NT/13.3.1-2024.06/arm-none-eabi/inc
+ 382              		.file 3 "C:/StellarStudio-9.2/SDKS/TOOLS/Toolchain/ARM/MINGW64_NT/13.3.1-2024.06/arm-none-eabi/inc
+ 383              		.file 4 ".sdk/SR5E1_MCTK-1.3.0/include/LL_Library/sr5e1_ll_tim.h"
+ 384              		.file 5 ".sdk/SR5E1_MCTK-1.3.0/include/LL_Library/sr5e1_ll_usart.h"
+ 385              		.file 6 ".sdk/SR5E1_MCTK-1.3.0/include/LL_Library/sr5e1_ll_dma.h"
+ 386              		.file 7 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/mc_type.h"
+ 387              		.file 8 "include/anti_rollback.h"
+ 388              		.file 9 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/mc_api.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 anti_rollback.c
+C:\Users\ttqpe\AppData\Local\Temp\ccjLzYzk.s:20     .rodata.OFFSET_TAB_CCMRx:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccjLzYzk.s:23     .rodata.OFFSET_TAB_CCMRx:00000000 OFFSET_TAB_CCMRx
+C:\Users\ttqpe\AppData\Local\Temp\ccjLzYzk.s:26     .rodata.SHIFT_TAB_OCxx:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccjLzYzk.s:29     .rodata.SHIFT_TAB_OCxx:00000000 SHIFT_TAB_OCxx
+C:\Users\ttqpe\AppData\Local\Temp\ccjLzYzk.s:32     .rodata.SHIFT_TAB_ICxx:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccjLzYzk.s:35     .rodata.SHIFT_TAB_ICxx:00000000 SHIFT_TAB_ICxx
+C:\Users\ttqpe\AppData\Local\Temp\ccjLzYzk.s:38     .rodata.SHIFT_TAB_CCxP:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccjLzYzk.s:41     .rodata.SHIFT_TAB_CCxP:00000000 SHIFT_TAB_CCxP
+C:\Users\ttqpe\AppData\Local\Temp\ccjLzYzk.s:44     .rodata.SHIFT_TAB_OISx:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccjLzYzk.s:47     .rodata.SHIFT_TAB_OISx:00000000 SHIFT_TAB_OISx
+C:\Users\ttqpe\AppData\Local\Temp\ccjLzYzk.s:50     .rodata.USART_PRESCALER_TAB:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccjLzYzk.s:53     .rodata.USART_PRESCALER_TAB:00000000 USART_PRESCALER_TAB
+C:\Users\ttqpe\AppData\Local\Temp\ccjLzYzk.s:67     .rodata.LL_DMA_STR_OFFSET_TAB:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccjLzYzk.s:70     .rodata.LL_DMA_STR_OFFSET_TAB:00000000 LL_DMA_STR_OFFSET_TAB
+C:\Users\ttqpe\AppData\Local\Temp\ccjLzYzk.s:73     .data.hAntiRollback:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccjLzYzk.s:76     .data.hAntiRollback:00000000 hAntiRollback
+C:\Users\ttqpe\AppData\Local\Temp\ccjLzYzk.s:86     .text.AntiRollback_Reset:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccjLzYzk.s:93     .text.AntiRollback_Reset:00000000 AntiRollback_Reset
+C:\Users\ttqpe\AppData\Local\Temp\ccjLzYzk.s:114    .text.AntiRollback_Reset:00000014 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccjLzYzk.s:119    .text.AntiRollback_Execute:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccjLzYzk.s:126    .text.AntiRollback_Execute:00000000 AntiRollback_Execute
+C:\Users\ttqpe\AppData\Local\Temp\ccjLzYzk.s:253    .text.AntiRollback_Execute:00000108 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccjLzYzk.s:265    .text.Hill_Start_Assist_Task:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccjLzYzk.s:272    .text.Hill_Start_Assist_Task:00000000 Hill_Start_Assist_Task
+C:\Users\ttqpe\AppData\Local\Temp\ccjLzYzk.s:374    .text.Hill_Start_Assist_Task:000000c4 $d
+                           .group:00000000 wm4.0.6093079fab0af1ca2c5a0ad5709343e3
+                           .group:00000000 wm4._newlib_version.h.4.411db44ea2338a62eca2f0777f81481b
+                           .group:00000000 wm4.features.h.33.5ea28ceb8be6621901b9d58b4c3ee651
+                           .group:00000000 wm4._default_types.h.15.247e5cd201eca3442cbf5404108c4935
+                           .group:00000000 wm4._intsup.h.10.48bafbb683905c4daa4565a85aeeb264
+                           .group:00000000 wm4._stdint.h.10.c24fa3af3bc1706662bb5593a907e841
+                           .group:00000000 wm4.stdint.h.23.d53047a68f4a85177f80b422d52785ed
+                           .group:00000000 wm4.stdbool.h.29.c08aa3eec75cf5b9b5003883f43253f0
+                           .group:00000000 wm4.mc_stm_types.h.20.2d7d6ac163527ff5d1947d422c918f78
+                           .group:00000000 wm4.sr5e1xx.h.22.e5c808533cc52ed19fb0830cd7d98924
+                           .group:00000000 wm4.cmsis_version.h.32.0f826810625204eca22a19868bdc7586
+                           .group:00000000 wm4.core_cm7.h.66.8ab2de36917d6fcae18019067fda13e0
+                           .group:00000000 wm4.cmsis_gcc.h.26.498d0ad17a45fc9ef20fdc01caf02259
+                           .group:00000000 wm4.core_cm7.h.174.43edb295ecdaadad738f48ba6011ffad
+                           .group:00000000 wm4.mpu_armv7.h.32.83326921a797fa9d6f70449916b4b839
+                           .group:00000000 wm4.cachel1_armv7.h.32.abd77761a989e008b0c60891114a33c7
+                           .group:00000000 wm4.SR5E1_ADC.h.14.21608e6aff125ba995dd767d6d8dc311
+                           .group:00000000 wm4.SR5E1_CEM.h.14.01fe5742c8f1ae35b1f3af05932f702e
+                           .group:00000000 wm4.SR5E1_CMU.h.14.2617b38b159abe38028862394531e06d
+                           .group:00000000 wm4.SR5E1_COMP.h.14.4b6fdfe4f5f7fd9bedf3a99b98bdf4cd
+                           .group:00000000 wm4.SR5E1_CORDIC.h.14.354fbf7c9eaf6963d38eaa25cf28ffe8
+                           .group:00000000 wm4.SR5E1_CRC.h.14.c64d0f7767671ddb92e9ead0a1162100
+                           .group:00000000 wm4.SR5E1_DAC.h.14.8c26a0ff04b0cfeb55306cc3f22187b8
+                           .group:00000000 wm4.SR5E1_DBGMCU.h.14.427df893d53a8044654f017ba01c25ed
+                           .group:00000000 wm4.SR5E1_DMA.h.14.a7f9a92f844b40a86965798c2e64240b
+                           .group:00000000 wm4.SR5E1_DMAMUX.h.14.471b3b4dfd4d41515f1df49493698866
+                           .group:00000000 wm4.SR5E1_EXTI.h.14.a325ea3fe89cd84894660551c33241ea
+                           .group:00000000 wm4.SR5E1_FCCU.h.14.0ebf0f0f36e079d28613ad2c80e17e23
+                           .group:00000000 wm4.SR5E1_FDCAN.h.14.ac57101fad5dbc798bfb93f34c899de7
+                           .group:00000000 wm4.SR5E1_FLASH_REG_ITF.h.14.d23d1d44923f9b20b8c8fdb51d66aefd
+                           .group:00000000 wm4.SR5E1_GPIO.h.14.1c84071e130d7c64b62470ab0e18a1f1
+                           .group:00000000 wm4.SR5E1_HRTIM.h.24.03932387d2522e6bd5c772a4edaf2f5d
+                           .group:00000000 wm4.SR5E1_HSEM.h.14.cbe70eee519f01b16452c3f8c99d8df1
+                           .group:00000000 wm4.SR5E1_I2C.h.14.350ba3e0f4fd57828457efa80135c36c
+                           .group:00000000 wm4.SR5E1_IMA.h.14.62b7088985ab2b7ce9b030a02daa1f7d
+                           .group:00000000 wm4.SR5E1_IWDG.h.14.20b7c5f05cf7ae94464c360d7af3660d
+                           .group:00000000 wm4.SR5E1_MEMU.h.14.04bad7ae4c52ce334a4fc900aad2ae5b
+                           .group:00000000 wm4.SR5E1_NVM_CTRL.h.14.5f442617f0628d4f16258f211c614ef9
+                           .group:00000000 wm4.SR5E1_PLLDIG.h.14.bd87a8e6917eee17dae2f312c8e5fa53
+                           .group:00000000 wm4.SR5E1_PMC_DIG.h.14.54173b566c6656344766ec4ef46c9281
+                           .group:00000000 wm4.SR5E1_RCC.h.14.56734803c71534de286e793a53649740
+                           .group:00000000 wm4.SR5E1_RTC.h.14.47037cbc7d8175dbf2be1dc0bb955e3f
+                           .group:00000000 wm4.SR5E1_SD_ADC.h.14.552b97d0b8f3c1fd4df6d8964b2f1a80
+                           .group:00000000 wm4.SR5E1_SMPU.h.14.8ce5bb6d5d7c579cd725f492f46e9085
+                           .group:00000000 wm4.SR5E1_SPI.h.14.42d52112e540f85ade4d9135f8b87d72
+                           .group:00000000 wm4.SR5E1_SSCM.h.14.8e6a2ad0ce5fca422fc3d69939b6125b
+                           .group:00000000 wm4.SR5E1_SYSCFG.h.14.02b969490118ce4069914b5e94f7ca65
+                           .group:00000000 wm4.SR5E1_TDM.h.14.a40ed7928cad243a57fd233fccf01ad2
+                           .group:00000000 wm4.SR5E1_TIM.h.14.05b8efc5395873619642d61a4b0b5a54
+                           .group:00000000 wm4.SR5E1_UART.h.14.eec3ab82b02b3bdb3de500483675b83f
+                           .group:00000000 wm4.SR5E1_WWDG.h.14.59b45efc70e442cc6ef03702aad4ad88
+                           .group:00000000 wm4.stddef.h.39.38eb7ec030421799c657b13be5aa21c7
+                           .group:00000000 wm4.typedefs.h.36.07fe3956b4e751037cfee70edcd0b397
+                           .group:00000000 wm4.irq_numbers.h.38.6294b95aed1bf7b3a2cda0eed8ce8f57
+                           .group:00000000 wm4.regs.h.23.2ac145b4f57126d16daed5fbd86d99c6
+                           .group:00000000 wm4.sr5e1_wrapper.h.20.64eb3ae8ac9b19f101ec010f065b27e0
+                           .group:00000000 wm4.sr5e1_macros.h.48.23238fd8be149bfd93a4b06f4d1d3e48
+                           .group:00000000 wm4.sr5e1_ll_system.h.75.323fef6699ff2ef93649a75fbc3b9dc0
+                           .group:00000000 wm4.sr5e1_ll_tim.h.21.35d0409c49249d40ffa0621f7fd1e49f
+                           .group:00000000 wm4.sr5e1_ll_adc.h.21.a09418770aae8e8540b1ce15e5fd6881
+                           .group:00000000 wm4.sr5e1_ll_dac.h.21.e617f768d26181c75ac38760d82ada91
+                           .group:00000000 wm4.sr5e1_ll_cordic.h.21.601660824250c93d03fb6b7dd46d0750
+                           .group:00000000 wm4.sr5e1_ll_usart.h.21.edc232fc61ffb518b3051f74f786aac1
+                           .group:00000000 wm4.sr5e1_ll_dmamux.h.21.e0f20dc23ecc4be39502f49d8383668f
+                           .group:00000000 wm4.sr5e1_ll_dma.h.74.155fcc98e704261e48b273dd9cbd510c
+                           .group:00000000 wm4.mc_stm_types.h.52.4cccb248a2fcd7dfda158e1610af49bf
+                           .group:00000000 wm4.mc_type.h.47.50da95e050e3bfbddab14d990c2d05af
+                           .group:00000000 wm4.pwm_curr_fdbk.h.25.8b72d58784715ceca81111ec103a103d
+                           .group:00000000 wm4.motor_power_measurement.h.29.8342149da3785e7815d1120573fd9cfb
+                           .group:00000000 wm4.digital_output.h.25.02fba90b0f6ba87331476d93a103f49e
+                           .group:00000000 wm4.mp_self_com_ctrl.h.49.e6dcc6aedc61e25d555994ebab97d8b3
+                           .group:00000000 wm4.mc_math.h.24.97493115228829e070d95a4855b66df8
+                           .group:00000000 wm4.pmsm_motor_parameters.h.23.867a6fd3770391a9f66bba183e9e75b3
+                           .group:00000000 wm4.drive_parameters.h.23.dbf96a4337bbb9088dab9827bb0ccc4b
+                           .group:00000000 wm4.power_stage_parameters.h.22.736335d2c78f651593d5c3a7eabd2f7e
+                           .group:00000000 wm4.parameters_conversion_SR5E1.h.29.eabcdfadd7af4fdc121c865f8fc2acbd
+                           .group:00000000 wm4.parameters_conversion.h.29.c695296455e156423051d03c26fc218c
+                           .group:00000000 wm4.encoder_speed_pos_fdbk.h.54.a7b391f390958238bafe12d9ec286eba
+                           .group:00000000 wm4.trajectory_ctrl.h.36.88ccddbc168ae81030ff0d853fd72660
+                           .group:00000000 wm4.user_interface.h.220.79f4987d3bb68b2ddc49cbd0ba2c5f63
+                           .group:00000000 wm4.frame_communication_protocol.h.23.41250e506dcaa9b3bb0fb3b62addffac
+                           .group:00000000 wm4.dac_common_ui.h.26.3857a0f796702d55fc08b1c9fba1ab0f
+                           .group:00000000 wm4.dac_ui.h.48.4302a85d070412e322de9cfee8982dc0
+                           .group:00000000 wm4.can_frame_communication_protocol.h.22.33ba1ca3757fdb135afcb321b74128f5
+                           .group:00000000 wm4.dac_rctimer_ui.h.26.502751ff603279109795a0a74dd8775c
+                           .group:00000000 wm4.ics_SR5E1_pwm_curr_fdbk.h.25.0077b176383d68ec03d55e3ef8c6c349
+                           .group:00000000 wm4.gpio.h.25.d41a0c19fda8c2de42e666afb48ec15a
+                           .group:00000000 wm4.hall_speed_pos_fdbk.h.47.c079bfc346ef7d5d51093236881f5a4c
+                           .group:00000000 wm4.mc_config.h.84.9f66d495ae5fdd9c09aa66372a42b3d9
+                           .group:00000000 wm4.anti_rollback.h.8.af687f08167dc58b61bab74c20ec9f68
+
+UNDEFINED SYMBOLS
+MC_SetCurrentReferenceMotor1
+MC_ProgramSpeedRampMotor1

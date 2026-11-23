@@ -1,0 +1,520 @@
+   1              		.cpu cortex-m7
+   2              		.arch armv7e-m
+   3              		.fpu fpv5-d16
+   4              		.eabi_attribute 28, 1
+   5              		.eabi_attribute 20, 1
+   6              		.eabi_attribute 21, 1
+   7              		.eabi_attribute 23, 3
+   8              		.eabi_attribute 24, 1
+   9              		.eabi_attribute 25, 1
+  10              		.eabi_attribute 26, 1
+  11              		.eabi_attribute 30, 6
+  12              		.eabi_attribute 34, 1
+  13              		.eabi_attribute 18, 4
+  14              		.file	"open_loop.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.file 1 ".sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c"
+  19              		.section	.rodata.OFFSET_TAB_CCMRx,"a"
+  20              		.align	2
+  23              	OFFSET_TAB_CCMRx:
+  24 0000 00000000 		.ascii	"\000\000\000\000\004\004\004\00488"
+  24      04040404 
+  24      3838
+  25              		.section	.rodata.SHIFT_TAB_OCxx,"a"
+  26              		.align	2
+  29              	SHIFT_TAB_OCxx:
+  30 0000 00000800 		.ascii	"\000\000\010\000\000\000\010\000\000\010"
+  30      00000800 
+  30      0008
+  31              		.section	.rodata.SHIFT_TAB_ICxx,"a"
+  32              		.align	2
+  35              	SHIFT_TAB_ICxx:
+  36 0000 00000800 		.ascii	"\000\000\010\000\000\000\010\000\000\000"
+  36      00000800 
+  36      0000
+  37              		.section	.rodata.SHIFT_TAB_CCxP,"a"
+  38              		.align	2
+  41              	SHIFT_TAB_CCxP:
+  42 0000 00020406 		.ascii	"\000\002\004\006\010\012\014\016\020\024"
+  42      080A0C0E 
+  42      1014
+  43              		.section	.rodata.SHIFT_TAB_OISx,"a"
+  44              		.align	2
+  47              	SHIFT_TAB_OISx:
+  48 0000 00010203 		.ascii	"\000\001\002\003\004\005\006\007\010\012"
+  48      04050607 
+  48      080A
+  49              		.section	.rodata.USART_PRESCALER_TAB,"a"
+  50              		.align	2
+  53              	USART_PRESCALER_TAB:
+  54 0000 01000000 		.word	1
+  55 0004 02000000 		.word	2
+  56 0008 04000000 		.word	4
+  57 000c 06000000 		.word	6
+  58 0010 08000000 		.word	8
+  59 0014 0A000000 		.word	10
+  60 0018 0C000000 		.word	12
+  61 001c 10000000 		.word	16
+  62 0020 20000000 		.word	32
+  63 0024 40000000 		.word	64
+  64 0028 80000000 		.word	128
+  65 002c 00010000 		.word	256
+  66              		.section	.rodata.LL_DMA_STR_OFFSET_TAB,"a"
+  67              		.align	2
+  70              	LL_DMA_STR_OFFSET_TAB:
+  71 0000 10284058 		.ascii	"\020(@Xp\210\240\270"
+  71      7088A0B8 
+  72              		.section	.text.OL_Init,"ax",%progbits
+  73              		.align	1
+  74              		.p2align 4,,15
+  75              		.weak	OL_Init
+  76              		.syntax unified
+  77              		.thumb
+  78              		.thumb_func
+  80              	OL_Init:
+  81              	.LFB1225:
+   1:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c **** /****************************************************************************
+   2:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c **** *
+   3:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c **** * Copyright (c) 2023 STMicroelectronics - All Rights Reserved
+   4:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c **** *
+   5:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c **** * License terms: STMicroelectronics Proprietary in accordance with licensing
+   6:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c **** * terms SLA0098 at www.st.com.
+   7:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c **** *
+   8:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c **** * THIS SOFTWARE IS DISTRIBUTED "AS IS," AND ALL WARRANTIES ARE DISCLAIMED,
+   9:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c **** * INCLUDING MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+  10:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c **** *****************************************************************************/
+  11:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c **** /**
+  12:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c **** *   @file    open_loop.c
+  13:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c **** *   @version M4_VERSION
+  14:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c **** *   @brief   This file provides firmware functions that implement the features
+  15:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c **** *            of the Open Loop component of the Stellar Motor Control.
+  16:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c **** *
+  17:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c **** *   @details This file provides firmware functions that implement the features
+  18:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c **** *            of the Open Loop component of the Stellar Motor Control.
+  19:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c **** *
+  20:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****  */
+  21:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c **** 
+  22:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c **** /* Includes ------------------------------------------------------------------*/
+  23:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c **** #include "open_loop.h"
+  24:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c **** 
+  25:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c **** /** @addtogroup STELLAR_PMSM_MC_APPLICATION
+  26:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****   * @{
+  27:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****   */
+  28:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c **** 
+  29:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c **** /** @defgroup OpenLoop Open Loop Control
+  30:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****   * @brief Open Loop component of the Stellar Motor Control
+  31:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****   *
+  32:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****   * Used to run the motor in open loop mode.
+  33:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****   *
+  34:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****   * @todo Document the Bus Open Loop "module".
+  35:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****   *
+  36:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****   * @{
+  37:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****   */
+  38:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c **** 
+  39:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c **** /* Private defines -----------------------------------------------------------*/
+  40:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c **** 
+  41:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c **** /**
+  42:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****   * @brief  Initialize OpenLoop variables.
+  43:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****   * @param  pHandle: Pointer on Handle structure of OpenLoop feature.
+  44:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****   * @param  pVSS: Pointer on virtual speed sensor structure.
+  45:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****   *  @retval none
+  46:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****   */
+  47:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c **** __weak void OL_Init( OpenLoop_Handle_t * pHandle, VirtualSpeedSensor_Handle_t * pVSS )
+  48:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c **** {
+  82              		.loc 1 48 1
+  83              		.cfi_startproc
+  84              		@ args = 0, pretend = 0, frame = 8
+  85              		@ frame_needed = 0, uses_anonymous_args = 0
+  86              		@ link register save eliminated.
+  87 0000 82B0     		sub	sp, sp, #8
+  88              		.cfi_def_cfa_offset 8
+  89 0002 0190     		str	r0, [sp, #4]
+  90 0004 0091     		str	r1, [sp]
+  49:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****   pHandle->hVoltage = pHandle->hDefaultVoltage;
+  91              		.loc 1 49 30
+  92 0006 019B     		ldr	r3, [sp, #4]
+  93 0008 B3F90020 		ldrsh	r2, [r3]
+  94              		.loc 1 49 21
+  95 000c 019B     		ldr	r3, [sp, #4]
+  96 000e 1A81     		strh	r2, [r3, #8]	@ movhi
+  50:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****   pHandle->pVSS = pVSS;
+  97              		.loc 1 50 17
+  98 0010 019B     		ldr	r3, [sp, #4]
+  99 0012 009A     		ldr	r2, [sp]
+ 100 0014 DA60     		str	r2, [r3, #12]
+  51:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c **** }
+ 101              		.loc 1 51 1
+ 102 0016 00BF     		nop
+ 103 0018 02B0     		add	sp, sp, #8
+ 104              		.cfi_def_cfa_offset 0
+ 105              		@ sp needed
+ 106 001a 7047     		bx	lr
+ 107              		.cfi_endproc
+ 108              	.LFE1225:
+ 110              		.section	.text.OL_VqdConditioning,"ax",%progbits
+ 111              		.align	1
+ 112              		.p2align 4,,15
+ 113              		.weak	OL_VqdConditioning
+ 114              		.syntax unified
+ 115              		.thumb
+ 116              		.thumb_func
+ 118              	OL_VqdConditioning:
+ 119              	.LFB1226:
+  52:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c **** 
+  53:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c **** /**
+  54:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****   * @brief  Set Vqd according to open loop phase voltage.
+  55:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****   * @param  pHandle: Pointer on Handle structure of OpenLoop feature.
+  56:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****   *  @retval qd_t Vqd conditioned values.
+  57:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****   */
+  58:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c **** __weak qd_t OL_VqdConditioning( OpenLoop_Handle_t * pHandle )
+  59:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c **** {
+ 120              		.loc 1 59 1
+ 121              		.cfi_startproc
+ 122              		@ args = 0, pretend = 0, frame = 16
+ 123              		@ frame_needed = 0, uses_anonymous_args = 0
+ 124              		@ link register save eliminated.
+ 125 0000 84B0     		sub	sp, sp, #16
+ 126              		.cfi_def_cfa_offset 16
+ 127 0002 0190     		str	r0, [sp, #4]
+  60:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****   qd_t Vqd;
+  61:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c **** 
+  62:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****   Vqd.q = pHandle->hVoltage;
+ 128              		.loc 1 62 18
+ 129 0004 019B     		ldr	r3, [sp, #4]
+ 130 0006 B3F90830 		ldrsh	r3, [r3, #8]
+ 131              		.loc 1 62 9
+ 132 000a ADF80830 		strh	r3, [sp, #8]	@ movhi
+  63:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****   Vqd.d = 0;
+ 133              		.loc 1 63 9
+ 134 000e 0023     		movs	r3, #0
+ 135 0010 ADF80A30 		strh	r3, [sp, #10]	@ movhi
+  64:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c **** 
+  65:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****   return ( Vqd );
+ 136              		.loc 1 65 10
+ 137 0014 029B     		ldr	r3, [sp, #8]
+ 138 0016 0393     		str	r3, [sp, #12]
+ 139 0018 0023     		movs	r3, #0
+ 140 001a BDF80C20 		ldrh	r2, [sp, #12]
+ 141 001e 62F30F03 		bfi	r3, r2, #0, #16
+ 142 0022 BDF80E20 		ldrh	r2, [sp, #14]
+ 143 0026 62F31F43 		bfi	r3, r2, #16, #16
+  66:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c **** }
+ 144              		.loc 1 66 1
+ 145 002a 1846     		mov	r0, r3
+ 146 002c 04B0     		add	sp, sp, #16
+ 147              		.cfi_def_cfa_offset 0
+ 148              		@ sp needed
+ 149 002e 7047     		bx	lr
+ 150              		.cfi_endproc
+ 151              	.LFE1226:
+ 153              		.section	.text.OL_UpdateVoltage,"ax",%progbits
+ 154              		.align	1
+ 155              		.p2align 4,,15
+ 156              		.weak	OL_UpdateVoltage
+ 157              		.syntax unified
+ 158              		.thumb
+ 159              		.thumb_func
+ 161              	OL_UpdateVoltage:
+ 162              	.LFB1227:
+  67:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c **** 
+  68:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c **** /**
+  69:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****   * @brief  Allow to set new open loop phase voltage.
+  70:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****   * @param  pHandle: Pointer on Handle structure of OpenLoop feature.
+  71:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****   * @param  hNewVoltage: New voltage value to apply.
+  72:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****   * @retval None
+  73:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****   */
+  74:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c **** __weak void OL_UpdateVoltage( OpenLoop_Handle_t * pHandle, int16_t hNewVoltage )
+  75:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c **** {
+ 163              		.loc 1 75 1
+ 164              		.cfi_startproc
+ 165              		@ args = 0, pretend = 0, frame = 8
+ 166              		@ frame_needed = 0, uses_anonymous_args = 0
+ 167              		@ link register save eliminated.
+ 168 0000 82B0     		sub	sp, sp, #8
+ 169              		.cfi_def_cfa_offset 8
+ 170 0002 0190     		str	r0, [sp, #4]
+ 171 0004 0B46     		mov	r3, r1
+ 172 0006 ADF80230 		strh	r3, [sp, #2]	@ movhi
+  76:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****   pHandle->hVoltage = hNewVoltage;
+ 173              		.loc 1 76 21
+ 174 000a 019B     		ldr	r3, [sp, #4]
+ 175 000c BDF80220 		ldrh	r2, [sp, #2]	@ movhi
+ 176 0010 1A81     		strh	r2, [r3, #8]	@ movhi
+  77:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c **** }
+ 177              		.loc 1 77 1
+ 178 0012 00BF     		nop
+ 179 0014 02B0     		add	sp, sp, #8
+ 180              		.cfi_def_cfa_offset 0
+ 181              		@ sp needed
+ 182 0016 7047     		bx	lr
+ 183              		.cfi_endproc
+ 184              	.LFE1227:
+ 186              		.section	.text.OL_Calc,"ax",%progbits
+ 187              		.align	1
+ 188              		.p2align 4,,15
+ 189              		.weak	OL_Calc
+ 190              		.syntax unified
+ 191              		.thumb
+ 192              		.thumb_func
+ 194              	OL_Calc:
+ 195              	.LFB1228:
+  78:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c **** 
+  79:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c **** /**
+  80:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****   * @brief  Compute phase voltage to apply according to average mechanical speed (V/F Mode).
+  81:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****   * @param  pHandle: Pointer on Handle structure of OpenLoop feature.
+  82:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****   * @retval None
+  83:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****   */
+  84:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c **** __weak void OL_Calc( OpenLoop_Handle_t * pHandle )
+  85:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c **** {
+ 196              		.loc 1 85 1
+ 197              		.cfi_startproc
+ 198              		@ args = 0, pretend = 0, frame = 8
+ 199              		@ frame_needed = 0, uses_anonymous_args = 0
+ 200              		@ link register save eliminated.
+ 201 0000 82B0     		sub	sp, sp, #8
+ 202              		.cfi_def_cfa_offset 8
+ 203 0002 0190     		str	r0, [sp, #4]
+  86:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****   if ( pHandle->VFMode == true )
+ 204              		.loc 1 86 15
+ 205 0004 019B     		ldr	r3, [sp, #4]
+ 206 0006 9B78     		ldrb	r3, [r3, #2]	@ zero_extendqisi2
+ 207              		.loc 1 86 6
+ 208 0008 002B     		cmp	r3, #0
+ 209 000a 30D0     		beq	.L8
+  87:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****   {
+  88:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****     /* V/F mode true means enabled */
+  89:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****     if (pHandle->pVSS->_Super.hAvrMecSpeedUnit >= 0)
+ 210              		.loc 1 89 16
+ 211 000c 019B     		ldr	r3, [sp, #4]
+ 212 000e DB68     		ldr	r3, [r3, #12]
+ 213              		.loc 1 89 30
+ 214 0010 B3F90C30 		ldrsh	r3, [r3, #12]
+ 215              		.loc 1 89 8
+ 216 0014 002B     		cmp	r3, #0
+ 217 0016 15DB     		blt	.L7
+  90:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****     {
+  91:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****       pHandle->hVoltage = pHandle->hVFOffset + ( pHandle->hVFSlope * pHandle->pVSS->_Super.hAvrMecS
+ 218              		.loc 1 91 34
+ 219 0018 019B     		ldr	r3, [sp, #4]
+ 220 001a B3F90430 		ldrsh	r3, [r3, #4]
+ 221 001e 9AB2     		uxth	r2, r3
+ 222              		.loc 1 91 57
+ 223 0020 019B     		ldr	r3, [sp, #4]
+ 224 0022 B3F90630 		ldrsh	r3, [r3, #6]
+ 225 0026 99B2     		uxth	r1, r3
+ 226              		.loc 1 91 77
+ 227 0028 019B     		ldr	r3, [sp, #4]
+ 228 002a DB68     		ldr	r3, [r3, #12]
+ 229              		.loc 1 91 91
+ 230 002c B3F90C30 		ldrsh	r3, [r3, #12]
+ 231 0030 9BB2     		uxth	r3, r3
+ 232              		.loc 1 91 68
+ 233 0032 11FB03F3 		smulbb	r3, r1, r3
+ 234 0036 9BB2     		uxth	r3, r3
+ 235              		.loc 1 91 46
+ 236 0038 1344     		add	r3, r3, r2
+ 237 003a 9BB2     		uxth	r3, r3
+ 238 003c 1AB2     		sxth	r2, r3
+ 239              		.loc 1 91 25
+ 240 003e 019B     		ldr	r3, [sp, #4]
+ 241 0040 1A81     		strh	r2, [r3, #8]	@ movhi
+  92:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****     }
+  93:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****     else
+  94:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****     {
+  95:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****       pHandle->hVoltage = pHandle->hVFOffset - ( pHandle->hVFSlope * pHandle->pVSS->_Super.hAvrMecS
+  96:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****     }
+  97:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****   }
+  98:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c **** }
+ 242              		.loc 1 98 1
+ 243 0042 14E0     		b	.L8
+ 244              	.L7:
+  95:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****     }
+ 245              		.loc 1 95 34
+ 246 0044 019B     		ldr	r3, [sp, #4]
+ 247 0046 B3F90430 		ldrsh	r3, [r3, #4]
+ 248 004a 9AB2     		uxth	r2, r3
+  95:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****     }
+ 249              		.loc 1 95 57
+ 250 004c 019B     		ldr	r3, [sp, #4]
+ 251 004e B3F90630 		ldrsh	r3, [r3, #6]
+ 252 0052 99B2     		uxth	r1, r3
+  95:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****     }
+ 253              		.loc 1 95 77
+ 254 0054 019B     		ldr	r3, [sp, #4]
+ 255 0056 DB68     		ldr	r3, [r3, #12]
+  95:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****     }
+ 256              		.loc 1 95 91
+ 257 0058 B3F90C30 		ldrsh	r3, [r3, #12]
+ 258 005c 9BB2     		uxth	r3, r3
+  95:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****     }
+ 259              		.loc 1 95 68
+ 260 005e 11FB03F3 		smulbb	r3, r1, r3
+ 261 0062 9BB2     		uxth	r3, r3
+  95:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****     }
+ 262              		.loc 1 95 46
+ 263 0064 D31A     		subs	r3, r2, r3
+ 264 0066 9BB2     		uxth	r3, r3
+ 265 0068 1AB2     		sxth	r2, r3
+  95:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****     }
+ 266              		.loc 1 95 25
+ 267 006a 019B     		ldr	r3, [sp, #4]
+ 268 006c 1A81     		strh	r2, [r3, #8]	@ movhi
+ 269              	.L8:
+ 270              		.loc 1 98 1
+ 271 006e 00BF     		nop
+ 272 0070 02B0     		add	sp, sp, #8
+ 273              		.cfi_def_cfa_offset 0
+ 274              		@ sp needed
+ 275 0072 7047     		bx	lr
+ 276              		.cfi_endproc
+ 277              	.LFE1228:
+ 279              		.section	.text.OL_VF,"ax",%progbits
+ 280              		.align	1
+ 281              		.p2align 4,,15
+ 282              		.weak	OL_VF
+ 283              		.syntax unified
+ 284              		.thumb
+ 285              		.thumb_func
+ 287              	OL_VF:
+ 288              	.LFB1229:
+  99:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c **** 
+ 100:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c **** /**
+ 101:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****   * @brief  Allow activation of the Voltage versus Frequency mode (V/F mode).
+ 102:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****   * @param  pHandle: Pointer on Handle structure of OpenLoop feature.
+ 103:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****   * @param  VFEnabling: Flag to enable the V/F mode.
+ 104:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****   * @retval None
+ 105:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****   */
+ 106:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c **** __weak void OL_VF( OpenLoop_Handle_t * pHandle, bool VFEnabling )
+ 107:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c **** {
+ 289              		.loc 1 107 1
+ 290              		.cfi_startproc
+ 291              		@ args = 0, pretend = 0, frame = 8
+ 292              		@ frame_needed = 0, uses_anonymous_args = 0
+ 293              		@ link register save eliminated.
+ 294 0000 82B0     		sub	sp, sp, #8
+ 295              		.cfi_def_cfa_offset 8
+ 296 0002 0190     		str	r0, [sp, #4]
+ 297 0004 0B46     		mov	r3, r1
+ 298 0006 8DF80330 		strb	r3, [sp, #3]
+ 108:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c ****   pHandle->VFMode = VFEnabling;
+ 299              		.loc 1 108 19
+ 300 000a 019B     		ldr	r3, [sp, #4]
+ 301 000c 9DF80320 		ldrb	r2, [sp, #3]
+ 302 0010 9A70     		strb	r2, [r3, #2]
+ 109:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/open_loop.c **** }
+ 303              		.loc 1 109 1
+ 304 0012 00BF     		nop
+ 305 0014 02B0     		add	sp, sp, #8
+ 306              		.cfi_def_cfa_offset 0
+ 307              		@ sp needed
+ 308 0016 7047     		bx	lr
+ 309              		.cfi_endproc
+ 310              	.LFE1229:
+ 312              		.text
+ 313              	.Letext0:
+ 314              		.file 2 "C:/StellarStudio-9.2/SDKS/TOOLS/Toolchain/ARM/MINGW64_NT/13.3.1-2024.06/arm-none-eabi/inc
+ 315              		.file 3 "C:/StellarStudio-9.2/SDKS/TOOLS/Toolchain/ARM/MINGW64_NT/13.3.1-2024.06/arm-none-eabi/inc
+ 316              		.file 4 ".sdk/SR5E1_MCTK-1.3.0/include/LL_Library/sr5e1_ll_tim.h"
+ 317              		.file 5 ".sdk/SR5E1_MCTK-1.3.0/include/LL_Library/sr5e1_ll_usart.h"
+ 318              		.file 6 ".sdk/SR5E1_MCTK-1.3.0/include/LL_Library/sr5e1_ll_dma.h"
+ 319              		.file 7 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/mc_type.h"
+ 320              		.file 8 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/speed_pos_fdbk.h"
+ 321              		.file 9 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/virtual_speed_sensor.h"
+ 322              		.file 10 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/open_loop.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 open_loop.c
+C:\Users\ttqpe\AppData\Local\Temp\cc1YGtsf.s:20     .rodata.OFFSET_TAB_CCMRx:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\cc1YGtsf.s:23     .rodata.OFFSET_TAB_CCMRx:00000000 OFFSET_TAB_CCMRx
+C:\Users\ttqpe\AppData\Local\Temp\cc1YGtsf.s:26     .rodata.SHIFT_TAB_OCxx:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\cc1YGtsf.s:29     .rodata.SHIFT_TAB_OCxx:00000000 SHIFT_TAB_OCxx
+C:\Users\ttqpe\AppData\Local\Temp\cc1YGtsf.s:32     .rodata.SHIFT_TAB_ICxx:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\cc1YGtsf.s:35     .rodata.SHIFT_TAB_ICxx:00000000 SHIFT_TAB_ICxx
+C:\Users\ttqpe\AppData\Local\Temp\cc1YGtsf.s:38     .rodata.SHIFT_TAB_CCxP:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\cc1YGtsf.s:41     .rodata.SHIFT_TAB_CCxP:00000000 SHIFT_TAB_CCxP
+C:\Users\ttqpe\AppData\Local\Temp\cc1YGtsf.s:44     .rodata.SHIFT_TAB_OISx:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\cc1YGtsf.s:47     .rodata.SHIFT_TAB_OISx:00000000 SHIFT_TAB_OISx
+C:\Users\ttqpe\AppData\Local\Temp\cc1YGtsf.s:50     .rodata.USART_PRESCALER_TAB:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\cc1YGtsf.s:53     .rodata.USART_PRESCALER_TAB:00000000 USART_PRESCALER_TAB
+C:\Users\ttqpe\AppData\Local\Temp\cc1YGtsf.s:67     .rodata.LL_DMA_STR_OFFSET_TAB:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\cc1YGtsf.s:70     .rodata.LL_DMA_STR_OFFSET_TAB:00000000 LL_DMA_STR_OFFSET_TAB
+C:\Users\ttqpe\AppData\Local\Temp\cc1YGtsf.s:73     .text.OL_Init:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\cc1YGtsf.s:80     .text.OL_Init:00000000 OL_Init
+C:\Users\ttqpe\AppData\Local\Temp\cc1YGtsf.s:111    .text.OL_VqdConditioning:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\cc1YGtsf.s:118    .text.OL_VqdConditioning:00000000 OL_VqdConditioning
+C:\Users\ttqpe\AppData\Local\Temp\cc1YGtsf.s:154    .text.OL_UpdateVoltage:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\cc1YGtsf.s:161    .text.OL_UpdateVoltage:00000000 OL_UpdateVoltage
+C:\Users\ttqpe\AppData\Local\Temp\cc1YGtsf.s:187    .text.OL_Calc:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\cc1YGtsf.s:194    .text.OL_Calc:00000000 OL_Calc
+C:\Users\ttqpe\AppData\Local\Temp\cc1YGtsf.s:280    .text.OL_VF:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\cc1YGtsf.s:287    .text.OL_VF:00000000 OL_VF
+                           .group:00000000 wm4.0.6093079fab0af1ca2c5a0ad5709343e3
+                           .group:00000000 wm4._newlib_version.h.4.411db44ea2338a62eca2f0777f81481b
+                           .group:00000000 wm4.features.h.33.5ea28ceb8be6621901b9d58b4c3ee651
+                           .group:00000000 wm4._default_types.h.15.247e5cd201eca3442cbf5404108c4935
+                           .group:00000000 wm4._intsup.h.10.48bafbb683905c4daa4565a85aeeb264
+                           .group:00000000 wm4._stdint.h.10.c24fa3af3bc1706662bb5593a907e841
+                           .group:00000000 wm4.stdint.h.23.d53047a68f4a85177f80b422d52785ed
+                           .group:00000000 wm4.stdbool.h.29.c08aa3eec75cf5b9b5003883f43253f0
+                           .group:00000000 wm4.mc_stm_types.h.20.2d7d6ac163527ff5d1947d422c918f78
+                           .group:00000000 wm4.sr5e1xx.h.22.e5c808533cc52ed19fb0830cd7d98924
+                           .group:00000000 wm4.cmsis_version.h.32.0f826810625204eca22a19868bdc7586
+                           .group:00000000 wm4.core_cm7.h.66.8ab2de36917d6fcae18019067fda13e0
+                           .group:00000000 wm4.cmsis_gcc.h.26.498d0ad17a45fc9ef20fdc01caf02259
+                           .group:00000000 wm4.core_cm7.h.174.43edb295ecdaadad738f48ba6011ffad
+                           .group:00000000 wm4.mpu_armv7.h.32.83326921a797fa9d6f70449916b4b839
+                           .group:00000000 wm4.cachel1_armv7.h.32.abd77761a989e008b0c60891114a33c7
+                           .group:00000000 wm4.SR5E1_ADC.h.14.21608e6aff125ba995dd767d6d8dc311
+                           .group:00000000 wm4.SR5E1_CEM.h.14.01fe5742c8f1ae35b1f3af05932f702e
+                           .group:00000000 wm4.SR5E1_CMU.h.14.2617b38b159abe38028862394531e06d
+                           .group:00000000 wm4.SR5E1_COMP.h.14.4b6fdfe4f5f7fd9bedf3a99b98bdf4cd
+                           .group:00000000 wm4.SR5E1_CORDIC.h.14.354fbf7c9eaf6963d38eaa25cf28ffe8
+                           .group:00000000 wm4.SR5E1_CRC.h.14.c64d0f7767671ddb92e9ead0a1162100
+                           .group:00000000 wm4.SR5E1_DAC.h.14.8c26a0ff04b0cfeb55306cc3f22187b8
+                           .group:00000000 wm4.SR5E1_DBGMCU.h.14.427df893d53a8044654f017ba01c25ed
+                           .group:00000000 wm4.SR5E1_DMA.h.14.a7f9a92f844b40a86965798c2e64240b
+                           .group:00000000 wm4.SR5E1_DMAMUX.h.14.471b3b4dfd4d41515f1df49493698866
+                           .group:00000000 wm4.SR5E1_EXTI.h.14.a325ea3fe89cd84894660551c33241ea
+                           .group:00000000 wm4.SR5E1_FCCU.h.14.0ebf0f0f36e079d28613ad2c80e17e23
+                           .group:00000000 wm4.SR5E1_FDCAN.h.14.ac57101fad5dbc798bfb93f34c899de7
+                           .group:00000000 wm4.SR5E1_FLASH_REG_ITF.h.14.d23d1d44923f9b20b8c8fdb51d66aefd
+                           .group:00000000 wm4.SR5E1_GPIO.h.14.1c84071e130d7c64b62470ab0e18a1f1
+                           .group:00000000 wm4.SR5E1_HRTIM.h.24.03932387d2522e6bd5c772a4edaf2f5d
+                           .group:00000000 wm4.SR5E1_HSEM.h.14.cbe70eee519f01b16452c3f8c99d8df1
+                           .group:00000000 wm4.SR5E1_I2C.h.14.350ba3e0f4fd57828457efa80135c36c
+                           .group:00000000 wm4.SR5E1_IMA.h.14.62b7088985ab2b7ce9b030a02daa1f7d
+                           .group:00000000 wm4.SR5E1_IWDG.h.14.20b7c5f05cf7ae94464c360d7af3660d
+                           .group:00000000 wm4.SR5E1_MEMU.h.14.04bad7ae4c52ce334a4fc900aad2ae5b
+                           .group:00000000 wm4.SR5E1_NVM_CTRL.h.14.5f442617f0628d4f16258f211c614ef9
+                           .group:00000000 wm4.SR5E1_PLLDIG.h.14.bd87a8e6917eee17dae2f312c8e5fa53
+                           .group:00000000 wm4.SR5E1_PMC_DIG.h.14.54173b566c6656344766ec4ef46c9281
+                           .group:00000000 wm4.SR5E1_RCC.h.14.56734803c71534de286e793a53649740
+                           .group:00000000 wm4.SR5E1_RTC.h.14.47037cbc7d8175dbf2be1dc0bb955e3f
+                           .group:00000000 wm4.SR5E1_SD_ADC.h.14.552b97d0b8f3c1fd4df6d8964b2f1a80
+                           .group:00000000 wm4.SR5E1_SMPU.h.14.8ce5bb6d5d7c579cd725f492f46e9085
+                           .group:00000000 wm4.SR5E1_SPI.h.14.42d52112e540f85ade4d9135f8b87d72
+                           .group:00000000 wm4.SR5E1_SSCM.h.14.8e6a2ad0ce5fca422fc3d69939b6125b
+                           .group:00000000 wm4.SR5E1_SYSCFG.h.14.02b969490118ce4069914b5e94f7ca65
+                           .group:00000000 wm4.SR5E1_TDM.h.14.a40ed7928cad243a57fd233fccf01ad2
+                           .group:00000000 wm4.SR5E1_TIM.h.14.05b8efc5395873619642d61a4b0b5a54
+                           .group:00000000 wm4.SR5E1_UART.h.14.eec3ab82b02b3bdb3de500483675b83f
+                           .group:00000000 wm4.SR5E1_WWDG.h.14.59b45efc70e442cc6ef03702aad4ad88
+                           .group:00000000 wm4.stddef.h.39.38eb7ec030421799c657b13be5aa21c7
+                           .group:00000000 wm4.typedefs.h.36.07fe3956b4e751037cfee70edcd0b397
+                           .group:00000000 wm4.irq_numbers.h.38.6294b95aed1bf7b3a2cda0eed8ce8f57
+                           .group:00000000 wm4.regs.h.23.2ac145b4f57126d16daed5fbd86d99c6
+                           .group:00000000 wm4.sr5e1_wrapper.h.20.64eb3ae8ac9b19f101ec010f065b27e0
+                           .group:00000000 wm4.sr5e1_macros.h.48.23238fd8be149bfd93a4b06f4d1d3e48
+                           .group:00000000 wm4.sr5e1_ll_system.h.75.323fef6699ff2ef93649a75fbc3b9dc0
+                           .group:00000000 wm4.sr5e1_ll_tim.h.21.35d0409c49249d40ffa0621f7fd1e49f
+                           .group:00000000 wm4.sr5e1_ll_adc.h.21.a09418770aae8e8540b1ce15e5fd6881
+                           .group:00000000 wm4.sr5e1_ll_dac.h.21.e617f768d26181c75ac38760d82ada91
+                           .group:00000000 wm4.sr5e1_ll_cordic.h.21.601660824250c93d03fb6b7dd46d0750
+                           .group:00000000 wm4.sr5e1_ll_usart.h.21.edc232fc61ffb518b3051f74f786aac1
+                           .group:00000000 wm4.sr5e1_ll_dmamux.h.21.e0f20dc23ecc4be39502f49d8383668f
+                           .group:00000000 wm4.sr5e1_ll_dma.h.74.155fcc98e704261e48b273dd9cbd510c
+                           .group:00000000 wm4.mc_stm_types.h.52.4cccb248a2fcd7dfda158e1610af49bf
+                           .group:00000000 wm4.mc_type.h.47.50da95e050e3bfbddab14d990c2d05af
+
+NO UNDEFINED SYMBOLS

@@ -1,0 +1,322 @@
+   1              		.cpu cortex-m7
+   2              		.arch armv7e-m
+   3              		.fpu fpv5-d16
+   4              		.eabi_attribute 28, 1
+   5              		.eabi_attribute 20, 1
+   6              		.eabi_attribute 21, 1
+   7              		.eabi_attribute 23, 3
+   8              		.eabi_attribute 24, 1
+   9              		.eabi_attribute 25, 1
+  10              		.eabi_attribute 26, 1
+  11              		.eabi_attribute 30, 6
+  12              		.eabi_attribute 34, 1
+  13              		.eabi_attribute 18, 4
+  14              		.file	"PLL.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.file 1 ".sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c"
+  19              		.section	.rodata.OFFSET_TAB_CCMRx,"a"
+  20              		.align	2
+  23              	OFFSET_TAB_CCMRx:
+  24 0000 00000000 		.ascii	"\000\000\000\000\004\004\004\00488"
+  24      04040404 
+  24      3838
+  25              		.section	.rodata.SHIFT_TAB_OCxx,"a"
+  26              		.align	2
+  29              	SHIFT_TAB_OCxx:
+  30 0000 00000800 		.ascii	"\000\000\010\000\000\000\010\000\000\010"
+  30      00000800 
+  30      0008
+  31              		.section	.rodata.SHIFT_TAB_ICxx,"a"
+  32              		.align	2
+  35              	SHIFT_TAB_ICxx:
+  36 0000 00000800 		.ascii	"\000\000\010\000\000\000\010\000\000\000"
+  36      00000800 
+  36      0000
+  37              		.section	.rodata.SHIFT_TAB_CCxP,"a"
+  38              		.align	2
+  41              	SHIFT_TAB_CCxP:
+  42 0000 00020406 		.ascii	"\000\002\004\006\010\012\014\016\020\024"
+  42      080A0C0E 
+  42      1014
+  43              		.section	.rodata.SHIFT_TAB_OISx,"a"
+  44              		.align	2
+  47              	SHIFT_TAB_OISx:
+  48 0000 00010203 		.ascii	"\000\001\002\003\004\005\006\007\010\012"
+  48      04050607 
+  48      080A
+  49              		.section	.rodata.USART_PRESCALER_TAB,"a"
+  50              		.align	2
+  53              	USART_PRESCALER_TAB:
+  54 0000 01000000 		.word	1
+  55 0004 02000000 		.word	2
+  56 0008 04000000 		.word	4
+  57 000c 06000000 		.word	6
+  58 0010 08000000 		.word	8
+  59 0014 0A000000 		.word	10
+  60 0018 0C000000 		.word	12
+  61 001c 10000000 		.word	16
+  62 0020 20000000 		.word	32
+  63 0024 40000000 		.word	64
+  64 0028 80000000 		.word	128
+  65 002c 00010000 		.word	256
+  66              		.section	.rodata.LL_DMA_STR_OFFSET_TAB,"a"
+  67              		.align	2
+  70              	LL_DMA_STR_OFFSET_TAB:
+  71 0000 10284058 		.ascii	"\020(@Xp\210\240\270"
+  71      7088A0B8 
+  72              		.section	.text.PLL_Calc,"ax",%progbits
+  73              		.align	1
+  74              		.p2align 4,,15
+  75              		.global	PLL_Calc
+  76              		.syntax unified
+  77              		.thumb
+  78              		.thumb_func
+  80              	PLL_Calc:
+  81              	.LFB1225:
+   1:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c **** /****************************************************************************
+   2:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c **** *
+   3:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c **** * Copyright (c) 2023 STMicroelectronics - All Rights Reserved
+   4:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c **** *
+   5:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c **** * License terms: STMicroelectronics Proprietary in accordance with licensing
+   6:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c **** * terms SLA0098 at www.st.com.
+   7:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c **** *
+   8:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c **** * THIS SOFTWARE IS DISTRIBUTED "AS IS," AND ALL WARRANTIES ARE DISCLAIMED,
+   9:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c **** * INCLUDING MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+  10:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c **** *****************************************************************************/
+  11:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c **** /**
+  12:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c **** *   @file    PLL.c
+  13:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c **** *   @version M4_VERSION
+  14:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c **** *   @brief   This file provides firmware functions that implement the features
+  15:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c **** *            of the PLL component of the Stellar Motor Control.
+  16:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c **** *
+  17:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c **** *   @details This file provides firmware functions that implement the features
+  18:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c **** *            of the PLL component of the Stellar Motor Control.
+  19:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c **** *
+  20:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c ****  */
+  21:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c **** 
+  22:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c **** #include "PLL.h"
+  23:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c **** #include "MC_math.h"
+  24:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c **** 
+  25:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c **** /**
+  26:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c ****  * @brief  This function compute the PLL. 
+  27:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c ****  * @param  pHandle: handler of the current instance of the PID component
+  28:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c ****  * @param  hSin: SIN
+  29:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c ****  * @param  hCos: COS
+  30:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c ****  * @retval PLL output
+  31:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c ****  */
+  32:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c **** int16_t PLL_Calc(PLL *this, int16_t hSin, int16_t hCos)
+  33:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c **** {
+  82              		.loc 1 33 1
+  83              		.cfi_startproc
+  84              		@ args = 0, pretend = 0, frame = 32
+  85              		@ frame_needed = 0, uses_anonymous_args = 0
+  86 0000 00B5     		push	{lr}
+  87              		.cfi_def_cfa_offset 4
+  88              		.cfi_offset 14, -4
+  89 0002 89B0     		sub	sp, sp, #36
+  90              		.cfi_def_cfa_offset 40
+  91 0004 0190     		str	r0, [sp, #4]
+  92 0006 0B46     		mov	r3, r1
+  93 0008 ADF80230 		strh	r3, [sp, #2]	@ movhi
+  94 000c 1346     		mov	r3, r2	@ movhi
+  95 000e ADF80030 		strh	r3, [sp]	@ movhi
+  34:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c ****   int32_t wAlfa_Sin_tmp, wBeta_Cos_tmp;
+  35:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c ****   int16_t hRotor_Speed;
+  36:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c ****   Trig_Components Local_Components;
+  37:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c ****   int16_t hAux1, hAux2;
+  38:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c ****     
+  39:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c ****   Local_Components = MCM_Trig_Functions(this->hElAngle);
+  96              		.loc 1 39 22
+  97 0012 019B     		ldr	r3, [sp, #4]
+  98 0014 B3F91C30 		ldrsh	r3, [r3, #28]
+  99 0018 1846     		mov	r0, r3
+ 100 001a FFF7FEFF 		bl	MCM_Trig_Functions
+ 101 001e 0346     		mov	r3, r0
+ 102 0020 0393     		str	r3, [sp, #12]
+  40:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c ****   
+  41:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c ****   /* Alfa & Beta BEMF multiplied by Cos & Sin*/
+  42:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c ****   wAlfa_Sin_tmp = (int32_t)(hSin)*(int32_t)Local_Components.hSin;
+ 103              		.loc 1 42 19
+ 104 0022 BDF90230 		ldrsh	r3, [sp, #2]
+ 105              		.loc 1 42 60
+ 106 0026 BDF90E20 		ldrsh	r2, [sp, #14]
+ 107              		.loc 1 42 17
+ 108 002a 02FB03F3 		mul	r3, r2, r3
+ 109 002e 0793     		str	r3, [sp, #28]
+  43:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c ****   wBeta_Cos_tmp = (int32_t)(hCos)*(int32_t)Local_Components.hCos;
+ 110              		.loc 1 43 19
+ 111 0030 BDF90030 		ldrsh	r3, [sp]
+ 112              		.loc 1 43 60
+ 113 0034 BDF90C20 		ldrsh	r2, [sp, #12]
+ 114              		.loc 1 43 17
+ 115 0038 02FB03F3 		mul	r3, r2, r3
+ 116 003c 0693     		str	r3, [sp, #24]
+  44:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c ****   
+  45:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c **** #ifdef FULL_MISRA_C_COMPLIANCY
+  46:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c ****   hAux1 = (int16_t)(wBeta_Cos_tmp/32768);
+  47:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c **** #else
+  48:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c ****   hAux1 = (int16_t)(wBeta_Cos_tmp >> 15);
+ 117              		.loc 1 48 35
+ 118 003e 069B     		ldr	r3, [sp, #24]
+ 119 0040 DB13     		asrs	r3, r3, #15
+ 120              		.loc 1 48 9
+ 121 0042 ADF81630 		strh	r3, [sp, #22]	@ movhi
+  49:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c **** #endif
+  50:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c ****   
+  51:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c **** #ifdef FULL_MISRA_C_COMPLIANCY
+  52:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c ****   hAux2 = (int16_t)(wAlfa_Sin_tmp/32768); 
+  53:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c **** #else
+  54:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c ****   hAux2 = (int16_t)(wAlfa_Sin_tmp >> 15);
+ 122              		.loc 1 54 35
+ 123 0046 079B     		ldr	r3, [sp, #28]
+ 124 0048 DB13     		asrs	r3, r3, #15
+ 125              		.loc 1 54 9
+ 126 004a ADF81430 		strh	r3, [sp, #20]	@ movhi
+  55:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c **** #endif
+  56:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c ****   
+  57:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c ****   /* Speed PI regulator */
+  58:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c ****   hRotor_Speed = PI_Calc(&(this->pi), (int32_t)(hAux1)-hAux2);
+ 127              		.loc 1 58 18
+ 128 004e 0198     		ldr	r0, [sp, #4]
+ 129              		.loc 1 58 39
+ 130 0050 BDF91620 		ldrsh	r2, [sp, #22]
+ 131              		.loc 1 58 18
+ 132 0054 BDF91430 		ldrsh	r3, [sp, #20]
+ 133 0058 D31A     		subs	r3, r2, r3
+ 134 005a 1946     		mov	r1, r3
+ 135 005c FFF7FEFF 		bl	PI_Calc
+ 136 0060 0346     		mov	r3, r0
+ 137 0062 ADF81230 		strh	r3, [sp, #18]	@ movhi
+  59:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c ****   
+  60:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c ****   this->hElAngle += hRotor_Speed;
+ 138              		.loc 1 60 7
+ 139 0066 019B     		ldr	r3, [sp, #4]
+ 140 0068 B3F91C30 		ldrsh	r3, [r3, #28]
+ 141 006c 9AB2     		uxth	r2, r3
+ 142              		.loc 1 60 18
+ 143 006e BDF81230 		ldrh	r3, [sp, #18]
+ 144 0072 1344     		add	r3, r3, r2
+ 145 0074 9BB2     		uxth	r3, r3
+ 146 0076 1AB2     		sxth	r2, r3
+ 147 0078 019B     		ldr	r3, [sp, #4]
+ 148 007a 9A83     		strh	r2, [r3, #28]	@ movhi
+  61:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c ****   this->hSpeedDpp = hRotor_Speed;
+ 149              		.loc 1 61 19
+ 150 007c 019B     		ldr	r3, [sp, #4]
+ 151 007e BDF81220 		ldrh	r2, [sp, #18]	@ movhi
+ 152 0082 DA83     		strh	r2, [r3, #30]	@ movhi
+  62:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c ****   
+  63:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c ****   return (hRotor_Speed);
+ 153              		.loc 1 63 10
+ 154 0084 BDF91230 		ldrsh	r3, [sp, #18]
+  64:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/PLL.c **** }...
+ 155              		.loc 1 64 1
+ 156 0088 1846     		mov	r0, r3
+ 157 008a 09B0     		add	sp, sp, #36
+ 158              		.cfi_def_cfa_offset 4
+ 159              		@ sp needed
+ 160 008c 5DF804FB 		ldr	pc, [sp], #4
+ 161              		.cfi_endproc
+ 162              	.LFE1225:
+ 164              		.text
+ 165              	.Letext0:
+ 166              		.file 2 "C:/StellarStudio-9.2/SDKS/TOOLS/Toolchain/ARM/MINGW64_NT/13.3.1-2024.06/arm-none-eabi/inc
+ 167              		.file 3 "C:/StellarStudio-9.2/SDKS/TOOLS/Toolchain/ARM/MINGW64_NT/13.3.1-2024.06/arm-none-eabi/inc
+ 168              		.file 4 ".sdk/SR5E1_MCTK-1.3.0/include/LL_Library/sr5e1_ll_tim.h"
+ 169              		.file 5 ".sdk/SR5E1_MCTK-1.3.0/include/LL_Library/sr5e1_ll_usart.h"
+ 170              		.file 6 ".sdk/SR5E1_MCTK-1.3.0/include/LL_Library/sr5e1_ll_dma.h"
+ 171              		.file 7 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/PI.h"
+ 172              		.file 8 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/PLL.h"
+ 173              		.file 9 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/MC_math.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 PLL.c
+C:\Users\ttqpe\AppData\Local\Temp\ccJM6jc5.s:20     .rodata.OFFSET_TAB_CCMRx:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccJM6jc5.s:23     .rodata.OFFSET_TAB_CCMRx:00000000 OFFSET_TAB_CCMRx
+C:\Users\ttqpe\AppData\Local\Temp\ccJM6jc5.s:26     .rodata.SHIFT_TAB_OCxx:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccJM6jc5.s:29     .rodata.SHIFT_TAB_OCxx:00000000 SHIFT_TAB_OCxx
+C:\Users\ttqpe\AppData\Local\Temp\ccJM6jc5.s:32     .rodata.SHIFT_TAB_ICxx:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccJM6jc5.s:35     .rodata.SHIFT_TAB_ICxx:00000000 SHIFT_TAB_ICxx
+C:\Users\ttqpe\AppData\Local\Temp\ccJM6jc5.s:38     .rodata.SHIFT_TAB_CCxP:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccJM6jc5.s:41     .rodata.SHIFT_TAB_CCxP:00000000 SHIFT_TAB_CCxP
+C:\Users\ttqpe\AppData\Local\Temp\ccJM6jc5.s:44     .rodata.SHIFT_TAB_OISx:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccJM6jc5.s:47     .rodata.SHIFT_TAB_OISx:00000000 SHIFT_TAB_OISx
+C:\Users\ttqpe\AppData\Local\Temp\ccJM6jc5.s:50     .rodata.USART_PRESCALER_TAB:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccJM6jc5.s:53     .rodata.USART_PRESCALER_TAB:00000000 USART_PRESCALER_TAB
+C:\Users\ttqpe\AppData\Local\Temp\ccJM6jc5.s:67     .rodata.LL_DMA_STR_OFFSET_TAB:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccJM6jc5.s:70     .rodata.LL_DMA_STR_OFFSET_TAB:00000000 LL_DMA_STR_OFFSET_TAB
+C:\Users\ttqpe\AppData\Local\Temp\ccJM6jc5.s:73     .text.PLL_Calc:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccJM6jc5.s:80     .text.PLL_Calc:00000000 PLL_Calc
+                           .group:00000000 wm4.0.6093079fab0af1ca2c5a0ad5709343e3
+                           .group:00000000 wm4._newlib_version.h.4.411db44ea2338a62eca2f0777f81481b
+                           .group:00000000 wm4.features.h.33.5ea28ceb8be6621901b9d58b4c3ee651
+                           .group:00000000 wm4._default_types.h.15.247e5cd201eca3442cbf5404108c4935
+                           .group:00000000 wm4._intsup.h.10.48bafbb683905c4daa4565a85aeeb264
+                           .group:00000000 wm4._stdint.h.10.c24fa3af3bc1706662bb5593a907e841
+                           .group:00000000 wm4.stdint.h.23.d53047a68f4a85177f80b422d52785ed
+                           .group:00000000 wm4.stdbool.h.29.c08aa3eec75cf5b9b5003883f43253f0
+                           .group:00000000 wm4.mc_stm_types.h.20.2d7d6ac163527ff5d1947d422c918f78
+                           .group:00000000 wm4.sr5e1xx.h.22.e5c808533cc52ed19fb0830cd7d98924
+                           .group:00000000 wm4.cmsis_version.h.32.0f826810625204eca22a19868bdc7586
+                           .group:00000000 wm4.core_cm7.h.66.8ab2de36917d6fcae18019067fda13e0
+                           .group:00000000 wm4.cmsis_gcc.h.26.498d0ad17a45fc9ef20fdc01caf02259
+                           .group:00000000 wm4.core_cm7.h.174.43edb295ecdaadad738f48ba6011ffad
+                           .group:00000000 wm4.mpu_armv7.h.32.83326921a797fa9d6f70449916b4b839
+                           .group:00000000 wm4.cachel1_armv7.h.32.abd77761a989e008b0c60891114a33c7
+                           .group:00000000 wm4.SR5E1_ADC.h.14.21608e6aff125ba995dd767d6d8dc311
+                           .group:00000000 wm4.SR5E1_CEM.h.14.01fe5742c8f1ae35b1f3af05932f702e
+                           .group:00000000 wm4.SR5E1_CMU.h.14.2617b38b159abe38028862394531e06d
+                           .group:00000000 wm4.SR5E1_COMP.h.14.4b6fdfe4f5f7fd9bedf3a99b98bdf4cd
+                           .group:00000000 wm4.SR5E1_CORDIC.h.14.354fbf7c9eaf6963d38eaa25cf28ffe8
+                           .group:00000000 wm4.SR5E1_CRC.h.14.c64d0f7767671ddb92e9ead0a1162100
+                           .group:00000000 wm4.SR5E1_DAC.h.14.8c26a0ff04b0cfeb55306cc3f22187b8
+                           .group:00000000 wm4.SR5E1_DBGMCU.h.14.427df893d53a8044654f017ba01c25ed
+                           .group:00000000 wm4.SR5E1_DMA.h.14.a7f9a92f844b40a86965798c2e64240b
+                           .group:00000000 wm4.SR5E1_DMAMUX.h.14.471b3b4dfd4d41515f1df49493698866
+                           .group:00000000 wm4.SR5E1_EXTI.h.14.a325ea3fe89cd84894660551c33241ea
+                           .group:00000000 wm4.SR5E1_FCCU.h.14.0ebf0f0f36e079d28613ad2c80e17e23
+                           .group:00000000 wm4.SR5E1_FDCAN.h.14.ac57101fad5dbc798bfb93f34c899de7
+                           .group:00000000 wm4.SR5E1_FLASH_REG_ITF.h.14.d23d1d44923f9b20b8c8fdb51d66aefd
+                           .group:00000000 wm4.SR5E1_GPIO.h.14.1c84071e130d7c64b62470ab0e18a1f1
+                           .group:00000000 wm4.SR5E1_HRTIM.h.24.03932387d2522e6bd5c772a4edaf2f5d
+                           .group:00000000 wm4.SR5E1_HSEM.h.14.cbe70eee519f01b16452c3f8c99d8df1
+                           .group:00000000 wm4.SR5E1_I2C.h.14.350ba3e0f4fd57828457efa80135c36c
+                           .group:00000000 wm4.SR5E1_IMA.h.14.62b7088985ab2b7ce9b030a02daa1f7d
+                           .group:00000000 wm4.SR5E1_IWDG.h.14.20b7c5f05cf7ae94464c360d7af3660d
+                           .group:00000000 wm4.SR5E1_MEMU.h.14.04bad7ae4c52ce334a4fc900aad2ae5b
+                           .group:00000000 wm4.SR5E1_NVM_CTRL.h.14.5f442617f0628d4f16258f211c614ef9
+                           .group:00000000 wm4.SR5E1_PLLDIG.h.14.bd87a8e6917eee17dae2f312c8e5fa53
+                           .group:00000000 wm4.SR5E1_PMC_DIG.h.14.54173b566c6656344766ec4ef46c9281
+                           .group:00000000 wm4.SR5E1_RCC.h.14.56734803c71534de286e793a53649740
+                           .group:00000000 wm4.SR5E1_RTC.h.14.47037cbc7d8175dbf2be1dc0bb955e3f
+                           .group:00000000 wm4.SR5E1_SD_ADC.h.14.552b97d0b8f3c1fd4df6d8964b2f1a80
+                           .group:00000000 wm4.SR5E1_SMPU.h.14.8ce5bb6d5d7c579cd725f492f46e9085
+                           .group:00000000 wm4.SR5E1_SPI.h.14.42d52112e540f85ade4d9135f8b87d72
+                           .group:00000000 wm4.SR5E1_SSCM.h.14.8e6a2ad0ce5fca422fc3d69939b6125b
+                           .group:00000000 wm4.SR5E1_SYSCFG.h.14.02b969490118ce4069914b5e94f7ca65
+                           .group:00000000 wm4.SR5E1_TDM.h.14.a40ed7928cad243a57fd233fccf01ad2
+                           .group:00000000 wm4.SR5E1_TIM.h.14.05b8efc5395873619642d61a4b0b5a54
+                           .group:00000000 wm4.SR5E1_UART.h.14.eec3ab82b02b3bdb3de500483675b83f
+                           .group:00000000 wm4.SR5E1_WWDG.h.14.59b45efc70e442cc6ef03702aad4ad88
+                           .group:00000000 wm4.stddef.h.39.38eb7ec030421799c657b13be5aa21c7
+                           .group:00000000 wm4.typedefs.h.36.07fe3956b4e751037cfee70edcd0b397
+                           .group:00000000 wm4.irq_numbers.h.38.6294b95aed1bf7b3a2cda0eed8ce8f57
+                           .group:00000000 wm4.regs.h.23.2ac145b4f57126d16daed5fbd86d99c6
+                           .group:00000000 wm4.sr5e1_wrapper.h.20.64eb3ae8ac9b19f101ec010f065b27e0
+                           .group:00000000 wm4.sr5e1_macros.h.48.23238fd8be149bfd93a4b06f4d1d3e48
+                           .group:00000000 wm4.sr5e1_ll_system.h.75.323fef6699ff2ef93649a75fbc3b9dc0
+                           .group:00000000 wm4.sr5e1_ll_tim.h.21.35d0409c49249d40ffa0621f7fd1e49f
+                           .group:00000000 wm4.sr5e1_ll_adc.h.21.a09418770aae8e8540b1ce15e5fd6881
+                           .group:00000000 wm4.sr5e1_ll_dac.h.21.e617f768d26181c75ac38760d82ada91
+                           .group:00000000 wm4.sr5e1_ll_cordic.h.21.601660824250c93d03fb6b7dd46d0750
+                           .group:00000000 wm4.sr5e1_ll_usart.h.21.edc232fc61ffb518b3051f74f786aac1
+                           .group:00000000 wm4.sr5e1_ll_dmamux.h.21.e0f20dc23ecc4be39502f49d8383668f
+                           .group:00000000 wm4.sr5e1_ll_dma.h.74.155fcc98e704261e48b273dd9cbd510c
+                           .group:00000000 wm4.mc_stm_types.h.52.4cccb248a2fcd7dfda158e1610af49bf
+                           .group:00000000 wm4.MC_type.h.47.50da95e050e3bfbddab14d990c2d05af
+                           .group:00000000 wm4.MC_math.h.36.161078bb2bca963b4db32a4d9e543245
+
+UNDEFINED SYMBOLS
+MCM_Trig_Functions
+PI_Calc

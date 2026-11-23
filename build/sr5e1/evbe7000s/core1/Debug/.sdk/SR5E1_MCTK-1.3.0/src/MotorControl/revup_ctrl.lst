@@ -1,0 +1,2346 @@
+   1              		.cpu cortex-m7
+   2              		.arch armv7e-m
+   3              		.fpu fpv5-d16
+   4              		.eabi_attribute 28, 1
+   5              		.eabi_attribute 20, 1
+   6              		.eabi_attribute 21, 1
+   7              		.eabi_attribute 23, 3
+   8              		.eabi_attribute 24, 1
+   9              		.eabi_attribute 25, 1
+  10              		.eabi_attribute 26, 1
+  11              		.eabi_attribute 30, 6
+  12              		.eabi_attribute 34, 1
+  13              		.eabi_attribute 18, 4
+  14              		.file	"revup_ctrl.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.file 1 ".sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c"
+  19              		.section	.rodata.OFFSET_TAB_CCMRx,"a"
+  20              		.align	2
+  23              	OFFSET_TAB_CCMRx:
+  24 0000 00000000 		.ascii	"\000\000\000\000\004\004\004\00488"
+  24      04040404 
+  24      3838
+  25              		.section	.rodata.SHIFT_TAB_OCxx,"a"
+  26              		.align	2
+  29              	SHIFT_TAB_OCxx:
+  30 0000 00000800 		.ascii	"\000\000\010\000\000\000\010\000\000\010"
+  30      00000800 
+  30      0008
+  31              		.section	.rodata.SHIFT_TAB_ICxx,"a"
+  32              		.align	2
+  35              	SHIFT_TAB_ICxx:
+  36 0000 00000800 		.ascii	"\000\000\010\000\000\000\010\000\000\000"
+  36      00000800 
+  36      0000
+  37              		.section	.rodata.SHIFT_TAB_CCxP,"a"
+  38              		.align	2
+  41              	SHIFT_TAB_CCxP:
+  42 0000 00020406 		.ascii	"\000\002\004\006\010\012\014\016\020\024"
+  42      080A0C0E 
+  42      1014
+  43              		.section	.rodata.SHIFT_TAB_OISx,"a"
+  44              		.align	2
+  47              	SHIFT_TAB_OISx:
+  48 0000 00010203 		.ascii	"\000\001\002\003\004\005\006\007\010\012"
+  48      04050607 
+  48      080A
+  49              		.section	.rodata.USART_PRESCALER_TAB,"a"
+  50              		.align	2
+  53              	USART_PRESCALER_TAB:
+  54 0000 01000000 		.word	1
+  55 0004 02000000 		.word	2
+  56 0008 04000000 		.word	4
+  57 000c 06000000 		.word	6
+  58 0010 08000000 		.word	8
+  59 0014 0A000000 		.word	10
+  60 0018 0C000000 		.word	12
+  61 001c 10000000 		.word	16
+  62 0020 20000000 		.word	32
+  63 0024 40000000 		.word	64
+  64 0028 80000000 		.word	128
+  65 002c 00010000 		.word	256
+  66              		.section	.rodata.LL_DMA_STR_OFFSET_TAB,"a"
+  67              		.align	2
+  70              	LL_DMA_STR_OFFSET_TAB:
+  71 0000 10284058 		.ascii	"\020(@Xp\210\240\270"
+  71      7088A0B8 
+  72              		.section	.text.RUC_Init,"ax",%progbits
+  73              		.align	1
+  74              		.p2align 4,,15
+  75              		.weak	RUC_Init
+  76              		.syntax unified
+  77              		.thumb
+  78              		.thumb_func
+  80              	RUC_Init:
+  81              	.LFB1248:
+   1:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** /****************************************************************************
+   2:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** *
+   3:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** * Copyright (c) 2023 STMicroelectronics - All Rights Reserved
+   4:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** *
+   5:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** * License terms: STMicroelectronics Proprietary in accordance with licensing
+   6:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** * terms SLA0098 at www.st.com.
+   7:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** *
+   8:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** * THIS SOFTWARE IS DISTRIBUTED "AS IS," AND ALL WARRANTIES ARE DISCLAIMED,
+   9:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** * INCLUDING MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+  10:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** *****************************************************************************/
+  11:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** /**
+  12:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** *   @file    revup_ctrl.c
+  13:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** *   @version M4_VERSION
+  14:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** *   @brief   This file provides firmware functions that implement the features
+  15:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** *            of the Rev-Up Control component of the Stellar Motor Control.
+  16:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** *
+  17:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** *   @details This file provides firmware functions that implement the features
+  18:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** *            of the Rev-Up Control component of the Stellar Motor Control.
+  19:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** *
+  20:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****  */
+  21:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+  22:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** /* Includes ------------------------------------------------------------------*/
+  23:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** #include "revup_ctrl.h"
+  24:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** #include "mc_config.h"
+  25:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** /** @addtogroup STELLAR_PMSM_MC_FOC_LIBRARY
+  26:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   * @{
+  27:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   */
+  28:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+  29:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** /** @defgroup RevUpCtrl Rev-Up Control
+  30:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   * @brief Rev-Up Control component of the Stellar Motor Control
+  31:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   *
+  32:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   * Used to start up the motor with a set of pre-programmed phases.
+  33:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   *
+  34:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   * The number of phases of the Rev up procdure can range from 0 to 5.
+  35:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   * The Rev-Up controller must be called at speed loop frequency.
+  36:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   *
+  37:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   * @{
+  38:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   */
+  39:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+  40:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** /* Private defines -----------------------------------------------------------*/
+  41:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+  42:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** /**
+  43:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   * @brief Timeout used to reset integral term of PLL.
+  44:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   *  It is expressed in ms.
+  45:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   *
+  46:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   */
+  47:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** #define RUC_OTF_PLL_RESET_TIMEOUT 100u
+  48:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+  49:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+  50:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** /**
+  51:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   * @brief  Initialize and configure the RevUpCtrl Component
+  52:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   * @param  pHandle: Pointer on Handle structure of RevUp controller.
+  53:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   * @param  pSTC: Pointer on speed and torque controller structure.
+  54:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   * @param  pVSS: Pointer on virtual speed sensor structure.
+  55:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   * @param  pSNSL: Pointer on sensorles state observer structure.
+  56:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   * @param  pPWM: Pointer on the PWM structure.
+  57:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   *  @retval none
+  58:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   */
+  59:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** __weak void RUC_Init( RevUpCtrl_Handle_t * pHandle,
+  60:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                SpeednTorqCtrl_Handle_t * pSTC,
+  61:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                VirtualSpeedSensor_Handle_t * pVSS,
+  62:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                STO_Handle_t * pSNSL,
+  63:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                PWMC_Handle_t * pPWM )
+  64:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** {
+  82              		.loc 1 64 1
+  83              		.cfi_startproc
+  84              		@ args = 4, pretend = 0, frame = 24
+  85              		@ frame_needed = 0, uses_anonymous_args = 0
+  86              		@ link register save eliminated.
+  87 0000 86B0     		sub	sp, sp, #24
+  88              		.cfi_def_cfa_offset 24
+  89 0002 0390     		str	r0, [sp, #12]
+  90 0004 0291     		str	r1, [sp, #8]
+  91 0006 0192     		str	r2, [sp, #4]
+  92 0008 0093     		str	r3, [sp]
+  65:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   RevUpCtrl_PhaseParams_t * pRUCPhaseParams = &pHandle->ParamsData[0];
+  93              		.loc 1 65 29
+  94 000a 039B     		ldr	r3, [sp, #12]
+  95 000c 0C33     		adds	r3, r3, #12
+  96 000e 0593     		str	r3, [sp, #20]
+  66:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   uint8_t bPhase = 0u;
+  97              		.loc 1 66 11
+  98 0010 0023     		movs	r3, #0
+  99 0012 8DF81330 		strb	r3, [sp, #19]
+  67:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+  68:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   pHandle->pSTC = pSTC;
+ 100              		.loc 1 68 17
+ 101 0016 039B     		ldr	r3, [sp, #12]
+ 102 0018 029A     		ldr	r2, [sp, #8]
+ 103 001a 9A66     		str	r2, [r3, #104]
+  69:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   pHandle->pVSS = pVSS;
+ 104              		.loc 1 69 17
+ 105 001c 039B     		ldr	r3, [sp, #12]
+ 106 001e 019A     		ldr	r2, [sp, #4]
+ 107 0020 DA66     		str	r2, [r3, #108]
+  70:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   pHandle->pSNSL = pSNSL;
+ 108              		.loc 1 70 18
+ 109 0022 039B     		ldr	r3, [sp, #12]
+ 110 0024 009A     		ldr	r2, [sp]
+ 111 0026 1A67     		str	r2, [r3, #112]
+  71:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   pHandle->pPWM = pPWM;
+ 112              		.loc 1 71 17
+ 113 0028 039B     		ldr	r3, [sp, #12]
+ 114 002a 069A     		ldr	r2, [sp, #24]
+ 115 002c 5A67     		str	r2, [r3, #116]
+  72:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   pHandle->OTFSCLowside = false;
+ 116              		.loc 1 72 25
+ 117 002e 039B     		ldr	r3, [sp, #12]
+ 118 0030 0022     		movs	r2, #0
+ 119 0032 83F85420 		strb	r2, [r3, #84]
+  73:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   pHandle->EnteredZone1 = false;
+ 120              		.loc 1 73 25
+ 121 0036 039B     		ldr	r3, [sp, #12]
+ 122 0038 0022     		movs	r2, #0
+ 123 003a 83F85520 		strb	r2, [r3, #85]
+  74:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+  75:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   while ( ( pRUCPhaseParams != MC_NULL ) && ( bPhase < RUC_MAX_PHASE_NUMBER ) )
+ 124              		.loc 1 75 9
+ 125 003e 07E0     		b	.L2
+ 126              	.L4:
+  76:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   {
+  77:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****     pRUCPhaseParams = pRUCPhaseParams->pNext;
+ 127              		.loc 1 77 21
+ 128 0040 059B     		ldr	r3, [sp, #20]
+ 129 0042 9B68     		ldr	r3, [r3, #8]
+ 130 0044 0593     		str	r3, [sp, #20]
+  78:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****     bPhase++;
+ 131              		.loc 1 78 11
+ 132 0046 9DF81330 		ldrb	r3, [sp, #19]	@ zero_extendqisi2
+ 133 004a 0133     		adds	r3, r3, #1
+ 134 004c 8DF81330 		strb	r3, [sp, #19]
+ 135              	.L2:
+  75:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   {
+ 136              		.loc 1 75 42
+ 137 0050 059B     		ldr	r3, [sp, #20]
+ 138 0052 002B     		cmp	r3, #0
+ 139 0054 03D0     		beq	.L3
+  75:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   {
+ 140              		.loc 1 75 42 is_stmt 0 discriminator 1
+ 141 0056 9DF81330 		ldrb	r3, [sp, #19]	@ zero_extendqisi2
+ 142 005a 042B     		cmp	r3, #4
+ 143 005c F0D9     		bls	.L4
+ 144              	.L3:
+  79:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   }
+  80:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   pHandle->ParamsData[bPhase - 1u].pNext = MC_NULL;
+ 145              		.loc 1 80 30 is_stmt 1
+ 146 005e 9DF81330 		ldrb	r3, [sp, #19]	@ zero_extendqisi2
+ 147 0062 5A1E     		subs	r2, r3, #1
+ 148              		.loc 1 80 42
+ 149 0064 0399     		ldr	r1, [sp, #12]
+ 150 0066 1346     		mov	r3, r2
+ 151 0068 5B00     		lsls	r3, r3, #1
+ 152 006a 1344     		add	r3, r3, r2
+ 153 006c 9B00     		lsls	r3, r3, #2
+ 154 006e 0B44     		add	r3, r3, r1
+ 155 0070 1433     		adds	r3, r3, #20
+ 156 0072 0022     		movs	r2, #0
+ 157 0074 1A60     		str	r2, [r3]
+  81:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+  82:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   pHandle->bPhaseNbr = bPhase;
+ 158              		.loc 1 82 22
+ 159 0076 039B     		ldr	r3, [sp, #12]
+ 160 0078 9DF81320 		ldrb	r2, [sp, #19]
+ 161 007c 83F84820 		strb	r2, [r3, #72]
+  83:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+  84:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   pHandle->bResetPLLTh = ( uint8_t )( ( RUC_OTF_PLL_RESET_TIMEOUT * pHandle->hRUCFrequencyHz ) / 10
+ 162              		.loc 1 84 76
+ 163 0080 039B     		ldr	r3, [sp, #12]
+ 164 0082 1B88     		ldrh	r3, [r3]
+ 165 0084 1A46     		mov	r2, r3
+ 166              		.loc 1 84 67
+ 167 0086 6423     		movs	r3, #100
+ 168 0088 02FB03F3 		mul	r3, r2, r3
+ 169              		.loc 1 84 96
+ 170 008c 054A     		ldr	r2, .L5
+ 171 008e A2FB0323 		umull	r2, r3, r2, r3
+ 172 0092 9B09     		lsrs	r3, r3, #6
+ 173              		.loc 1 84 26
+ 174 0094 DAB2     		uxtb	r2, r3
+ 175              		.loc 1 84 24
+ 176 0096 039B     		ldr	r3, [sp, #12]
+ 177 0098 83F85620 		strb	r2, [r3, #86]
+  85:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+  86:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** }
+ 178              		.loc 1 86 1
+ 179 009c 00BF     		nop
+ 180 009e 06B0     		add	sp, sp, #24
+ 181              		.cfi_def_cfa_offset 0
+ 182              		@ sp needed
+ 183 00a0 7047     		bx	lr
+ 184              	.L6:
+ 185 00a2 00BF     		.align	2
+ 186              	.L5:
+ 187 00a4 D34D6210 		.word	274877907
+ 188              		.cfi_endproc
+ 189              	.LFE1248:
+ 191              		.section	.text.RUC_Clear,"ax",%progbits
+ 192              		.align	1
+ 193              		.p2align 4,,15
+ 194              		.weak	RUC_Clear
+ 195              		.syntax unified
+ 196              		.thumb
+ 197              		.thumb_func
+ 199              	RUC_Clear:
+ 200              	.LFB1249:
+  87:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+  88:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** /**
+  89:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   * @brief  Initialize internal RevUp controller state.
+  90:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   * @param  pHandle: Pointer on Handle structure of RevUp controller.
+  91:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   * @param  hMotorDirection: rotor rotation direction.
+  92:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   *         This parameter must be -1 or +1.
+  93:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   *  @retval none
+  94:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   */
+  95:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** __weak void RUC_Clear( RevUpCtrl_Handle_t * pHandle, int16_t hMotorDirection )
+  96:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** {
+ 201              		.loc 1 96 1
+ 202              		.cfi_startproc
+ 203              		@ args = 0, pretend = 0, frame = 24
+ 204              		@ frame_needed = 0, uses_anonymous_args = 0
+ 205 0000 00B5     		push	{lr}
+ 206              		.cfi_def_cfa_offset 4
+ 207              		.cfi_offset 14, -4
+ 208 0002 87B0     		sub	sp, sp, #28
+ 209              		.cfi_def_cfa_offset 32
+ 210 0004 0190     		str	r0, [sp, #4]
+ 211 0006 0B46     		mov	r3, r1
+ 212 0008 ADF80230 		strh	r3, [sp, #2]	@ movhi
+  97:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   VirtualSpeedSensor_Handle_t * pVSS = pHandle->pVSS;
+ 213              		.loc 1 97 33
+ 214 000c 019B     		ldr	r3, [sp, #4]
+ 215 000e DB6E     		ldr	r3, [r3, #108]
+ 216 0010 0593     		str	r3, [sp, #20]
+  98:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   SpeednTorqCtrl_Handle_t * pSTC = pHandle->pSTC;
+ 217              		.loc 1 98 29
+ 218 0012 019B     		ldr	r3, [sp, #4]
+ 219 0014 9B6E     		ldr	r3, [r3, #104]
+ 220 0016 0493     		str	r3, [sp, #16]
+  99:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   RevUpCtrl_PhaseParams_t * pPhaseParams = pHandle->ParamsData;
+ 221              		.loc 1 99 29
+ 222 0018 019B     		ldr	r3, [sp, #4]
+ 223 001a 0C33     		adds	r3, r3, #12
+ 224 001c 0393     		str	r3, [sp, #12]
+ 100:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 101:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   pHandle->hDirection = hMotorDirection;
+ 225              		.loc 1 101 23
+ 226 001e 019B     		ldr	r3, [sp, #4]
+ 227 0020 BDF80220 		ldrh	r2, [sp, #2]	@ movhi
+ 228 0024 DA80     		strh	r2, [r3, #6]	@ movhi
+ 102:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   pHandle->EnteredZone1 = false;
+ 229              		.loc 1 102 25
+ 230 0026 019B     		ldr	r3, [sp, #4]
+ 231 0028 0022     		movs	r2, #0
+ 232 002a 83F85520 		strb	r2, [r3, #85]
+ 103:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 104:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   /*Initializes the rev up stages counter.*/
+ 105:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   pHandle->bStageCnt = 0u;
+ 233              		.loc 1 105 22
+ 234 002e 019B     		ldr	r3, [sp, #4]
+ 235 0030 0022     		movs	r2, #0
+ 236 0032 83F85820 		strb	r2, [r3, #88]
+ 106:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   pHandle->bOTFRelCounter = 0u;
+ 237              		.loc 1 106 27
+ 238 0036 019B     		ldr	r3, [sp, #4]
+ 239 0038 0022     		movs	r2, #0
+ 240 003a 83F85320 		strb	r2, [r3, #83]
+ 107:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   pHandle->OTFSCLowside = false;
+ 241              		.loc 1 107 25
+ 242 003e 019B     		ldr	r3, [sp, #4]
+ 243 0040 0022     		movs	r2, #0
+ 244 0042 83F85420 		strb	r2, [r3, #84]
+ 108:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 109:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   /* Calls the clear method of VSS.*/
+ 110:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   VSS_Clear( pVSS );
+ 245              		.loc 1 110 3
+ 246 0046 0598     		ldr	r0, [sp, #20]
+ 247 0048 FFF7FEFF 		bl	VSS_Clear
+ 111:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 112:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   /* Sets the STC in torque mode.*/
+ 113:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   STC_SetControlMode( pSTC, STC_TORQUE_MODE );
+ 248              		.loc 1 113 3
+ 249 004c 0021     		movs	r1, #0
+ 250 004e 0498     		ldr	r0, [sp, #16]
+ 251 0050 FFF7FEFF 		bl	STC_SetControlMode
+ 114:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 115:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   /* Sets the mechanical starting angle of VSS.*/
+ 116:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   VSS_SetMecAngle( pVSS, pHandle->hStartingMecAngle * hMotorDirection );
+ 252              		.loc 1 116 33
+ 253 0054 019B     		ldr	r3, [sp, #4]
+ 254 0056 B3F90230 		ldrsh	r3, [r3, #2]
+ 255 005a 9AB2     		uxth	r2, r3
+ 256              		.loc 1 116 53
+ 257 005c BDF80230 		ldrh	r3, [sp, #2]
+ 258 0060 12FB03F3 		smulbb	r3, r2, r3
+ 259 0064 9BB2     		uxth	r3, r3
+ 260              		.loc 1 116 3
+ 261 0066 1BB2     		sxth	r3, r3
+ 262 0068 1946     		mov	r1, r3
+ 263 006a 0598     		ldr	r0, [sp, #20]
+ 264 006c FFF7FEFF 		bl	VSS_SetMecAngle
+ 117:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 118:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   /* Sets to zero the starting torque of STC */
+ 119:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   STC_ExecRamp( pSTC, 0, 0u );
+ 265              		.loc 1 119 3
+ 266 0070 0022     		movs	r2, #0
+ 267 0072 0021     		movs	r1, #0
+ 268 0074 0498     		ldr	r0, [sp, #16]
+ 269 0076 FFF7FEFF 		bl	STC_ExecRamp
+ 120:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 121:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   /* Gives the first command to STC and VSS.*/
+ 122:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   STC_ExecRamp( pSTC, pPhaseParams->hFinalTorque * hMotorDirection,
+ 270              		.loc 1 122 35
+ 271 007a 039B     		ldr	r3, [sp, #12]
+ 272 007c B3F90430 		ldrsh	r3, [r3, #4]
+ 273 0080 9AB2     		uxth	r2, r3
+ 274              		.loc 1 122 50
+ 275 0082 BDF80230 		ldrh	r3, [sp, #2]
+ 276 0086 12FB03F3 		smulbb	r3, r2, r3
+ 277 008a 9BB2     		uxth	r3, r3
+ 278              		.loc 1 122 3
+ 279 008c 19B2     		sxth	r1, r3
+ 123:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                 ( uint32_t )( pPhaseParams->hDurationms ) );
+ 280              		.loc 1 123 43
+ 281 008e 039B     		ldr	r3, [sp, #12]
+ 282 0090 1B88     		ldrh	r3, [r3]
+ 122:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                 ( uint32_t )( pPhaseParams->hDurationms ) );
+ 283              		.loc 1 122 3
+ 284 0092 1A46     		mov	r2, r3
+ 285 0094 0498     		ldr	r0, [sp, #16]
+ 286 0096 FFF7FEFF 		bl	STC_ExecRamp
+ 124:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 125:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   VSS_SetMecAcceleration( pVSS, pPhaseParams->hFinalMecSpeedUnit * hMotorDirection,
+ 287              		.loc 1 125 45
+ 288 009a 039B     		ldr	r3, [sp, #12]
+ 289 009c B3F90230 		ldrsh	r3, [r3, #2]
+ 290 00a0 9AB2     		uxth	r2, r3
+ 291              		.loc 1 125 66
+ 292 00a2 BDF80230 		ldrh	r3, [sp, #2]
+ 293 00a6 12FB03F3 		smulbb	r3, r2, r3
+ 294 00aa 9BB2     		uxth	r3, r3
+ 295              		.loc 1 125 3
+ 296 00ac 19B2     		sxth	r1, r3
+ 297 00ae 039B     		ldr	r3, [sp, #12]
+ 298 00b0 1B88     		ldrh	r3, [r3]
+ 299 00b2 1A46     		mov	r2, r3
+ 300 00b4 0598     		ldr	r0, [sp, #20]
+ 301 00b6 FFF7FEFF 		bl	VSS_SetMecAcceleration
+ 126:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                           pPhaseParams->hDurationms );
+ 127:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 128:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   /* Compute hPhaseRemainingTicks.*/
+ 129:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   pHandle->hPhaseRemainingTicks =
+ 130:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****     ( uint16_t )( ( ( uint32_t )pPhaseParams->hDurationms *
+ 302              		.loc 1 130 45
+ 303 00ba 039B     		ldr	r3, [sp, #12]
+ 304 00bc 1B88     		ldrh	r3, [r3]
+ 305              		.loc 1 130 21
+ 306 00be 1A46     		mov	r2, r3
+ 131:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                     ( uint32_t )pHandle->hRUCFrequencyHz ) / 1000u );
+ 307              		.loc 1 131 40
+ 308 00c0 019B     		ldr	r3, [sp, #4]
+ 309 00c2 1B88     		ldrh	r3, [r3]
+ 130:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                     ( uint32_t )pHandle->hRUCFrequencyHz ) / 1000u );
+ 310              		.loc 1 130 59
+ 311 00c4 02FB03F3 		mul	r3, r2, r3
+ 312              		.loc 1 131 60
+ 313 00c8 0C4A     		ldr	r2, .L8
+ 314 00ca A2FB0323 		umull	r2, r3, r2, r3
+ 315 00ce 9B09     		lsrs	r3, r3, #6
+ 130:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                     ( uint32_t )pHandle->hRUCFrequencyHz ) / 1000u );
+ 316              		.loc 1 130 5
+ 317 00d0 9AB2     		uxth	r2, r3
+ 129:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****     ( uint16_t )( ( ( uint32_t )pPhaseParams->hDurationms *
+ 318              		.loc 1 129 33
+ 319 00d2 019B     		ldr	r3, [sp, #4]
+ 320 00d4 9A80     		strh	r2, [r3, #4]	@ movhi
+ 132:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 133:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   pHandle->hPhaseRemainingTicks++;
+ 321              		.loc 1 133 10
+ 322 00d6 019B     		ldr	r3, [sp, #4]
+ 323 00d8 9B88     		ldrh	r3, [r3, #4]
+ 324              		.loc 1 133 32
+ 325 00da 0133     		adds	r3, r3, #1
+ 326 00dc 9AB2     		uxth	r2, r3
+ 327 00de 019B     		ldr	r3, [sp, #4]
+ 328 00e0 9A80     		strh	r2, [r3, #4]	@ movhi
+ 134:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 135:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   /*Set the next phases parameter pointer.*/
+ 136:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   pHandle->pCurrentPhaseParams = pPhaseParams->pNext;
+ 329              		.loc 1 136 46
+ 330 00e2 039B     		ldr	r3, [sp, #12]
+ 331 00e4 9A68     		ldr	r2, [r3, #8]
+ 332              		.loc 1 136 32
+ 333 00e6 019B     		ldr	r3, [sp, #4]
+ 334 00e8 9A60     		str	r2, [r3, #8]
+ 137:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 138:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   /*Timeout counter for PLL reset during OTF.*/
+ 139:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   pHandle->bResetPLLCnt = 0u;
+ 335              		.loc 1 139 25
+ 336 00ea 019B     		ldr	r3, [sp, #4]
+ 337 00ec 0022     		movs	r2, #0
+ 338 00ee 83F85720 		strb	r2, [r3, #87]
+ 140:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** }
+ 339              		.loc 1 140 1
+ 340 00f2 00BF     		nop
+ 341 00f4 07B0     		add	sp, sp, #28
+ 342              		.cfi_def_cfa_offset 4
+ 343              		@ sp needed
+ 344 00f6 5DF804FB 		ldr	pc, [sp], #4
+ 345              	.L9:
+ 346 00fa 00BF     		.align	2
+ 347              	.L8:
+ 348 00fc D34D6210 		.word	274877907
+ 349              		.cfi_endproc
+ 350              	.LFE1249:
+ 352              		.section	.text.RUC_OTF_Exec,"ax",%progbits
+ 353              		.align	1
+ 354              		.p2align 4,,15
+ 355              		.weak	RUC_OTF_Exec
+ 356              		.syntax unified
+ 357              		.thumb
+ 358              		.thumb_func
+ 360              	RUC_OTF_Exec:
+ 361              	.LFB1250:
+ 141:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 142:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** /**
+ 143:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   * @brief  Main revup controller procedure executing overall programmed phases and
+ 144:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   *         on-the-fly startup handling.
+ 145:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   * @param  pHandle: Pointer on Handle structure of RevUp controller.
+ 146:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   *  @retval Boolean set to false when entire revup phases have been completed.
+ 147:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   */
+ 148:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** __weak bool RUC_OTF_Exec( RevUpCtrl_Handle_t * pHandle )
+ 149:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** {
+ 362              		.loc 1 149 1
+ 363              		.cfi_startproc
+ 364              		@ args = 0, pretend = 0, frame = 40
+ 365              		@ frame_needed = 0, uses_anonymous_args = 0
+ 366 0000 00B5     		push	{lr}
+ 367              		.cfi_def_cfa_offset 4
+ 368              		.cfi_offset 14, -4
+ 369 0002 8BB0     		sub	sp, sp, #44
+ 370              		.cfi_def_cfa_offset 48
+ 371 0004 0190     		str	r0, [sp, #4]
+ 150:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   bool IsSpeedReliable;
+ 151:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   bool retVal = true;
+ 372              		.loc 1 151 8
+ 373 0006 0123     		movs	r3, #1
+ 374 0008 8DF82730 		strb	r3, [sp, #39]
+ 152:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   bool condition = false;
+ 375              		.loc 1 152 8
+ 376 000c 0023     		movs	r3, #0
+ 377 000e 8DF82630 		strb	r3, [sp, #38]
+ 153:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 154:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   if ( pHandle->hPhaseRemainingTicks > 0u )
+ 378              		.loc 1 154 15
+ 379 0012 019B     		ldr	r3, [sp, #4]
+ 380 0014 9B88     		ldrh	r3, [r3, #4]
+ 381              		.loc 1 154 6
+ 382 0016 002B     		cmp	r3, #0
+ 383 0018 00F05F81 		beq	.L11
+ 155:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   {
+ 156:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****     /* Decrease the hPhaseRemainingTicks.*/
+ 157:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****     pHandle->hPhaseRemainingTicks--;
+ 384              		.loc 1 157 12
+ 385 001c 019B     		ldr	r3, [sp, #4]
+ 386 001e 9B88     		ldrh	r3, [r3, #4]
+ 387              		.loc 1 157 34
+ 388 0020 013B     		subs	r3, r3, #1
+ 389 0022 9AB2     		uxth	r2, r3
+ 390 0024 019B     		ldr	r3, [sp, #4]
+ 391 0026 9A80     		strh	r2, [r3, #4]	@ movhi
+ 158:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 159:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****     /* OTF start-up */
+ 160:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****     if ( pHandle->bStageCnt == 0u )
+ 392              		.loc 1 160 17
+ 393 0028 019B     		ldr	r3, [sp, #4]
+ 394 002a 93F85830 		ldrb	r3, [r3, #88]	@ zero_extendqisi2
+ 395              		.loc 1 160 8
+ 396 002e 002B     		cmp	r3, #0
+ 397 0030 40F05381 		bne	.L11
+ 161:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****     {
+ 162:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****       if ( pHandle->EnteredZone1 == false )
+ 398              		.loc 1 162 19
+ 399 0034 019B     		ldr	r3, [sp, #4]
+ 400 0036 93F85530 		ldrb	r3, [r3, #85]	@ zero_extendqisi2
+ 401              		.loc 1 162 34
+ 402 003a 83F00103 		eor	r3, r3, #1
+ 403 003e DBB2     		uxtb	r3, r3
+ 404              		.loc 1 162 10
+ 405 0040 002B     		cmp	r3, #0
+ 406 0042 00F04381 		beq	.L12
+ 163:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****       {
+ 164:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****         if ( pHandle->pSNSL->pFctStoOtfResetPLL != MC_NULL )
+ 407              		.loc 1 164 21
+ 408 0046 019B     		ldr	r3, [sp, #4]
+ 409 0048 1B6F     		ldr	r3, [r3, #112]
+ 410              		.loc 1 164 28
+ 411 004a DB68     		ldr	r3, [r3, #12]
+ 412              		.loc 1 164 12
+ 413 004c 002B     		cmp	r3, #0
+ 414 004e 1ED0     		beq	.L13
+ 165:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****         {
+ 166:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****           pHandle->bResetPLLCnt++;
+ 415              		.loc 1 166 18
+ 416 0050 019B     		ldr	r3, [sp, #4]
+ 417 0052 93F85730 		ldrb	r3, [r3, #87]	@ zero_extendqisi2
+ 418              		.loc 1 166 32
+ 419 0056 0133     		adds	r3, r3, #1
+ 420 0058 DAB2     		uxtb	r2, r3
+ 421 005a 019B     		ldr	r3, [sp, #4]
+ 422 005c 83F85720 		strb	r2, [r3, #87]
+ 167:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****           if ( pHandle->bResetPLLCnt > pHandle->bResetPLLTh )
+ 423              		.loc 1 167 23
+ 424 0060 019B     		ldr	r3, [sp, #4]
+ 425 0062 93F85720 		ldrb	r2, [r3, #87]	@ zero_extendqisi2
+ 426              		.loc 1 167 47
+ 427 0066 019B     		ldr	r3, [sp, #4]
+ 428 0068 93F85630 		ldrb	r3, [r3, #86]	@ zero_extendqisi2
+ 429              		.loc 1 167 14
+ 430 006c 9A42     		cmp	r2, r3
+ 431 006e 0ED9     		bls	.L13
+ 168:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****           {
+ 169:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****             pHandle->pSNSL->pFctStoOtfResetPLL( pHandle->pSNSL );
+ 432              		.loc 1 169 20
+ 433 0070 019B     		ldr	r3, [sp, #4]
+ 434 0072 1B6F     		ldr	r3, [r3, #112]
+ 435              		.loc 1 169 27
+ 436 0074 DB68     		ldr	r3, [r3, #12]
+ 437              		.loc 1 169 13
+ 438 0076 019A     		ldr	r2, [sp, #4]
+ 439 0078 126F     		ldr	r2, [r2, #112]
+ 440 007a 1046     		mov	r0, r2
+ 441 007c 9847     		blx	r3
+ 442              	.LVL0:
+ 170:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****             pHandle->bOTFRelCounter = 0u;
+ 443              		.loc 1 170 37
+ 444 007e 019B     		ldr	r3, [sp, #4]
+ 445 0080 0022     		movs	r2, #0
+ 446 0082 83F85320 		strb	r2, [r3, #83]
+ 171:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****             pHandle->bResetPLLCnt = 0u;
+ 447              		.loc 1 171 35
+ 448 0086 019B     		ldr	r3, [sp, #4]
+ 449 0088 0022     		movs	r2, #0
+ 450 008a 83F85720 		strb	r2, [r3, #87]
+ 451              	.L13:
+ 172:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****           }
+ 173:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****         }
+ 174:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 175:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****         IsSpeedReliable = pHandle->pSNSL->pFctSTO_SpeedReliabilityCheck( pHandle->pSNSL );
+ 452              		.loc 1 175 34
+ 453 008e 019B     		ldr	r3, [sp, #4]
+ 454 0090 1B6F     		ldr	r3, [r3, #112]
+ 455              		.loc 1 175 41
+ 456 0092 1B69     		ldr	r3, [r3, #16]
+ 457              		.loc 1 175 81
+ 458 0094 019A     		ldr	r2, [sp, #4]
+ 459 0096 126F     		ldr	r2, [r2, #112]
+ 460              		.loc 1 175 27
+ 461 0098 1046     		mov	r0, r2
+ 462 009a 9847     		blx	r3
+ 463              	.LVL1:
+ 464 009c 0346     		mov	r3, r0
+ 465 009e 8DF81E30 		strb	r3, [sp, #30]
+ 176:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 177:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****         if ( IsSpeedReliable )
+ 466              		.loc 1 177 12
+ 467 00a2 9DF81E30 		ldrb	r3, [sp, #30]	@ zero_extendqisi2
+ 468 00a6 002B     		cmp	r3, #0
+ 469 00a8 0DD0     		beq	.L14
+ 178:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****         {
+ 179:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****           if ( pHandle->bOTFRelCounter < 127u )
+ 470              		.loc 1 179 23
+ 471 00aa 019B     		ldr	r3, [sp, #4]
+ 472 00ac 93F85330 		ldrb	r3, [r3, #83]	@ zero_extendqisi2
+ 473              		.loc 1 179 14
+ 474 00b0 7E2B     		cmp	r3, #126
+ 475 00b2 0CD8     		bhi	.L15
+ 180:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****           {
+ 181:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****             pHandle->bOTFRelCounter++;
+ 476              		.loc 1 181 20
+ 477 00b4 019B     		ldr	r3, [sp, #4]
+ 478 00b6 93F85330 		ldrb	r3, [r3, #83]	@ zero_extendqisi2
+ 479              		.loc 1 181 36
+ 480 00ba 0133     		adds	r3, r3, #1
+ 481 00bc DAB2     		uxtb	r2, r3
+ 482 00be 019B     		ldr	r3, [sp, #4]
+ 483 00c0 83F85320 		strb	r2, [r3, #83]
+ 484 00c4 03E0     		b	.L15
+ 485              	.L14:
+ 182:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****           }
+ 183:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****         }
+ 184:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****         else
+ 185:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****         {
+ 186:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****           pHandle->bOTFRelCounter = 0u;
+ 486              		.loc 1 186 35
+ 487 00c6 019B     		ldr	r3, [sp, #4]
+ 488 00c8 0022     		movs	r2, #0
+ 489 00ca 83F85320 		strb	r2, [r3, #83]
+ 490              	.L15:
+ 187:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****         }
+ 188:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 189:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****         if ( pHandle->pSNSL->pFctStoOtfResetPLL != MC_NULL )
+ 491              		.loc 1 189 21
+ 492 00ce 019B     		ldr	r3, [sp, #4]
+ 493 00d0 1B6F     		ldr	r3, [r3, #112]
+ 494              		.loc 1 189 28
+ 495 00d2 DB68     		ldr	r3, [r3, #12]
+ 496              		.loc 1 189 12
+ 497 00d4 002B     		cmp	r3, #0
+ 498 00d6 0DD0     		beq	.L16
+ 190:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****         {
+ 191:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****           if ( pHandle->bOTFRelCounter == ( pHandle->bResetPLLTh >> 1 ) )
+ 499              		.loc 1 191 23
+ 500 00d8 019B     		ldr	r3, [sp, #4]
+ 501 00da 93F85320 		ldrb	r2, [r3, #83]	@ zero_extendqisi2
+ 502              		.loc 1 191 52
+ 503 00de 019B     		ldr	r3, [sp, #4]
+ 504 00e0 93F85630 		ldrb	r3, [r3, #86]	@ zero_extendqisi2
+ 505              		.loc 1 191 40
+ 506 00e4 5B08     		lsrs	r3, r3, #1
+ 507 00e6 DBB2     		uxtb	r3, r3
+ 508              		.loc 1 191 14
+ 509 00e8 9A42     		cmp	r2, r3
+ 510 00ea 0BD1     		bne	.L17
+ 192:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****           {
+ 193:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****             condition = true;
+ 511              		.loc 1 193 23
+ 512 00ec 0123     		movs	r3, #1
+ 513 00ee 8DF82630 		strb	r3, [sp, #38]
+ 514 00f2 07E0     		b	.L17
+ 515              	.L16:
+ 194:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****           }
+ 195:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****         }
+ 196:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****         else
+ 197:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****         {
+ 198:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****           if ( pHandle->bOTFRelCounter == 127 )
+ 516              		.loc 1 198 23
+ 517 00f4 019B     		ldr	r3, [sp, #4]
+ 518 00f6 93F85330 		ldrb	r3, [r3, #83]	@ zero_extendqisi2
+ 519              		.loc 1 198 14
+ 520 00fa 7F2B     		cmp	r3, #127
+ 521 00fc 02D1     		bne	.L17
+ 199:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****           {
+ 200:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****             condition = true;
+ 522              		.loc 1 200 23
+ 523 00fe 0123     		movs	r3, #1
+ 524 0100 8DF82630 		strb	r3, [sp, #38]
+ 525              	.L17:
+ 201:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****           }
+ 202:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****         }
+ 203:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 204:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****         if ( condition == true )
+ 526              		.loc 1 204 12
+ 527 0104 9DF82630 		ldrb	r3, [sp, #38]	@ zero_extendqisi2
+ 528 0108 002B     		cmp	r3, #0
+ 529 010a 00F0E680 		beq	.L11
+ 530              	.LBB2:
+ 205:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****         {
+ 206:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****           bool bCollinearSpeed = false;
+ 531              		.loc 1 206 16
+ 532 010e 0023     		movs	r3, #0
+ 533 0110 8DF82530 		strb	r3, [sp, #37]
+ 207:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****           int16_t hObsSpeedUnit = SPD_GetAvrgMecSpeedUnit( pHandle->pSNSL->_Super );
+ 534              		.loc 1 207 67
+ 535 0114 019B     		ldr	r3, [sp, #4]
+ 536 0116 1B6F     		ldr	r3, [r3, #112]
+ 537              		.loc 1 207 35
+ 538 0118 1B68     		ldr	r3, [r3]
+ 539 011a 1846     		mov	r0, r3
+ 540 011c FFF7FEFF 		bl	SPD_GetAvrgMecSpeedUnit
+ 541 0120 0346     		mov	r3, r0
+ 542 0122 ADF81C30 		strh	r3, [sp, #28]	@ movhi
+ 208:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****           int16_t hObsSpeedUnitAbsValue =
+ 209:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                   ( hObsSpeedUnit < 0 ? ( -hObsSpeedUnit ) : ( hObsSpeedUnit ) ); /* hObsSpeedUnit 
+ 543              		.loc 1 209 60
+ 544 0126 BDF91C30 		ldrsh	r3, [sp, #28]
+ 545 012a 002B     		cmp	r3, #0
+ 546 012c B8BF     		it	lt
+ 547 012e 5B42     		rsblt	r3, r3, #0
+ 548 0130 9BB2     		uxth	r3, r3
+ 208:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****           int16_t hObsSpeedUnitAbsValue =
+ 549              		.loc 1 208 19
+ 550 0132 ADF81A30 		strh	r3, [sp, #26]	@ movhi
+ 210:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 211:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****           if ( pHandle->hDirection > 0 )
+ 551              		.loc 1 211 23
+ 552 0136 019B     		ldr	r3, [sp, #4]
+ 553 0138 B3F90630 		ldrsh	r3, [r3, #6]
+ 554              		.loc 1 211 14
+ 555 013c 002B     		cmp	r3, #0
+ 556 013e 07DD     		ble	.L18
+ 212:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****           {
+ 213:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****             if ( hObsSpeedUnit > 0 )
+ 557              		.loc 1 213 16
+ 558 0140 BDF91C30 		ldrsh	r3, [sp, #28]
+ 559 0144 002B     		cmp	r3, #0
+ 560 0146 0ADD     		ble	.L19
+ 214:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****             {
+ 215:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****               bCollinearSpeed = true; /* actual and reference speed are collinear*/
+ 561              		.loc 1 215 31
+ 562 0148 0123     		movs	r3, #1
+ 563 014a 8DF82530 		strb	r3, [sp, #37]
+ 564 014e 06E0     		b	.L19
+ 565              	.L18:
+ 216:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****             }
+ 217:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****           }
+ 218:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****           else
+ 219:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****           {
+ 220:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****             if ( hObsSpeedUnit < 0 )
+ 566              		.loc 1 220 16
+ 567 0150 BDF91C30 		ldrsh	r3, [sp, #28]
+ 568 0154 002B     		cmp	r3, #0
+ 569 0156 02DA     		bge	.L19
+ 221:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****             {
+ 222:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****               bCollinearSpeed = true; /* actual and reference speed are collinear*/
+ 570              		.loc 1 222 31
+ 571 0158 0123     		movs	r3, #1
+ 572 015a 8DF82530 		strb	r3, [sp, #37]
+ 573              	.L19:
+ 223:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****             }
+ 224:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****           }
+ 225:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 226:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****           if ( bCollinearSpeed == false )
+ 574              		.loc 1 226 32
+ 575 015e 9DF82530 		ldrb	r3, [sp, #37]
+ 576 0162 83F00103 		eor	r3, r3, #1
+ 577 0166 DBB2     		uxtb	r3, r3
+ 578              		.loc 1 226 14
+ 579 0168 002B     		cmp	r3, #0
+ 580 016a 04D0     		beq	.L20
+ 227:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****           {
+ 228:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****             /*reverse speed management*/
+ 229:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****             pHandle->bOTFRelCounter = 0u;
+ 581              		.loc 1 229 37
+ 582 016c 019B     		ldr	r3, [sp, #4]
+ 583 016e 0022     		movs	r2, #0
+ 584 0170 83F85320 		strb	r2, [r3, #83]
+ 585 0174 B1E0     		b	.L11
+ 586              	.L20:
+ 230:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****           }
+ 231:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****           else /*speeds are collinear*/
+ 232:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****           {
+ 233:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****             if ( ( uint16_t )( hObsSpeedUnitAbsValue ) > pHandle->hMinStartUpValidSpeed )
+ 587              		.loc 1 233 65
+ 588 0176 019B     		ldr	r3, [sp, #4]
+ 589 0178 B3F84A20 		ldrh	r2, [r3, #74]
+ 590              		.loc 1 233 56
+ 591 017c BDF81A30 		ldrh	r3, [sp, #26]
+ 592              		.loc 1 233 16
+ 593 0180 9A42     		cmp	r2, r3
+ 594 0182 0BD2     		bcs	.L21
+ 234:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****             {
+ 235:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****               /* startup end, go to run */
+ 236:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****               pHandle->pSNSL->pFctForceConvergency1( pHandle->pSNSL );
+ 595              		.loc 1 236 22
+ 596 0184 019B     		ldr	r3, [sp, #4]
+ 597 0186 1B6F     		ldr	r3, [r3, #112]
+ 598              		.loc 1 236 29
+ 599 0188 5B68     		ldr	r3, [r3, #4]
+ 600              		.loc 1 236 15
+ 601 018a 019A     		ldr	r2, [sp, #4]
+ 602 018c 126F     		ldr	r2, [r2, #112]
+ 603 018e 1046     		mov	r0, r2
+ 604 0190 9847     		blx	r3
+ 605              	.LVL2:
+ 237:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****               pHandle->EnteredZone1 = true;
+ 606              		.loc 1 237 37
+ 607 0192 019B     		ldr	r3, [sp, #4]
+ 608 0194 0122     		movs	r2, #1
+ 609 0196 83F85520 		strb	r2, [r3, #85]
+ 610 019a 9EE0     		b	.L11
+ 611              	.L21:
+ 238:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****             }
+ 239:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****             else if ( ( uint16_t )( hObsSpeedUnitAbsValue ) > pHandle->hMinStartUpFlySpeed )
+ 612              		.loc 1 239 70
+ 613 019c 019B     		ldr	r3, [sp, #4]
+ 614 019e B3F84C20 		ldrh	r2, [r3, #76]
+ 615              		.loc 1 239 61
+ 616 01a2 BDF81A30 		ldrh	r3, [sp, #26]
+ 617              		.loc 1 239 21
+ 618 01a6 9A42     		cmp	r2, r3
+ 619 01a8 80F09780 		bcs	.L11
+ 620              	.LBB3:
+ 240:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****             {
+ 241:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****               /* synch with startup*/
+ 242:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****               /* nearest phase search*/
+ 243:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****               int16_t hOldFinalMecSpeedUnit = 0;
+ 621              		.loc 1 243 23
+ 622 01ac 0023     		movs	r3, #0
+ 623 01ae ADF82230 		strh	r3, [sp, #34]	@ movhi
+ 244:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****               int16_t hOldFinalTorque = 0;
+ 624              		.loc 1 244 23
+ 625 01b2 0023     		movs	r3, #0
+ 626 01b4 ADF82030 		strh	r3, [sp, #32]	@ movhi
+ 245:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****               int32_t wDeltaSpeedRevUp;
+ 246:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****               int32_t wDeltaTorqueRevUp;
+ 247:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****               bool bError = false;
+ 627              		.loc 1 247 20
+ 628 01b8 0023     		movs	r3, #0
+ 629 01ba 8DF81F30 		strb	r3, [sp, #31]
+ 248:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****               VSS_SetCopyObserver( pHandle->pVSS );
+ 630              		.loc 1 248 15
+ 631 01be 019B     		ldr	r3, [sp, #4]
+ 632 01c0 DB6E     		ldr	r3, [r3, #108]
+ 633 01c2 1846     		mov	r0, r3
+ 634 01c4 FFF7FEFF 		bl	VSS_SetCopyObserver
+ 249:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****               pHandle->pSNSL->pFctForceConvergency2( pHandle->pSNSL );
+ 635              		.loc 1 249 22
+ 636 01c8 019B     		ldr	r3, [sp, #4]
+ 637 01ca 1B6F     		ldr	r3, [r3, #112]
+ 638              		.loc 1 249 29
+ 639 01cc 9B68     		ldr	r3, [r3, #8]
+ 640              		.loc 1 249 15
+ 641 01ce 019A     		ldr	r2, [sp, #4]
+ 642 01d0 126F     		ldr	r2, [r2, #112]
+ 643 01d2 1046     		mov	r0, r2
+ 644 01d4 9847     		blx	r3
+ 645              	.LVL3:
+ 250:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 251:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****               if (pHandle->pCurrentPhaseParams == MC_NULL)
+ 646              		.loc 1 251 26
+ 647 01d6 019B     		ldr	r3, [sp, #4]
+ 648 01d8 9B68     		ldr	r3, [r3, #8]
+ 649              		.loc 1 251 18
+ 650 01da 002B     		cmp	r3, #0
+ 651 01dc 29D1     		bne	.L24
+ 252:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****               {
+ 253:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                 bError = true;
+ 652              		.loc 1 253 24
+ 653 01de 0123     		movs	r3, #1
+ 654 01e0 8DF81F30 		strb	r3, [sp, #31]
+ 254:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                 pHandle->hPhaseRemainingTicks = 0u;
+ 655              		.loc 1 254 47
+ 656 01e4 019B     		ldr	r3, [sp, #4]
+ 657 01e6 0022     		movs	r2, #0
+ 658 01e8 9A80     		strh	r2, [r3, #4]	@ movhi
+ 659 01ea 2AE0     		b	.L23
+ 660              	.L26:
+ 255:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****               }
+ 256:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****               else
+ 257:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****               {
+ 258:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                 while ( pHandle->pCurrentPhaseParams->hFinalMecSpeedUnit < hObsSpeedUnitAbsValue )
+ 259:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                 {
+ 260:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                   if ( pHandle->pCurrentPhaseParams->pNext == MC_NULL )
+ 661              		.loc 1 260 31
+ 662 01ec 019B     		ldr	r3, [sp, #4]
+ 663 01ee 9B68     		ldr	r3, [r3, #8]
+ 664              		.loc 1 260 52
+ 665 01f0 9B68     		ldr	r3, [r3, #8]
+ 666              		.loc 1 260 22
+ 667 01f2 002B     		cmp	r3, #0
+ 668 01f4 06D1     		bne	.L25
+ 261:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                   {
+ 262:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                     /* sets for Revup fail error*/
+ 263:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                     bError = true;
+ 669              		.loc 1 263 28
+ 670 01f6 0123     		movs	r3, #1
+ 671 01f8 8DF81F30 		strb	r3, [sp, #31]
+ 264:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                     pHandle->hPhaseRemainingTicks = 0u;
+ 672              		.loc 1 264 51
+ 673 01fc 019B     		ldr	r3, [sp, #4]
+ 674 01fe 0022     		movs	r2, #0
+ 675 0200 9A80     		strh	r2, [r3, #4]	@ movhi
+ 265:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                     break;
+ 676              		.loc 1 265 21
+ 677 0202 1EE0     		b	.L23
+ 678              	.L25:
+ 266:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                   }
+ 267:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                   else
+ 268:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                   {
+ 269:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                     /* skips this phase*/
+ 270:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                     hOldFinalMecSpeedUnit = pHandle->pCurrentPhaseParams->hFinalMecSpeedUnit;
+ 679              		.loc 1 270 52
+ 680 0204 019B     		ldr	r3, [sp, #4]
+ 681 0206 9B68     		ldr	r3, [r3, #8]
+ 682              		.loc 1 270 43
+ 683 0208 5B88     		ldrh	r3, [r3, #2]	@ movhi
+ 684 020a ADF82230 		strh	r3, [sp, #34]	@ movhi
+ 271:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                     hOldFinalTorque = pHandle->pCurrentPhaseParams->hFinalTorque;
+ 685              		.loc 1 271 46
+ 686 020e 019B     		ldr	r3, [sp, #4]
+ 687 0210 9B68     		ldr	r3, [r3, #8]
+ 688              		.loc 1 271 37
+ 689 0212 9B88     		ldrh	r3, [r3, #4]	@ movhi
+ 690 0214 ADF82030 		strh	r3, [sp, #32]	@ movhi
+ 272:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                     pHandle->pCurrentPhaseParams = pHandle->pCurrentPhaseParams->pNext;
+ 691              		.loc 1 272 59
+ 692 0218 019B     		ldr	r3, [sp, #4]
+ 693 021a 9B68     		ldr	r3, [r3, #8]
+ 694              		.loc 1 272 80
+ 695 021c 9A68     		ldr	r2, [r3, #8]
+ 696              		.loc 1 272 50
+ 697 021e 019B     		ldr	r3, [sp, #4]
+ 698 0220 9A60     		str	r2, [r3, #8]
+ 273:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                     pHandle->bStageCnt++;
+ 699              		.loc 1 273 28
+ 700 0222 019B     		ldr	r3, [sp, #4]
+ 701 0224 93F85830 		ldrb	r3, [r3, #88]	@ zero_extendqisi2
+ 702              		.loc 1 273 39
+ 703 0228 0133     		adds	r3, r3, #1
+ 704 022a DAB2     		uxtb	r2, r3
+ 705 022c 019B     		ldr	r3, [sp, #4]
+ 706 022e 83F85820 		strb	r2, [r3, #88]
+ 707              	.L24:
+ 258:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                 {
+ 708              		.loc 1 258 32
+ 709 0232 019B     		ldr	r3, [sp, #4]
+ 710 0234 9B68     		ldr	r3, [r3, #8]
+ 258:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                 {
+ 711              		.loc 1 258 53
+ 712 0236 B3F90230 		ldrsh	r3, [r3, #2]
+ 258:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                 {
+ 713              		.loc 1 258 74
+ 714 023a BDF91A20 		ldrsh	r2, [sp, #26]
+ 715 023e 9A42     		cmp	r2, r3
+ 716 0240 D4DC     		bgt	.L26
+ 717              	.L23:
+ 274:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                   }
+ 275:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                 }
+ 276:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****               }
+ 277:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 278:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****               if ( bError == false )
+ 718              		.loc 1 278 27
+ 719 0242 9DF81F30 		ldrb	r3, [sp, #31]
+ 720 0246 83F00103 		eor	r3, r3, #1
+ 721 024a DBB2     		uxtb	r3, r3
+ 722              		.loc 1 278 18
+ 723 024c 002B     		cmp	r3, #0
+ 724 024e 44D0     		beq	.L11
+ 725              	.LBB4:
+ 279:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****               {
+ 280:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                 /* calculation of the transition phase from OTF to standard revup */
+ 281:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                 int16_t hTorqueReference;
+ 282:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 283:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                 wDeltaSpeedRevUp = ( int32_t )( pHandle->pCurrentPhaseParams->hFinalMecSpeedUnit ) 
+ 726              		.loc 1 283 56
+ 727 0250 019B     		ldr	r3, [sp, #4]
+ 728 0252 9B68     		ldr	r3, [r3, #8]
+ 729              		.loc 1 283 77
+ 730 0254 B3F90230 		ldrsh	r3, [r3, #2]
+ 731              		.loc 1 283 36
+ 732 0258 1A46     		mov	r2, r3
+ 733              		.loc 1 283 102
+ 734 025a BDF92230 		ldrsh	r3, [sp, #34]
+ 735              		.loc 1 283 34
+ 736 025e D31A     		subs	r3, r2, r3
+ 737 0260 0593     		str	r3, [sp, #20]
+ 284:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                 wDeltaTorqueRevUp = ( int32_t )( pHandle->pCurrentPhaseParams->hFinalTorque ) - ( i
+ 738              		.loc 1 284 57
+ 739 0262 019B     		ldr	r3, [sp, #4]
+ 740 0264 9B68     		ldr	r3, [r3, #8]
+ 741              		.loc 1 284 78
+ 742 0266 B3F90430 		ldrsh	r3, [r3, #4]
+ 743              		.loc 1 284 37
+ 744 026a 1A46     		mov	r2, r3
+ 745              		.loc 1 284 97
+ 746 026c BDF92030 		ldrsh	r3, [sp, #32]
+ 747              		.loc 1 284 35
+ 748 0270 D31A     		subs	r3, r2, r3
+ 749 0272 0493     		str	r3, [sp, #16]
+ 285:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 286:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                 hTorqueReference = ( int16_t )( ( ( ( int32_t )hObsSpeedUnit ) * wDeltaTorqueRevUp 
+ 750              		.loc 1 286 53
+ 751 0274 BDF91C30 		ldrsh	r3, [sp, #28]
+ 752              		.loc 1 286 80
+ 753 0278 049A     		ldr	r2, [sp, #16]
+ 754 027a 03FB02F2 		mul	r2, r3, r2
+ 755              		.loc 1 286 102
+ 756 027e 059B     		ldr	r3, [sp, #20]
+ 757 0280 92FBF3F3 		sdiv	r3, r2, r3
+ 758              		.loc 1 286 36
+ 759 0284 9AB2     		uxth	r2, r3
+ 760              		.loc 1 286 123
+ 761 0286 BDF82030 		ldrh	r3, [sp, #32]
+ 762 028a 1344     		add	r3, r3, r2
+ 763 028c 9BB2     		uxth	r3, r3
+ 764              		.loc 1 286 34
+ 765 028e ADF80E30 		strh	r3, [sp, #14]	@ movhi
+ 287:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                         hOldFinalTorque;
+ 288:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 289:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                 STC_ExecRamp( pHandle->pSTC, pHandle->hDirection * hTorqueReference, 0u );
+ 766              		.loc 1 289 17
+ 767 0292 019B     		ldr	r3, [sp, #4]
+ 768 0294 986E     		ldr	r0, [r3, #104]
+ 769              		.loc 1 289 53
+ 770 0296 019B     		ldr	r3, [sp, #4]
+ 771 0298 B3F90630 		ldrsh	r3, [r3, #6]
+ 772 029c 9AB2     		uxth	r2, r3
+ 773              		.loc 1 289 66
+ 774 029e BDF80E30 		ldrh	r3, [sp, #14]
+ 775 02a2 12FB03F3 		smulbb	r3, r2, r3
+ 776 02a6 9BB2     		uxth	r3, r3
+ 777              		.loc 1 289 17
+ 778 02a8 1BB2     		sxth	r3, r3
+ 779 02aa 0022     		movs	r2, #0
+ 780 02ac 1946     		mov	r1, r3
+ 781 02ae FFF7FEFF 		bl	STC_ExecRamp
+ 290:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 291:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                 pHandle->hPhaseRemainingTicks = 1u;
+ 782              		.loc 1 291 47
+ 783 02b2 019B     		ldr	r3, [sp, #4]
+ 784 02b4 0122     		movs	r2, #1
+ 785 02b6 9A80     		strh	r2, [r3, #4]	@ movhi
+ 292:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 293:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                 pHandle->pCurrentPhaseParams = &pHandle->OTFPhaseParams;
+ 786              		.loc 1 293 48
+ 787 02b8 019B     		ldr	r3, [sp, #4]
+ 788 02ba 03F15C02 		add	r2, r3, #92
+ 789              		.loc 1 293 46
+ 790 02be 019B     		ldr	r3, [sp, #4]
+ 791 02c0 9A60     		str	r2, [r3, #8]
+ 294:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 295:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                 pHandle->bStageCnt = 6u;
+ 792              		.loc 1 295 36
+ 793 02c2 019B     		ldr	r3, [sp, #4]
+ 794 02c4 0622     		movs	r2, #6
+ 795 02c6 83F85820 		strb	r2, [r3, #88]
+ 796 02ca 06E0     		b	.L11
+ 797              	.L12:
+ 798              	.LBE4:
+ 799              	.LBE3:
+ 800              	.LBE2:
+ 296:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****               } /* no MC_NULL error */
+ 297:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****             } /* speed > MinStartupFly */
+ 298:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****             else
+ 299:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****             {
+ 300:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****             }
+ 301:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****           } /* speeds are collinear */
+ 302:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****         } /* speed is reliable */
+ 303:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****       }/*EnteredZone1 1 is false */
+ 304:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****       else
+ 305:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****       {
+ 306:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****         pHandle->pSNSL->pFctForceConvergency1( pHandle->pSNSL );
+ 801              		.loc 1 306 16
+ 802 02cc 019B     		ldr	r3, [sp, #4]
+ 803 02ce 1B6F     		ldr	r3, [r3, #112]
+ 804              		.loc 1 306 23
+ 805 02d0 5B68     		ldr	r3, [r3, #4]
+ 806              		.loc 1 306 9
+ 807 02d2 019A     		ldr	r2, [sp, #4]
+ 808 02d4 126F     		ldr	r2, [r2, #112]
+ 809 02d6 1046     		mov	r0, r2
+ 810 02d8 9847     		blx	r3
+ 811              	.LVL4:
+ 812              	.L11:
+ 307:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****       }
+ 308:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****     } /*stage 0*/
+ 309:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   } /* hPhaseRemainingTicks > 0 */
+ 310:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 311:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   if ( pHandle->hPhaseRemainingTicks == 0u )
+ 813              		.loc 1 311 15
+ 814 02da 019B     		ldr	r3, [sp, #4]
+ 815 02dc 9B88     		ldrh	r3, [r3, #4]
+ 816              		.loc 1 311 6
+ 817 02de 002B     		cmp	r3, #0
+ 818 02e0 40F09180 		bne	.L27
+ 312:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   {
+ 313:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****     if ( pHandle->pCurrentPhaseParams != MC_NULL )
+ 819              		.loc 1 313 17
+ 820 02e4 019B     		ldr	r3, [sp, #4]
+ 821 02e6 9B68     		ldr	r3, [r3, #8]
+ 822              		.loc 1 313 8
+ 823 02e8 002B     		cmp	r3, #0
+ 824 02ea 72D0     		beq	.L28
+ 314:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****     {
+ 315:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****       if ( pHandle->bStageCnt == 0u )
+ 825              		.loc 1 315 19
+ 826 02ec 019B     		ldr	r3, [sp, #4]
+ 827 02ee 93F85830 		ldrb	r3, [r3, #88]	@ zero_extendqisi2
+ 828              		.loc 1 315 10
+ 829 02f2 002B     		cmp	r3, #0
+ 830 02f4 12D1     		bne	.L29
+ 316:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****       {
+ 317:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****         /*end of OTF*/
+ 318:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****         PWMC_SwitchOffPWM( pHandle->pPWM );
+ 831              		.loc 1 318 9
+ 832 02f6 019B     		ldr	r3, [sp, #4]
+ 833 02f8 5B6F     		ldr	r3, [r3, #116]
+ 834 02fa 1846     		mov	r0, r3
+ 835 02fc FFF7FEFF 		bl	PWMC_SwitchOffPWM
+ 319:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****         pHandle->OTFSCLowside = true;
+ 836              		.loc 1 319 31
+ 837 0300 019B     		ldr	r3, [sp, #4]
+ 838 0302 0122     		movs	r2, #1
+ 839 0304 83F85420 		strb	r2, [r3, #84]
+ 320:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****         PWMC_TurnOnLowSides( pHandle->pPWM );
+ 840              		.loc 1 320 9
+ 841 0308 019B     		ldr	r3, [sp, #4]
+ 842 030a 5B6F     		ldr	r3, [r3, #116]
+ 843 030c 1846     		mov	r0, r3
+ 844 030e FFF7FEFF 		bl	PWMC_TurnOnLowSides
+ 321:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****         pHandle->bOTFRelCounter = 0u;
+ 845              		.loc 1 321 33
+ 846 0312 019B     		ldr	r3, [sp, #4]
+ 847 0314 0022     		movs	r2, #0
+ 848 0316 83F85320 		strb	r2, [r3, #83]
+ 849 031a 0DE0     		b	.L30
+ 850              	.L29:
+ 322:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****       }
+ 323:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****       else if ( ( pHandle->bStageCnt == 1u ) )
+ 851              		.loc 1 323 26
+ 852 031c 019B     		ldr	r3, [sp, #4]
+ 853 031e 93F85830 		ldrb	r3, [r3, #88]	@ zero_extendqisi2
+ 854              		.loc 1 323 15
+ 855 0322 012B     		cmp	r3, #1
+ 856 0324 08D1     		bne	.L30
+ 324:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****       {
+ 325:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****         PWMC_SwitchOnPWM( pHandle->pPWM );
+ 857              		.loc 1 325 9
+ 858 0326 019B     		ldr	r3, [sp, #4]
+ 859 0328 5B6F     		ldr	r3, [r3, #116]
+ 860 032a 1846     		mov	r0, r3
+ 861 032c FFF7FEFF 		bl	PWMC_SwitchOnPWM
+ 326:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****         pHandle->OTFSCLowside = false;
+ 862              		.loc 1 326 31
+ 863 0330 019B     		ldr	r3, [sp, #4]
+ 864 0332 0022     		movs	r2, #0
+ 865 0334 83F85420 		strb	r2, [r3, #84]
+ 866              	.L30:
+ 327:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****       }
+ 328:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****       else
+ 329:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****       {
+ 330:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****       }
+ 331:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 332:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****       /* If it becomes zero the current phase has been completed.*/
+ 333:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****       /* Gives the next command to STC and VSS.*/
+ 334:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****       STC_ExecRamp( pHandle->pSTC, pHandle->pCurrentPhaseParams->hFinalTorque * pHandle->hDirection
+ 867              		.loc 1 334 7
+ 868 0338 019B     		ldr	r3, [sp, #4]
+ 869 033a 986E     		ldr	r0, [r3, #104]
+ 870              		.loc 1 334 43
+ 871 033c 019B     		ldr	r3, [sp, #4]
+ 872 033e 9B68     		ldr	r3, [r3, #8]
+ 873              		.loc 1 334 64
+ 874 0340 B3F90430 		ldrsh	r3, [r3, #4]
+ 875 0344 9AB2     		uxth	r2, r3
+ 876              		.loc 1 334 88
+ 877 0346 019B     		ldr	r3, [sp, #4]
+ 878 0348 B3F90630 		ldrsh	r3, [r3, #6]
+ 879 034c 9BB2     		uxth	r3, r3
+ 880              		.loc 1 334 79
+ 881 034e 12FB03F3 		smulbb	r3, r2, r3
+ 882 0352 9BB2     		uxth	r3, r3
+ 883              		.loc 1 334 7
+ 884 0354 19B2     		sxth	r1, r3
+ 335:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                     ( uint32_t )( pHandle->pCurrentPhaseParams->hDurationms ) );
+ 885              		.loc 1 335 42
+ 886 0356 019B     		ldr	r3, [sp, #4]
+ 887 0358 9B68     		ldr	r3, [r3, #8]
+ 888              		.loc 1 335 63
+ 889 035a 1B88     		ldrh	r3, [r3]
+ 334:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                     ( uint32_t )( pHandle->pCurrentPhaseParams->hDurationms ) );
+ 890              		.loc 1 334 7
+ 891 035c 1A46     		mov	r2, r3
+ 892 035e FFF7FEFF 		bl	STC_ExecRamp
+ 336:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 337:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****       VSS_SetMecAcceleration( pHandle->pVSS,
+ 893              		.loc 1 337 7
+ 894 0362 019B     		ldr	r3, [sp, #4]
+ 895 0364 D86E     		ldr	r0, [r3, #108]
+ 338:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                               pHandle->pCurrentPhaseParams->hFinalMecSpeedUnit * pHandle->hDirectio
+ 896              		.loc 1 338 38
+ 897 0366 019B     		ldr	r3, [sp, #4]
+ 898 0368 9B68     		ldr	r3, [r3, #8]
+ 899              		.loc 1 338 59
+ 900 036a B3F90230 		ldrsh	r3, [r3, #2]
+ 901 036e 9AB2     		uxth	r2, r3
+ 902              		.loc 1 338 89
+ 903 0370 019B     		ldr	r3, [sp, #4]
+ 904 0372 B3F90630 		ldrsh	r3, [r3, #6]
+ 905 0376 9BB2     		uxth	r3, r3
+ 906              		.loc 1 338 80
+ 907 0378 12FB03F3 		smulbb	r3, r2, r3
+ 908 037c 9BB2     		uxth	r3, r3
+ 337:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                               pHandle->pCurrentPhaseParams->hFinalMecSpeedUnit * pHandle->hDirectio
+ 909              		.loc 1 337 7
+ 910 037e 19B2     		sxth	r1, r3
+ 339:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                               pHandle->pCurrentPhaseParams->hDurationms );
+ 911              		.loc 1 339 38
+ 912 0380 019B     		ldr	r3, [sp, #4]
+ 913 0382 9B68     		ldr	r3, [r3, #8]
+ 337:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                               pHandle->pCurrentPhaseParams->hFinalMecSpeedUnit * pHandle->hDirectio
+ 914              		.loc 1 337 7
+ 915 0384 1B88     		ldrh	r3, [r3]
+ 916 0386 1A46     		mov	r2, r3
+ 917 0388 FFF7FEFF 		bl	VSS_SetMecAcceleration
+ 340:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 341:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****       /* Compute hPhaseRemainingTicks.*/
+ 342:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****       pHandle->hPhaseRemainingTicks =
+ 343:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****               ( uint16_t )( ( ( uint32_t )pHandle->pCurrentPhaseParams->hDurationms *
+ 918              		.loc 1 343 50
+ 919 038c 019B     		ldr	r3, [sp, #4]
+ 920 038e 9B68     		ldr	r3, [r3, #8]
+ 921              		.loc 1 343 71
+ 922 0390 1B88     		ldrh	r3, [r3]
+ 923              		.loc 1 343 31
+ 924 0392 1A46     		mov	r2, r3
+ 344:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                       ( uint32_t )pHandle->hRUCFrequencyHz ) / 1000u );
+ 925              		.loc 1 344 42
+ 926 0394 019B     		ldr	r3, [sp, #4]
+ 927 0396 1B88     		ldrh	r3, [r3]
+ 343:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                       ( uint32_t )pHandle->hRUCFrequencyHz ) / 1000u );
+ 928              		.loc 1 343 85
+ 929 0398 02FB03F3 		mul	r3, r2, r3
+ 930              		.loc 1 344 62
+ 931 039c 1D4A     		ldr	r2, .L33
+ 932 039e A2FB0323 		umull	r2, r3, r2, r3
+ 933 03a2 9B09     		lsrs	r3, r3, #6
+ 343:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                       ( uint32_t )pHandle->hRUCFrequencyHz ) / 1000u );
+ 934              		.loc 1 343 15
+ 935 03a4 9AB2     		uxth	r2, r3
+ 342:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****               ( uint16_t )( ( ( uint32_t )pHandle->pCurrentPhaseParams->hDurationms *
+ 936              		.loc 1 342 37
+ 937 03a6 019B     		ldr	r3, [sp, #4]
+ 938 03a8 9A80     		strh	r2, [r3, #4]	@ movhi
+ 345:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****       pHandle->hPhaseRemainingTicks++;
+ 939              		.loc 1 345 14
+ 940 03aa 019B     		ldr	r3, [sp, #4]
+ 941 03ac 9B88     		ldrh	r3, [r3, #4]
+ 942              		.loc 1 345 36
+ 943 03ae 0133     		adds	r3, r3, #1
+ 944 03b0 9AB2     		uxth	r2, r3
+ 945 03b2 019B     		ldr	r3, [sp, #4]
+ 946 03b4 9A80     		strh	r2, [r3, #4]	@ movhi
+ 346:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 347:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****       /*Set the next phases parameter pointer.*/
+ 348:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****       pHandle->pCurrentPhaseParams = pHandle->pCurrentPhaseParams->pNext;
+ 947              		.loc 1 348 45
+ 948 03b6 019B     		ldr	r3, [sp, #4]
+ 949 03b8 9B68     		ldr	r3, [r3, #8]
+ 950              		.loc 1 348 66
+ 951 03ba 9A68     		ldr	r2, [r3, #8]
+ 952              		.loc 1 348 36
+ 953 03bc 019B     		ldr	r3, [sp, #4]
+ 954 03be 9A60     		str	r2, [r3, #8]
+ 349:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 350:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****       /*Increases the rev up stages counter.*/
+ 351:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****       pHandle->bStageCnt++;
+ 955              		.loc 1 351 14
+ 956 03c0 019B     		ldr	r3, [sp, #4]
+ 957 03c2 93F85830 		ldrb	r3, [r3, #88]	@ zero_extendqisi2
+ 958              		.loc 1 351 25
+ 959 03c6 0133     		adds	r3, r3, #1
+ 960 03c8 DAB2     		uxtb	r2, r3
+ 961 03ca 019B     		ldr	r3, [sp, #4]
+ 962 03cc 83F85820 		strb	r2, [r3, #88]
+ 963 03d0 19E0     		b	.L27
+ 964              	.L28:
+ 352:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****     }
+ 353:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****     else
+ 354:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****     {
+ 355:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****       if ( pHandle->bStageCnt == pHandle->bPhaseNbr - 1 ) /* End of user programmed revup */
+ 965              		.loc 1 355 19
+ 966 03d2 019B     		ldr	r3, [sp, #4]
+ 967 03d4 93F85830 		ldrb	r3, [r3, #88]	@ zero_extendqisi2
+ 968 03d8 1A46     		mov	r2, r3
+ 969              		.loc 1 355 41
+ 970 03da 019B     		ldr	r3, [sp, #4]
+ 971 03dc 93F84830 		ldrb	r3, [r3, #72]	@ zero_extendqisi2
+ 972              		.loc 1 355 53
+ 973 03e0 013B     		subs	r3, r3, #1
+ 974              		.loc 1 355 10
+ 975 03e2 9A42     		cmp	r2, r3
+ 976 03e4 03D1     		bne	.L31
+ 356:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****       {
+ 357:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****         retVal = false;
+ 977              		.loc 1 357 16
+ 978 03e6 0023     		movs	r3, #0
+ 979 03e8 8DF82730 		strb	r3, [sp, #39]
+ 980 03ec 0BE0     		b	.L27
+ 981              	.L31:
+ 358:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****       }
+ 359:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****       else if ( pHandle->bStageCnt == 7u ) /* End of first OTF runs */
+ 982              		.loc 1 359 24
+ 983 03ee 019B     		ldr	r3, [sp, #4]
+ 984 03f0 93F85830 		ldrb	r3, [r3, #88]	@ zero_extendqisi2
+ 985              		.loc 1 359 15
+ 986 03f4 072B     		cmp	r3, #7
+ 987 03f6 06D1     		bne	.L27
+ 360:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****       {
+ 361:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****         pHandle->bStageCnt = 0u; /* Breaking state */
+ 988              		.loc 1 361 28
+ 989 03f8 019B     		ldr	r3, [sp, #4]
+ 990 03fa 0022     		movs	r2, #0
+ 991 03fc 83F85820 		strb	r2, [r3, #88]
+ 362:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****         pHandle->hPhaseRemainingTicks = 0u;
+ 992              		.loc 1 362 39
+ 993 0400 019B     		ldr	r3, [sp, #4]
+ 994 0402 0022     		movs	r2, #0
+ 995 0404 9A80     		strh	r2, [r3, #4]	@ movhi
+ 996              	.L27:
+ 363:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****       }
+ 364:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****       else
+ 365:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****       {
+ 366:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****       }
+ 367:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****     }
+ 368:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   }
+ 369:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   return retVal;
+ 997              		.loc 1 369 10
+ 998 0406 9DF82730 		ldrb	r3, [sp, #39]	@ zero_extendqisi2
+ 370:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** }
+ 999              		.loc 1 370 1
+ 1000 040a 1846     		mov	r0, r3
+ 1001 040c 0BB0     		add	sp, sp, #44
+ 1002              		.cfi_def_cfa_offset 4
+ 1003              		@ sp needed
+ 1004 040e 5DF804FB 		ldr	pc, [sp], #4
+ 1005              	.L34:
+ 1006 0412 00BF     		.align	2
+ 1007              	.L33:
+ 1008 0414 D34D6210 		.word	274877907
+ 1009              		.cfi_endproc
+ 1010              	.LFE1250:
+ 1012              		.section	.text.RUC_Exec,"ax",%progbits
+ 1013              		.align	1
+ 1014              		.p2align 4,,15
+ 1015              		.weak	RUC_Exec
+ 1016              		.syntax unified
+ 1017              		.thumb
+ 1018              		.thumb_func
+ 1020              	RUC_Exec:
+ 1021              	.LFB1251:
+ 371:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 372:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** /**
+ 373:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   * @brief  Main revup controller procedure executing overall programmed phases.
+ 374:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   * @param  pHandle: Pointer on Handle structure of RevUp controller.
+ 375:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   *  @retval Boolean set to false when entire revup phases have been completed.
+ 376:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   */
+ 377:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** __weak bool RUC_Exec( RevUpCtrl_Handle_t * pHandle )
+ 378:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** {
+ 1022              		.loc 1 378 1
+ 1023              		.cfi_startproc
+ 1024              		@ args = 0, pretend = 0, frame = 16
+ 1025              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1026 0000 00B5     		push	{lr}
+ 1027              		.cfi_def_cfa_offset 4
+ 1028              		.cfi_offset 14, -4
+ 1029 0002 85B0     		sub	sp, sp, #20
+ 1030              		.cfi_def_cfa_offset 24
+ 1031 0004 0190     		str	r0, [sp, #4]
+ 379:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   bool retVal = true;
+ 1032              		.loc 1 379 8
+ 1033 0006 0123     		movs	r3, #1
+ 1034 0008 8DF80F30 		strb	r3, [sp, #15]
+ 380:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 381:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   if ( pHandle->hPhaseRemainingTicks > 0u )
+ 1035              		.loc 1 381 15
+ 1036 000c 019B     		ldr	r3, [sp, #4]
+ 1037 000e 9B88     		ldrh	r3, [r3, #4]
+ 1038              		.loc 1 381 6
+ 1039 0010 002B     		cmp	r3, #0
+ 1040 0012 05D0     		beq	.L36
+ 382:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   {
+ 383:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****     /* Decrease the hPhaseRemainingTicks.*/
+ 384:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****     pHandle->hPhaseRemainingTicks--;
+ 1041              		.loc 1 384 12
+ 1042 0014 019B     		ldr	r3, [sp, #4]
+ 1043 0016 9B88     		ldrh	r3, [r3, #4]
+ 1044              		.loc 1 384 34
+ 1045 0018 013B     		subs	r3, r3, #1
+ 1046 001a 9AB2     		uxth	r2, r3
+ 1047 001c 019B     		ldr	r3, [sp, #4]
+ 1048 001e 9A80     		strh	r2, [r3, #4]	@ movhi
+ 1049              	.L36:
+ 385:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 386:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   } /* hPhaseRemainingTicks > 0 */
+ 387:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 388:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   if ( pHandle->hPhaseRemainingTicks == 0u )
+ 1050              		.loc 1 388 15
+ 1051 0020 019B     		ldr	r3, [sp, #4]
+ 1052 0022 9B88     		ldrh	r3, [r3, #4]
+ 1053              		.loc 1 388 6
+ 1054 0024 002B     		cmp	r3, #0
+ 1055 0026 53D1     		bne	.L37
+ 389:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   {
+ 390:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****     if ( pHandle->pCurrentPhaseParams != MC_NULL )
+ 1056              		.loc 1 390 17
+ 1057 0028 019B     		ldr	r3, [sp, #4]
+ 1058 002a 9B68     		ldr	r3, [r3, #8]
+ 1059              		.loc 1 390 8
+ 1060 002c 002B     		cmp	r3, #0
+ 1061 002e 4CD0     		beq	.L38
+ 391:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****     {
+ 392:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 393:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****       /* If it becomes zero the current phase has been completed.*/
+ 394:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****       /* Gives the next command to STC and VSS.*/
+ 395:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****       STC_ExecRamp( pHandle->pSTC, pHandle->pCurrentPhaseParams->hFinalTorque * pHandle->hDirection
+ 1062              		.loc 1 395 7
+ 1063 0030 019B     		ldr	r3, [sp, #4]
+ 1064 0032 986E     		ldr	r0, [r3, #104]
+ 1065              		.loc 1 395 43
+ 1066 0034 019B     		ldr	r3, [sp, #4]
+ 1067 0036 9B68     		ldr	r3, [r3, #8]
+ 1068              		.loc 1 395 64
+ 1069 0038 B3F90430 		ldrsh	r3, [r3, #4]
+ 1070 003c 9AB2     		uxth	r2, r3
+ 1071              		.loc 1 395 88
+ 1072 003e 019B     		ldr	r3, [sp, #4]
+ 1073 0040 B3F90630 		ldrsh	r3, [r3, #6]
+ 1074 0044 9BB2     		uxth	r3, r3
+ 1075              		.loc 1 395 79
+ 1076 0046 12FB03F3 		smulbb	r3, r2, r3
+ 1077 004a 9BB2     		uxth	r3, r3
+ 1078              		.loc 1 395 7
+ 1079 004c 19B2     		sxth	r1, r3
+ 396:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                     ( uint32_t )( pHandle->pCurrentPhaseParams->hDurationms ) );
+ 1080              		.loc 1 396 42
+ 1081 004e 019B     		ldr	r3, [sp, #4]
+ 1082 0050 9B68     		ldr	r3, [r3, #8]
+ 1083              		.loc 1 396 63
+ 1084 0052 1B88     		ldrh	r3, [r3]
+ 395:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                     ( uint32_t )( pHandle->pCurrentPhaseParams->hDurationms ) );
+ 1085              		.loc 1 395 7
+ 1086 0054 1A46     		mov	r2, r3
+ 1087 0056 FFF7FEFF 		bl	STC_ExecRamp
+ 397:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 398:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****       VSS_SetMecAcceleration( pHandle->pVSS,
+ 1088              		.loc 1 398 7
+ 1089 005a 019B     		ldr	r3, [sp, #4]
+ 1090 005c D86E     		ldr	r0, [r3, #108]
+ 399:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                               pHandle->pCurrentPhaseParams->hFinalMecSpeedUnit * pHandle->hDirectio
+ 1091              		.loc 1 399 38
+ 1092 005e 019B     		ldr	r3, [sp, #4]
+ 1093 0060 9B68     		ldr	r3, [r3, #8]
+ 1094              		.loc 1 399 59
+ 1095 0062 B3F90230 		ldrsh	r3, [r3, #2]
+ 1096 0066 9AB2     		uxth	r2, r3
+ 1097              		.loc 1 399 89
+ 1098 0068 019B     		ldr	r3, [sp, #4]
+ 1099 006a B3F90630 		ldrsh	r3, [r3, #6]
+ 1100 006e 9BB2     		uxth	r3, r3
+ 1101              		.loc 1 399 80
+ 1102 0070 12FB03F3 		smulbb	r3, r2, r3
+ 1103 0074 9BB2     		uxth	r3, r3
+ 398:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                               pHandle->pCurrentPhaseParams->hFinalMecSpeedUnit * pHandle->hDirectio
+ 1104              		.loc 1 398 7
+ 1105 0076 19B2     		sxth	r1, r3
+ 400:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                               pHandle->pCurrentPhaseParams->hDurationms );
+ 1106              		.loc 1 400 38
+ 1107 0078 019B     		ldr	r3, [sp, #4]
+ 1108 007a 9B68     		ldr	r3, [r3, #8]
+ 398:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                               pHandle->pCurrentPhaseParams->hFinalMecSpeedUnit * pHandle->hDirectio
+ 1109              		.loc 1 398 7
+ 1110 007c 1B88     		ldrh	r3, [r3]
+ 1111 007e 1A46     		mov	r2, r3
+ 1112 0080 FFF7FEFF 		bl	VSS_SetMecAcceleration
+ 401:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 402:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****       /* Compute hPhaseRemainingTicks.*/
+ 403:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****       pHandle->hPhaseRemainingTicks =
+ 404:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****         ( uint16_t )( ( ( uint32_t )pHandle->pCurrentPhaseParams->hDurationms *
+ 1113              		.loc 1 404 44
+ 1114 0084 019B     		ldr	r3, [sp, #4]
+ 1115 0086 9B68     		ldr	r3, [r3, #8]
+ 1116              		.loc 1 404 65
+ 1117 0088 1B88     		ldrh	r3, [r3]
+ 1118              		.loc 1 404 25
+ 1119 008a 1A46     		mov	r2, r3
+ 405:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                         ( uint32_t )pHandle->hRUCFrequencyHz ) / 1000u );
+ 1120              		.loc 1 405 44
+ 1121 008c 019B     		ldr	r3, [sp, #4]
+ 1122 008e 1B88     		ldrh	r3, [r3]
+ 404:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                         ( uint32_t )pHandle->hRUCFrequencyHz ) / 1000u );
+ 1123              		.loc 1 404 79
+ 1124 0090 02FB03F3 		mul	r3, r2, r3
+ 1125              		.loc 1 405 64
+ 1126 0094 114A     		ldr	r2, .L40
+ 1127 0096 A2FB0323 		umull	r2, r3, r2, r3
+ 1128 009a 9B09     		lsrs	r3, r3, #6
+ 404:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                         ( uint32_t )pHandle->hRUCFrequencyHz ) / 1000u );
+ 1129              		.loc 1 404 9
+ 1130 009c 9AB2     		uxth	r2, r3
+ 403:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****         ( uint16_t )( ( ( uint32_t )pHandle->pCurrentPhaseParams->hDurationms *
+ 1131              		.loc 1 403 37
+ 1132 009e 019B     		ldr	r3, [sp, #4]
+ 1133 00a0 9A80     		strh	r2, [r3, #4]	@ movhi
+ 406:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****       pHandle->hPhaseRemainingTicks++;
+ 1134              		.loc 1 406 14
+ 1135 00a2 019B     		ldr	r3, [sp, #4]
+ 1136 00a4 9B88     		ldrh	r3, [r3, #4]
+ 1137              		.loc 1 406 36
+ 1138 00a6 0133     		adds	r3, r3, #1
+ 1139 00a8 9AB2     		uxth	r2, r3
+ 1140 00aa 019B     		ldr	r3, [sp, #4]
+ 1141 00ac 9A80     		strh	r2, [r3, #4]	@ movhi
+ 407:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 408:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****       /*Set the next phases parameter pointer.*/
+ 409:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****       pHandle->pCurrentPhaseParams = pHandle->pCurrentPhaseParams->pNext;
+ 1142              		.loc 1 409 45
+ 1143 00ae 019B     		ldr	r3, [sp, #4]
+ 1144 00b0 9B68     		ldr	r3, [r3, #8]
+ 1145              		.loc 1 409 66
+ 1146 00b2 9A68     		ldr	r2, [r3, #8]
+ 1147              		.loc 1 409 36
+ 1148 00b4 019B     		ldr	r3, [sp, #4]
+ 1149 00b6 9A60     		str	r2, [r3, #8]
+ 410:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 411:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****       /*Increases the rev up stages counter.*/
+ 412:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****       pHandle->bStageCnt++;
+ 1150              		.loc 1 412 14
+ 1151 00b8 019B     		ldr	r3, [sp, #4]
+ 1152 00ba 93F85830 		ldrb	r3, [r3, #88]	@ zero_extendqisi2
+ 1153              		.loc 1 412 25
+ 1154 00be 0133     		adds	r3, r3, #1
+ 1155 00c0 DAB2     		uxtb	r2, r3
+ 1156 00c2 019B     		ldr	r3, [sp, #4]
+ 1157 00c4 83F85820 		strb	r2, [r3, #88]
+ 1158 00c8 02E0     		b	.L37
+ 1159              	.L38:
+ 413:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****     }
+ 414:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****     else
+ 415:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****     {
+ 416:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****       retVal = false;
+ 1160              		.loc 1 416 14
+ 1161 00ca 0023     		movs	r3, #0
+ 1162 00cc 8DF80F30 		strb	r3, [sp, #15]
+ 1163              	.L37:
+ 417:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****     }
+ 418:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   }
+ 419:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   return retVal;
+ 1164              		.loc 1 419 10
+ 1165 00d0 9DF80F30 		ldrb	r3, [sp, #15]	@ zero_extendqisi2
+ 420:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** }
+ 1166              		.loc 1 420 1
+ 1167 00d4 1846     		mov	r0, r3
+ 1168 00d6 05B0     		add	sp, sp, #20
+ 1169              		.cfi_def_cfa_offset 4
+ 1170              		@ sp needed
+ 1171 00d8 5DF804FB 		ldr	pc, [sp], #4
+ 1172              	.L41:
+ 1173              		.align	2
+ 1174              	.L40:
+ 1175 00dc D34D6210 		.word	274877907
+ 1176              		.cfi_endproc
+ 1177              	.LFE1251:
+ 1179              		.section	.text.RUC_Completed,"ax",%progbits
+ 1180              		.align	1
+ 1181              		.p2align 4,,15
+ 1182              		.weak	RUC_Completed
+ 1183              		.syntax unified
+ 1184              		.thumb
+ 1185              		.thumb_func
+ 1187              	RUC_Completed:
+ 1188              	.LFB1252:
+ 421:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 422:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** /**
+ 423:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   * @brief  Provide current state of revup controller procedure.
+ 424:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   * @param  pHandle: Pointer on Handle structure of RevUp controller.
+ 425:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   *  @retval Boolean set to true when entire revup phases have been completed.
+ 426:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   */
+ 427:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** __weak bool RUC_Completed( RevUpCtrl_Handle_t * pHandle )
+ 428:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** {
+ 1189              		.loc 1 428 1
+ 1190              		.cfi_startproc
+ 1191              		@ args = 0, pretend = 0, frame = 16
+ 1192              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1193              		@ link register save eliminated.
+ 1194 0000 84B0     		sub	sp, sp, #16
+ 1195              		.cfi_def_cfa_offset 16
+ 1196 0002 0190     		str	r0, [sp, #4]
+ 429:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   bool retVal = false;
+ 1197              		.loc 1 429 8
+ 1198 0004 0023     		movs	r3, #0
+ 1199 0006 8DF80F30 		strb	r3, [sp, #15]
+ 430:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   if ( pHandle->pCurrentPhaseParams == MC_NULL )
+ 1200              		.loc 1 430 15
+ 1201 000a 019B     		ldr	r3, [sp, #4]
+ 1202 000c 9B68     		ldr	r3, [r3, #8]
+ 1203              		.loc 1 430 6
+ 1204 000e 002B     		cmp	r3, #0
+ 1205 0010 02D1     		bne	.L43
+ 431:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   {
+ 432:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****     retVal = true;
+ 1206              		.loc 1 432 12
+ 1207 0012 0123     		movs	r3, #1
+ 1208 0014 8DF80F30 		strb	r3, [sp, #15]
+ 1209              	.L43:
+ 433:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   }
+ 434:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   return retVal;
+ 1210              		.loc 1 434 10
+ 1211 0018 9DF80F30 		ldrb	r3, [sp, #15]	@ zero_extendqisi2
+ 435:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** }
+ 1212              		.loc 1 435 1
+ 1213 001c 1846     		mov	r0, r3
+ 1214 001e 04B0     		add	sp, sp, #16
+ 1215              		.cfi_def_cfa_offset 0
+ 1216              		@ sp needed
+ 1217 0020 7047     		bx	lr
+ 1218              		.cfi_endproc
+ 1219              	.LFE1252:
+ 1221 0022 00BF     		.section	.text.RUC_Stop,"ax",%progbits
+ 1222              		.align	1
+ 1223              		.p2align 4,,15
+ 1224              		.weak	RUC_Stop
+ 1225              		.syntax unified
+ 1226              		.thumb
+ 1227              		.thumb_func
+ 1229              	RUC_Stop:
+ 1230              	.LFB1253:
+ 436:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 437:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** /**
+ 438:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   * @brief  Allow to exit from RevUp process at the current rotor speed.
+ 439:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   * @param  pHandle: Pointer on Handle structure of RevUp controller.
+ 440:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   *  @retval none
+ 441:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   */
+ 442:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** __weak void RUC_Stop( RevUpCtrl_Handle_t * pHandle )
+ 443:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** {
+ 1231              		.loc 1 443 1
+ 1232              		.cfi_startproc
+ 1233              		@ args = 0, pretend = 0, frame = 16
+ 1234              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1235 0000 00B5     		push	{lr}
+ 1236              		.cfi_def_cfa_offset 4
+ 1237              		.cfi_offset 14, -4
+ 1238 0002 85B0     		sub	sp, sp, #20
+ 1239              		.cfi_def_cfa_offset 24
+ 1240 0004 0190     		str	r0, [sp, #4]
+ 444:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   VirtualSpeedSensor_Handle_t * pVSS = pHandle->pVSS;
+ 1241              		.loc 1 444 33
+ 1242 0006 019B     		ldr	r3, [sp, #4]
+ 1243 0008 DB6E     		ldr	r3, [r3, #108]
+ 1244 000a 0393     		str	r3, [sp, #12]
+ 445:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   pHandle->pCurrentPhaseParams = MC_NULL;
+ 1245              		.loc 1 445 32
+ 1246 000c 019B     		ldr	r3, [sp, #4]
+ 1247 000e 0022     		movs	r2, #0
+ 1248 0010 9A60     		str	r2, [r3, #8]
+ 446:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   pHandle->hPhaseRemainingTicks = 0u;
+ 1249              		.loc 1 446 33
+ 1250 0012 019B     		ldr	r3, [sp, #4]
+ 1251 0014 0022     		movs	r2, #0
+ 1252 0016 9A80     		strh	r2, [r3, #4]	@ movhi
+ 447:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   VSS_SetMecAcceleration( pVSS, SPD_GetAvrgMecSpeedUnit( & pVSS->_Super ), 0u );
+ 1253              		.loc 1 447 3
+ 1254 0018 039B     		ldr	r3, [sp, #12]
+ 1255 001a 1846     		mov	r0, r3
+ 1256 001c FFF7FEFF 		bl	SPD_GetAvrgMecSpeedUnit
+ 1257 0020 0346     		mov	r3, r0
+ 1258              		.loc 1 447 3 is_stmt 0 discriminator 1
+ 1259 0022 0022     		movs	r2, #0
+ 1260 0024 1946     		mov	r1, r3
+ 1261 0026 0398     		ldr	r0, [sp, #12]
+ 1262 0028 FFF7FEFF 		bl	VSS_SetMecAcceleration
+ 448:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** }
+ 1263              		.loc 1 448 1 is_stmt 1
+ 1264 002c 00BF     		nop
+ 1265 002e 05B0     		add	sp, sp, #20
+ 1266              		.cfi_def_cfa_offset 4
+ 1267              		@ sp needed
+ 1268 0030 5DF804FB 		ldr	pc, [sp], #4
+ 1269              		.cfi_endproc
+ 1270              	.LFE1253:
+ 1272              		.section	.itcm,"ax",%progbits
+ 1273              		.align	1
+ 1274              		.p2align 4,,15
+ 1275              		.weak	RUC_FirstAccelerationStageReached
+ 1276              		.syntax unified
+ 1277              		.thumb
+ 1278              		.thumb_func
+ 1280              	RUC_FirstAccelerationStageReached:
+ 1281              	.LFB1254:
+ 449:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 450:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** /**
+ 451:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   * @brief  Check that alignement and first acceleration stage are completed.
+ 452:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   * @param  pHandle: Pointer on Handle structure of RevUp controller.
+ 453:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   *  @retval Boolean set to true when first acceleration stage has been reached.
+ 454:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   */
+ 455:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** #if defined (MCTK_ITCM)
+ 456:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** __weak bool __attribute__((section(".itcm"))) RUC_FirstAccelerationStageReached( RevUpCtrl_Handle_t
+ 457:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** #else
+ 458:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** __weak bool RUC_FirstAccelerationStageReached( RevUpCtrl_Handle_t * pHandle )
+ 459:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** #endif
+ 460:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** {
+ 1282              		.loc 1 460 1
+ 1283              		.cfi_startproc
+ 1284              		@ args = 0, pretend = 0, frame = 16
+ 1285              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1286              		@ link register save eliminated.
+ 1287 0000 84B0     		sub	sp, sp, #16
+ 1288              		.cfi_def_cfa_offset 16
+ 1289 0002 0190     		str	r0, [sp, #4]
+ 461:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   bool retVal = false;
+ 1290              		.loc 1 461 8
+ 1291 0004 0023     		movs	r3, #0
+ 1292 0006 8DF80F30 		strb	r3, [sp, #15]
+ 462:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 463:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   if ( pHandle->bStageCnt >= pHandle->bFirstAccelerationStage )
+ 1293              		.loc 1 463 15
+ 1294 000a 019B     		ldr	r3, [sp, #4]
+ 1295 000c 93F85820 		ldrb	r2, [r3, #88]	@ zero_extendqisi2
+ 1296              		.loc 1 463 37
+ 1297 0010 019B     		ldr	r3, [sp, #4]
+ 1298 0012 93F84930 		ldrb	r3, [r3, #73]	@ zero_extendqisi2
+ 1299              		.loc 1 463 6
+ 1300 0016 9A42     		cmp	r2, r3
+ 1301 0018 02D3     		bcc	.L47
+ 464:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   {
+ 465:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****     retVal = true;
+ 1302              		.loc 1 465 12
+ 1303 001a 0123     		movs	r3, #1
+ 1304 001c 8DF80F30 		strb	r3, [sp, #15]
+ 1305              	.L47:
+ 466:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   }
+ 467:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   return retVal;
+ 1306              		.loc 1 467 10
+ 1307 0020 9DF80F30 		ldrb	r3, [sp, #15]	@ zero_extendqisi2
+ 468:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** }
+ 1308              		.loc 1 468 1
+ 1309 0024 1846     		mov	r0, r3
+ 1310 0026 04B0     		add	sp, sp, #16
+ 1311              		.cfi_def_cfa_offset 0
+ 1312              		@ sp needed
+ 1313 0028 7047     		bx	lr
+ 1314              		.cfi_endproc
+ 1315              	.LFE1254:
+ 1317 002a 00BF     		.section	.text.RUC_SetPhaseDurationms,"ax",%progbits
+ 1318              		.align	1
+ 1319              		.p2align 4,,15
+ 1320              		.weak	RUC_SetPhaseDurationms
+ 1321              		.syntax unified
+ 1322              		.thumb
+ 1323              		.thumb_func
+ 1325              	RUC_SetPhaseDurationms:
+ 1326              	.LFB1255:
+ 469:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 470:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** /**
+ 471:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   * @brief  Allow to modify duration of a selected phase.
+ 472:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   * @param  pHandle: Pointer on Handle structure of RevUp controller.
+ 473:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   * @param  bPhase: RevUp phase where new duration shall be modified.
+ 474:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   *         This parameter must be a number between 0 and 6.
+ 475:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   * @param  hDurationms: new duration value required for associated phase.
+ 476:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   *         This parameter must be set in millisecond.
+ 477:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   *  @retval none
+ 478:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   */
+ 479:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** __weak void RUC_SetPhaseDurationms( RevUpCtrl_Handle_t * pHandle, uint8_t bPhase, uint16_t hDuratio
+ 480:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** {
+ 1327              		.loc 1 480 1
+ 1328              		.cfi_startproc
+ 1329              		@ args = 0, pretend = 0, frame = 8
+ 1330              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1331              		@ link register save eliminated.
+ 1332 0000 82B0     		sub	sp, sp, #8
+ 1333              		.cfi_def_cfa_offset 8
+ 1334 0002 0190     		str	r0, [sp, #4]
+ 1335 0004 0B46     		mov	r3, r1
+ 1336 0006 8DF80330 		strb	r3, [sp, #3]
+ 1337 000a 1346     		mov	r3, r2	@ movhi
+ 1338 000c ADF80030 		strh	r3, [sp]	@ movhi
+ 481:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   pHandle->ParamsData[bPhase].hDurationms = hDurationms;
+ 1339              		.loc 1 481 30
+ 1340 0010 9DF80320 		ldrb	r2, [sp, #3]	@ zero_extendqisi2
+ 1341              		.loc 1 481 43
+ 1342 0014 0199     		ldr	r1, [sp, #4]
+ 1343 0016 1346     		mov	r3, r2
+ 1344 0018 5B00     		lsls	r3, r3, #1
+ 1345 001a 1344     		add	r3, r3, r2
+ 1346 001c 9B00     		lsls	r3, r3, #2
+ 1347 001e 0B44     		add	r3, r3, r1
+ 1348 0020 0C33     		adds	r3, r3, #12
+ 1349 0022 BDF80020 		ldrh	r2, [sp]	@ movhi
+ 1350 0026 1A80     		strh	r2, [r3]	@ movhi
+ 482:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** }
+ 1351              		.loc 1 482 1
+ 1352 0028 00BF     		nop
+ 1353 002a 02B0     		add	sp, sp, #8
+ 1354              		.cfi_def_cfa_offset 0
+ 1355              		@ sp needed
+ 1356 002c 7047     		bx	lr
+ 1357              		.cfi_endproc
+ 1358              	.LFE1255:
+ 1360 002e 00BF     		.section	.text.RUC_SetPhaseFinalMecSpeedUnit,"ax",%progbits
+ 1361              		.align	1
+ 1362              		.p2align 4,,15
+ 1363              		.weak	RUC_SetPhaseFinalMecSpeedUnit
+ 1364              		.syntax unified
+ 1365              		.thumb
+ 1366              		.thumb_func
+ 1368              	RUC_SetPhaseFinalMecSpeedUnit:
+ 1369              	.LFB1256:
+ 483:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 484:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** /**
+ 485:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   * @brief  Allow to modify targetted mechanical speed of a selected phase.
+ 486:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   * @param  pHandle: Pointer on Handle structure of RevUp controller.
+ 487:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   * @param  bPhase: RevUp phase where new mechanical speed shall be modified.
+ 488:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   *         This parameter must be a number between 0 and 6.
+ 489:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   * @param  hFinalMecSpeedUnit: new targetted mechanical speed.
+ 490:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   *         This parameter must be expressed in 0.1Hz.
+ 491:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   *  @retval none
+ 492:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   */
+ 493:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** __weak void RUC_SetPhaseFinalMecSpeedUnit( RevUpCtrl_Handle_t * pHandle, uint8_t bPhase,
+ 494:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****                                     int16_t hFinalMecSpeedUnit )
+ 495:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** {
+ 1370              		.loc 1 495 1
+ 1371              		.cfi_startproc
+ 1372              		@ args = 0, pretend = 0, frame = 8
+ 1373              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1374              		@ link register save eliminated.
+ 1375 0000 82B0     		sub	sp, sp, #8
+ 1376              		.cfi_def_cfa_offset 8
+ 1377 0002 0190     		str	r0, [sp, #4]
+ 1378 0004 0B46     		mov	r3, r1
+ 1379 0006 8DF80330 		strb	r3, [sp, #3]
+ 1380 000a 1346     		mov	r3, r2	@ movhi
+ 1381 000c ADF80030 		strh	r3, [sp]	@ movhi
+ 496:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   pHandle->ParamsData[bPhase].hFinalMecSpeedUnit = hFinalMecSpeedUnit;
+ 1382              		.loc 1 496 30
+ 1383 0010 9DF80320 		ldrb	r2, [sp, #3]	@ zero_extendqisi2
+ 1384              		.loc 1 496 50
+ 1385 0014 0199     		ldr	r1, [sp, #4]
+ 1386 0016 1346     		mov	r3, r2
+ 1387 0018 5B00     		lsls	r3, r3, #1
+ 1388 001a 1344     		add	r3, r3, r2
+ 1389 001c 9B00     		lsls	r3, r3, #2
+ 1390 001e 0B44     		add	r3, r3, r1
+ 1391 0020 0E33     		adds	r3, r3, #14
+ 1392 0022 BDF80020 		ldrh	r2, [sp]	@ movhi
+ 1393 0026 1A80     		strh	r2, [r3]	@ movhi
+ 497:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** }
+ 1394              		.loc 1 497 1
+ 1395 0028 00BF     		nop
+ 1396 002a 02B0     		add	sp, sp, #8
+ 1397              		.cfi_def_cfa_offset 0
+ 1398              		@ sp needed
+ 1399 002c 7047     		bx	lr
+ 1400              		.cfi_endproc
+ 1401              	.LFE1256:
+ 1403 002e 00BF     		.section	.text.RUC_SetPhaseFinalTorque,"ax",%progbits
+ 1404              		.align	1
+ 1405              		.p2align 4,,15
+ 1406              		.weak	RUC_SetPhaseFinalTorque
+ 1407              		.syntax unified
+ 1408              		.thumb
+ 1409              		.thumb_func
+ 1411              	RUC_SetPhaseFinalTorque:
+ 1412              	.LFB1257:
+ 498:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 499:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** /**
+ 500:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   * @brief  Allow to modify targetted the motor torque of a selected phase.
+ 501:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   * @param  pHandle: Pointer on Handle structure of RevUp controller.
+ 502:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   * @param  bPhase: RevUp phase where new the motor torque shall be modified.
+ 503:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   *         This parameter must be a number between 0 and 6.
+ 504:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   * @param  hFinalTorque: new targetted motor torque.
+ 505:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   *  @retval none
+ 506:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   */
+ 507:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** __weak void RUC_SetPhaseFinalTorque( RevUpCtrl_Handle_t * pHandle, uint8_t bPhase, int16_t hFinalTo
+ 508:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** {
+ 1413              		.loc 1 508 1
+ 1414              		.cfi_startproc
+ 1415              		@ args = 0, pretend = 0, frame = 8
+ 1416              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1417              		@ link register save eliminated.
+ 1418 0000 82B0     		sub	sp, sp, #8
+ 1419              		.cfi_def_cfa_offset 8
+ 1420 0002 0190     		str	r0, [sp, #4]
+ 1421 0004 0B46     		mov	r3, r1
+ 1422 0006 8DF80330 		strb	r3, [sp, #3]
+ 1423 000a 1346     		mov	r3, r2	@ movhi
+ 1424 000c ADF80030 		strh	r3, [sp]	@ movhi
+ 509:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   pHandle->ParamsData[bPhase].hFinalTorque = hFinalTorque;
+ 1425              		.loc 1 509 30
+ 1426 0010 9DF80320 		ldrb	r2, [sp, #3]	@ zero_extendqisi2
+ 1427              		.loc 1 509 44
+ 1428 0014 0199     		ldr	r1, [sp, #4]
+ 1429 0016 1346     		mov	r3, r2
+ 1430 0018 5B00     		lsls	r3, r3, #1
+ 1431 001a 1344     		add	r3, r3, r2
+ 1432 001c 9B00     		lsls	r3, r3, #2
+ 1433 001e 0B44     		add	r3, r3, r1
+ 1434 0020 1033     		adds	r3, r3, #16
+ 1435 0022 BDF80020 		ldrh	r2, [sp]	@ movhi
+ 1436 0026 1A80     		strh	r2, [r3]	@ movhi
+ 510:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** }
+ 1437              		.loc 1 510 1
+ 1438 0028 00BF     		nop
+ 1439 002a 02B0     		add	sp, sp, #8
+ 1440              		.cfi_def_cfa_offset 0
+ 1441              		@ sp needed
+ 1442 002c 7047     		bx	lr
+ 1443              		.cfi_endproc
+ 1444              	.LFE1257:
+ 1446 002e 00BF     		.section	.text.RUC_GetPhaseDurationms,"ax",%progbits
+ 1447              		.align	1
+ 1448              		.p2align 4,,15
+ 1449              		.weak	RUC_GetPhaseDurationms
+ 1450              		.syntax unified
+ 1451              		.thumb
+ 1452              		.thumb_func
+ 1454              	RUC_GetPhaseDurationms:
+ 1455              	.LFB1258:
+ 511:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 512:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** /**
+ 513:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   * @brief  Allow to read duration set in selected phase.
+ 514:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   * @param  pHandle: Pointer on Handle structure of RevUp controller.
+ 515:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   * @param  bPhase: RevUp phase from where duration is read.
+ 516:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   *         This parameter must be a number between 0 and 6.
+ 517:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   *  @retval Returns duration used in selected phase.
+ 518:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   */
+ 519:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** __weak uint16_t RUC_GetPhaseDurationms( RevUpCtrl_Handle_t * pHandle, uint8_t bPhase )
+ 520:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** {
+ 1456              		.loc 1 520 1
+ 1457              		.cfi_startproc
+ 1458              		@ args = 0, pretend = 0, frame = 8
+ 1459              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1460              		@ link register save eliminated.
+ 1461 0000 82B0     		sub	sp, sp, #8
+ 1462              		.cfi_def_cfa_offset 8
+ 1463 0002 0190     		str	r0, [sp, #4]
+ 1464 0004 0B46     		mov	r3, r1
+ 1465 0006 8DF80330 		strb	r3, [sp, #3]
+ 521:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   return ( ( uint16_t )pHandle->ParamsData[bPhase].hDurationms );
+ 1466              		.loc 1 521 51
+ 1467 000a 9DF80320 		ldrb	r2, [sp, #3]	@ zero_extendqisi2
+ 1468              		.loc 1 521 12
+ 1469 000e 0199     		ldr	r1, [sp, #4]
+ 1470 0010 1346     		mov	r3, r2
+ 1471 0012 5B00     		lsls	r3, r3, #1
+ 1472 0014 1344     		add	r3, r3, r2
+ 1473 0016 9B00     		lsls	r3, r3, #2
+ 1474 0018 0B44     		add	r3, r3, r1
+ 1475 001a 0C33     		adds	r3, r3, #12
+ 1476 001c 1B88     		ldrh	r3, [r3]
+ 522:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** }
+ 1477              		.loc 1 522 1
+ 1478 001e 1846     		mov	r0, r3
+ 1479 0020 02B0     		add	sp, sp, #8
+ 1480              		.cfi_def_cfa_offset 0
+ 1481              		@ sp needed
+ 1482 0022 7047     		bx	lr
+ 1483              		.cfi_endproc
+ 1484              	.LFE1258:
+ 1486              		.section	.text.RUC_GetPhaseFinalMecSpeedUnit,"ax",%progbits
+ 1487              		.align	1
+ 1488              		.p2align 4,,15
+ 1489              		.weak	RUC_GetPhaseFinalMecSpeedUnit
+ 1490              		.syntax unified
+ 1491              		.thumb
+ 1492              		.thumb_func
+ 1494              	RUC_GetPhaseFinalMecSpeedUnit:
+ 1495              	.LFB1259:
+ 523:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 524:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** /**
+ 525:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   * @brief  Allow to read targetted rotor speed set in selected phase.
+ 526:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   * @param  pHandle: Pointer on Handle structure of RevUp controller.
+ 527:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   * @param  bPhase: RevUp phase from where targetted rotor speed is read.
+ 528:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   *         This parameter must be a number between 0 and 6.
+ 529:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   *  @retval Returns targetted rotor speed set in selected phase.
+ 530:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   */
+ 531:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** __weak int16_t RUC_GetPhaseFinalMecSpeedUnit( RevUpCtrl_Handle_t * pHandle, uint8_t bPhase )
+ 532:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** {
+ 1496              		.loc 1 532 1
+ 1497              		.cfi_startproc
+ 1498              		@ args = 0, pretend = 0, frame = 8
+ 1499              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1500              		@ link register save eliminated.
+ 1501 0000 82B0     		sub	sp, sp, #8
+ 1502              		.cfi_def_cfa_offset 8
+ 1503 0002 0190     		str	r0, [sp, #4]
+ 1504 0004 0B46     		mov	r3, r1
+ 1505 0006 8DF80330 		strb	r3, [sp, #3]
+ 533:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   return ( ( int16_t )pHandle->ParamsData[bPhase].hFinalMecSpeedUnit );
+ 1506              		.loc 1 533 50
+ 1507 000a 9DF80320 		ldrb	r2, [sp, #3]	@ zero_extendqisi2
+ 1508              		.loc 1 533 12
+ 1509 000e 0199     		ldr	r1, [sp, #4]
+ 1510 0010 1346     		mov	r3, r2
+ 1511 0012 5B00     		lsls	r3, r3, #1
+ 1512 0014 1344     		add	r3, r3, r2
+ 1513 0016 9B00     		lsls	r3, r3, #2
+ 1514 0018 0B44     		add	r3, r3, r1
+ 1515 001a 0E33     		adds	r3, r3, #14
+ 1516 001c B3F90030 		ldrsh	r3, [r3]
+ 534:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** }
+ 1517              		.loc 1 534 1
+ 1518 0020 1846     		mov	r0, r3
+ 1519 0022 02B0     		add	sp, sp, #8
+ 1520              		.cfi_def_cfa_offset 0
+ 1521              		@ sp needed
+ 1522 0024 7047     		bx	lr
+ 1523              		.cfi_endproc
+ 1524              	.LFE1259:
+ 1526 0026 00BF     		.section	.text.RUC_GetPhaseFinalTorque,"ax",%progbits
+ 1527              		.align	1
+ 1528              		.p2align 4,,15
+ 1529              		.weak	RUC_GetPhaseFinalTorque
+ 1530              		.syntax unified
+ 1531              		.thumb
+ 1532              		.thumb_func
+ 1534              	RUC_GetPhaseFinalTorque:
+ 1535              	.LFB1260:
+ 535:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 536:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** /**
+ 537:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   * @brief  Allow to read targetted motor torque set in selected phase.
+ 538:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   * @param  pHandle: Pointer on Handle structure of RevUp controller.
+ 539:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   * @param  bPhase: RevUp phase from where targetted motor torque is read.
+ 540:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   *         This parameter must be a number between 0 and 6.
+ 541:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   *  @retval Returns targetted motor torque set in selected phase.
+ 542:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   */
+ 543:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** __weak int16_t RUC_GetPhaseFinalTorque( RevUpCtrl_Handle_t * pHandle, uint8_t bPhase )
+ 544:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** {
+ 1536              		.loc 1 544 1
+ 1537              		.cfi_startproc
+ 1538              		@ args = 0, pretend = 0, frame = 8
+ 1539              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1540              		@ link register save eliminated.
+ 1541 0000 82B0     		sub	sp, sp, #8
+ 1542              		.cfi_def_cfa_offset 8
+ 1543 0002 0190     		str	r0, [sp, #4]
+ 1544 0004 0B46     		mov	r3, r1
+ 1545 0006 8DF80330 		strb	r3, [sp, #3]
+ 545:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   return ( ( int16_t )pHandle->ParamsData[bPhase].hFinalTorque );
+ 1546              		.loc 1 545 50
+ 1547 000a 9DF80320 		ldrb	r2, [sp, #3]	@ zero_extendqisi2
+ 1548              		.loc 1 545 12
+ 1549 000e 0199     		ldr	r1, [sp, #4]
+ 1550 0010 1346     		mov	r3, r2
+ 1551 0012 5B00     		lsls	r3, r3, #1
+ 1552 0014 1344     		add	r3, r3, r2
+ 1553 0016 9B00     		lsls	r3, r3, #2
+ 1554 0018 0B44     		add	r3, r3, r1
+ 1555 001a 1033     		adds	r3, r3, #16
+ 1556 001c B3F90030 		ldrsh	r3, [r3]
+ 546:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** }
+ 1557              		.loc 1 546 1
+ 1558 0020 1846     		mov	r0, r3
+ 1559 0022 02B0     		add	sp, sp, #8
+ 1560              		.cfi_def_cfa_offset 0
+ 1561              		@ sp needed
+ 1562 0024 7047     		bx	lr
+ 1563              		.cfi_endproc
+ 1564              	.LFE1260:
+ 1566 0026 00BF     		.section	.text.RUC_GetNumberOfPhases,"ax",%progbits
+ 1567              		.align	1
+ 1568              		.p2align 4,,15
+ 1569              		.weak	RUC_GetNumberOfPhases
+ 1570              		.syntax unified
+ 1571              		.thumb
+ 1572              		.thumb_func
+ 1574              	RUC_GetNumberOfPhases:
+ 1575              	.LFB1261:
+ 547:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 548:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** /**
+ 549:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   * @brief  Allow to read total number of programmed phases.
+ 550:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   * @param  pHandle: Pointer on Handle structure of RevUp controller.
+ 551:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   *  @retval Returns number of phases relative to the programmed revup.
+ 552:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   */
+ 553:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** __weak uint8_t RUC_GetNumberOfPhases( RevUpCtrl_Handle_t * pHandle )
+ 554:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** {
+ 1576              		.loc 1 554 1
+ 1577              		.cfi_startproc
+ 1578              		@ args = 0, pretend = 0, frame = 8
+ 1579              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1580              		@ link register save eliminated.
+ 1581 0000 82B0     		sub	sp, sp, #8
+ 1582              		.cfi_def_cfa_offset 8
+ 1583 0002 0190     		str	r0, [sp, #4]
+ 555:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   return ( ( uint8_t )pHandle->bPhaseNbr );
+ 1584              		.loc 1 555 12
+ 1585 0004 019B     		ldr	r3, [sp, #4]
+ 1586 0006 93F84830 		ldrb	r3, [r3, #72]	@ zero_extendqisi2
+ 556:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** }
+ 1587              		.loc 1 556 1
+ 1588 000a 1846     		mov	r0, r3
+ 1589 000c 02B0     		add	sp, sp, #8
+ 1590              		.cfi_def_cfa_offset 0
+ 1591              		@ sp needed
+ 1592 000e 7047     		bx	lr
+ 1593              		.cfi_endproc
+ 1594              	.LFE1261:
+ 1596              		.section	.text.RUC_Get_SCLowsideOTF_Status,"ax",%progbits
+ 1597              		.align	1
+ 1598              		.p2align 4,,15
+ 1599              		.weak	RUC_Get_SCLowsideOTF_Status
+ 1600              		.syntax unified
+ 1601              		.thumb
+ 1602              		.thumb_func
+ 1604              	RUC_Get_SCLowsideOTF_Status:
+ 1605              	.LFB1262:
+ 557:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** 
+ 558:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** /**
+ 559:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   * @brief  Allow to read status of On The Fly (OTF) feature.
+ 560:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   * @param  pHandle: Pointer on Handle structure of RevUp controller.
+ 561:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   *  @retval Boolean set to true at the end of OTF precessing.
+ 562:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   */
+ 563:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** __weak bool RUC_Get_SCLowsideOTF_Status( RevUpCtrl_Handle_t * pHandle )
+ 564:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** {
+ 1606              		.loc 1 564 1
+ 1607              		.cfi_startproc
+ 1608              		@ args = 0, pretend = 0, frame = 8
+ 1609              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1610              		@ link register save eliminated.
+ 1611 0000 82B0     		sub	sp, sp, #8
+ 1612              		.cfi_def_cfa_offset 8
+ 1613 0002 0190     		str	r0, [sp, #4]
+ 565:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c ****   return ( pHandle->OTFSCLowside );
+ 1614              		.loc 1 565 19
+ 1615 0004 019B     		ldr	r3, [sp, #4]
+ 1616 0006 93F85430 		ldrb	r3, [r3, #84]	@ zero_extendqisi2
+ 566:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/revup_ctrl.c **** }
+ 1617              		.loc 1 566 1
+ 1618 000a 1846     		mov	r0, r3
+ 1619 000c 02B0     		add	sp, sp, #8
+ 1620              		.cfi_def_cfa_offset 0
+ 1621              		@ sp needed
+ 1622 000e 7047     		bx	lr
+ 1623              		.cfi_endproc
+ 1624              	.LFE1262:
+ 1626              		.text
+ 1627              	.Letext0:
+ 1628              		.file 2 "C:/StellarStudio-9.2/SDKS/TOOLS/Toolchain/ARM/MINGW64_NT/13.3.1-2024.06/arm-none-eabi/inc
+ 1629              		.file 3 "C:/StellarStudio-9.2/SDKS/TOOLS/Toolchain/ARM/MINGW64_NT/13.3.1-2024.06/arm-none-eabi/inc
+ 1630              		.file 4 ".sdk/SR5E1_MCTK-1.3.0/include/LL_Library/sr5e1_ll_tim.h"
+ 1631              		.file 5 ".sdk/SR5E1_MCTK-1.3.0/include/LL_Library/sr5e1_ll_usart.h"
+ 1632              		.file 6 ".sdk/SR5E1_MCTK-1.3.0/include/LL_Library/sr5e1_ll_dma.h"
+ 1633              		.file 7 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/mc_type.h"
+ 1634              		.file 8 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/pid_regulator.h"
+ 1635              		.file 9 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/speed_pos_fdbk.h"
+ 1636              		.file 10 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/speed_torq_ctrl.h"
+ 1637              		.file 11 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/virtual_speed_sensor.h"
+ 1638              		.file 12 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/sto_speed_pos_fdbk.h"
+ 1639              		.file 13 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/pwm_curr_fdbk.h"
+ 1640              		.file 14 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/revup_ctrl.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 revup_ctrl.c
+C:\Users\ttqpe\AppData\Local\Temp\cc39VDz8.s:20     .rodata.OFFSET_TAB_CCMRx:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\cc39VDz8.s:23     .rodata.OFFSET_TAB_CCMRx:00000000 OFFSET_TAB_CCMRx
+C:\Users\ttqpe\AppData\Local\Temp\cc39VDz8.s:26     .rodata.SHIFT_TAB_OCxx:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\cc39VDz8.s:29     .rodata.SHIFT_TAB_OCxx:00000000 SHIFT_TAB_OCxx
+C:\Users\ttqpe\AppData\Local\Temp\cc39VDz8.s:32     .rodata.SHIFT_TAB_ICxx:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\cc39VDz8.s:35     .rodata.SHIFT_TAB_ICxx:00000000 SHIFT_TAB_ICxx
+C:\Users\ttqpe\AppData\Local\Temp\cc39VDz8.s:38     .rodata.SHIFT_TAB_CCxP:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\cc39VDz8.s:41     .rodata.SHIFT_TAB_CCxP:00000000 SHIFT_TAB_CCxP
+C:\Users\ttqpe\AppData\Local\Temp\cc39VDz8.s:44     .rodata.SHIFT_TAB_OISx:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\cc39VDz8.s:47     .rodata.SHIFT_TAB_OISx:00000000 SHIFT_TAB_OISx
+C:\Users\ttqpe\AppData\Local\Temp\cc39VDz8.s:50     .rodata.USART_PRESCALER_TAB:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\cc39VDz8.s:53     .rodata.USART_PRESCALER_TAB:00000000 USART_PRESCALER_TAB
+C:\Users\ttqpe\AppData\Local\Temp\cc39VDz8.s:67     .rodata.LL_DMA_STR_OFFSET_TAB:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\cc39VDz8.s:70     .rodata.LL_DMA_STR_OFFSET_TAB:00000000 LL_DMA_STR_OFFSET_TAB
+C:\Users\ttqpe\AppData\Local\Temp\cc39VDz8.s:73     .text.RUC_Init:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\cc39VDz8.s:80     .text.RUC_Init:00000000 RUC_Init
+C:\Users\ttqpe\AppData\Local\Temp\cc39VDz8.s:187    .text.RUC_Init:000000a4 $d
+C:\Users\ttqpe\AppData\Local\Temp\cc39VDz8.s:192    .text.RUC_Clear:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\cc39VDz8.s:199    .text.RUC_Clear:00000000 RUC_Clear
+C:\Users\ttqpe\AppData\Local\Temp\cc39VDz8.s:348    .text.RUC_Clear:000000fc $d
+C:\Users\ttqpe\AppData\Local\Temp\cc39VDz8.s:353    .text.RUC_OTF_Exec:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\cc39VDz8.s:360    .text.RUC_OTF_Exec:00000000 RUC_OTF_Exec
+C:\Users\ttqpe\AppData\Local\Temp\cc39VDz8.s:1008   .text.RUC_OTF_Exec:00000414 $d
+C:\Users\ttqpe\AppData\Local\Temp\cc39VDz8.s:1013   .text.RUC_Exec:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\cc39VDz8.s:1020   .text.RUC_Exec:00000000 RUC_Exec
+C:\Users\ttqpe\AppData\Local\Temp\cc39VDz8.s:1175   .text.RUC_Exec:000000dc $d
+C:\Users\ttqpe\AppData\Local\Temp\cc39VDz8.s:1180   .text.RUC_Completed:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\cc39VDz8.s:1187   .text.RUC_Completed:00000000 RUC_Completed
+C:\Users\ttqpe\AppData\Local\Temp\cc39VDz8.s:1222   .text.RUC_Stop:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\cc39VDz8.s:1229   .text.RUC_Stop:00000000 RUC_Stop
+C:\Users\ttqpe\AppData\Local\Temp\cc39VDz8.s:1273   .itcm:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\cc39VDz8.s:1280   .itcm:00000000 RUC_FirstAccelerationStageReached
+C:\Users\ttqpe\AppData\Local\Temp\cc39VDz8.s:1318   .text.RUC_SetPhaseDurationms:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\cc39VDz8.s:1325   .text.RUC_SetPhaseDurationms:00000000 RUC_SetPhaseDurationms
+C:\Users\ttqpe\AppData\Local\Temp\cc39VDz8.s:1361   .text.RUC_SetPhaseFinalMecSpeedUnit:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\cc39VDz8.s:1368   .text.RUC_SetPhaseFinalMecSpeedUnit:00000000 RUC_SetPhaseFinalMecSpeedUnit
+C:\Users\ttqpe\AppData\Local\Temp\cc39VDz8.s:1404   .text.RUC_SetPhaseFinalTorque:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\cc39VDz8.s:1411   .text.RUC_SetPhaseFinalTorque:00000000 RUC_SetPhaseFinalTorque
+C:\Users\ttqpe\AppData\Local\Temp\cc39VDz8.s:1447   .text.RUC_GetPhaseDurationms:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\cc39VDz8.s:1454   .text.RUC_GetPhaseDurationms:00000000 RUC_GetPhaseDurationms
+C:\Users\ttqpe\AppData\Local\Temp\cc39VDz8.s:1487   .text.RUC_GetPhaseFinalMecSpeedUnit:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\cc39VDz8.s:1494   .text.RUC_GetPhaseFinalMecSpeedUnit:00000000 RUC_GetPhaseFinalMecSpeedUnit
+C:\Users\ttqpe\AppData\Local\Temp\cc39VDz8.s:1527   .text.RUC_GetPhaseFinalTorque:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\cc39VDz8.s:1534   .text.RUC_GetPhaseFinalTorque:00000000 RUC_GetPhaseFinalTorque
+C:\Users\ttqpe\AppData\Local\Temp\cc39VDz8.s:1567   .text.RUC_GetNumberOfPhases:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\cc39VDz8.s:1574   .text.RUC_GetNumberOfPhases:00000000 RUC_GetNumberOfPhases
+C:\Users\ttqpe\AppData\Local\Temp\cc39VDz8.s:1597   .text.RUC_Get_SCLowsideOTF_Status:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\cc39VDz8.s:1604   .text.RUC_Get_SCLowsideOTF_Status:00000000 RUC_Get_SCLowsideOTF_Status
+                           .group:00000000 wm4.0.6093079fab0af1ca2c5a0ad5709343e3
+                           .group:00000000 wm4._newlib_version.h.4.411db44ea2338a62eca2f0777f81481b
+                           .group:00000000 wm4.features.h.33.5ea28ceb8be6621901b9d58b4c3ee651
+                           .group:00000000 wm4._default_types.h.15.247e5cd201eca3442cbf5404108c4935
+                           .group:00000000 wm4._intsup.h.10.48bafbb683905c4daa4565a85aeeb264
+                           .group:00000000 wm4._stdint.h.10.c24fa3af3bc1706662bb5593a907e841
+                           .group:00000000 wm4.stdint.h.23.d53047a68f4a85177f80b422d52785ed
+                           .group:00000000 wm4.stdbool.h.29.c08aa3eec75cf5b9b5003883f43253f0
+                           .group:00000000 wm4.mc_stm_types.h.20.2d7d6ac163527ff5d1947d422c918f78
+                           .group:00000000 wm4.sr5e1xx.h.22.e5c808533cc52ed19fb0830cd7d98924
+                           .group:00000000 wm4.cmsis_version.h.32.0f826810625204eca22a19868bdc7586
+                           .group:00000000 wm4.core_cm7.h.66.8ab2de36917d6fcae18019067fda13e0
+                           .group:00000000 wm4.cmsis_gcc.h.26.498d0ad17a45fc9ef20fdc01caf02259
+                           .group:00000000 wm4.core_cm7.h.174.43edb295ecdaadad738f48ba6011ffad
+                           .group:00000000 wm4.mpu_armv7.h.32.83326921a797fa9d6f70449916b4b839
+                           .group:00000000 wm4.cachel1_armv7.h.32.abd77761a989e008b0c60891114a33c7
+                           .group:00000000 wm4.SR5E1_ADC.h.14.21608e6aff125ba995dd767d6d8dc311
+                           .group:00000000 wm4.SR5E1_CEM.h.14.01fe5742c8f1ae35b1f3af05932f702e
+                           .group:00000000 wm4.SR5E1_CMU.h.14.2617b38b159abe38028862394531e06d
+                           .group:00000000 wm4.SR5E1_COMP.h.14.4b6fdfe4f5f7fd9bedf3a99b98bdf4cd
+                           .group:00000000 wm4.SR5E1_CORDIC.h.14.354fbf7c9eaf6963d38eaa25cf28ffe8
+                           .group:00000000 wm4.SR5E1_CRC.h.14.c64d0f7767671ddb92e9ead0a1162100
+                           .group:00000000 wm4.SR5E1_DAC.h.14.8c26a0ff04b0cfeb55306cc3f22187b8
+                           .group:00000000 wm4.SR5E1_DBGMCU.h.14.427df893d53a8044654f017ba01c25ed
+                           .group:00000000 wm4.SR5E1_DMA.h.14.a7f9a92f844b40a86965798c2e64240b
+                           .group:00000000 wm4.SR5E1_DMAMUX.h.14.471b3b4dfd4d41515f1df49493698866
+                           .group:00000000 wm4.SR5E1_EXTI.h.14.a325ea3fe89cd84894660551c33241ea
+                           .group:00000000 wm4.SR5E1_FCCU.h.14.0ebf0f0f36e079d28613ad2c80e17e23
+                           .group:00000000 wm4.SR5E1_FDCAN.h.14.ac57101fad5dbc798bfb93f34c899de7
+                           .group:00000000 wm4.SR5E1_FLASH_REG_ITF.h.14.d23d1d44923f9b20b8c8fdb51d66aefd
+                           .group:00000000 wm4.SR5E1_GPIO.h.14.1c84071e130d7c64b62470ab0e18a1f1
+                           .group:00000000 wm4.SR5E1_HRTIM.h.24.03932387d2522e6bd5c772a4edaf2f5d
+                           .group:00000000 wm4.SR5E1_HSEM.h.14.cbe70eee519f01b16452c3f8c99d8df1
+                           .group:00000000 wm4.SR5E1_I2C.h.14.350ba3e0f4fd57828457efa80135c36c
+                           .group:00000000 wm4.SR5E1_IMA.h.14.62b7088985ab2b7ce9b030a02daa1f7d
+                           .group:00000000 wm4.SR5E1_IWDG.h.14.20b7c5f05cf7ae94464c360d7af3660d
+                           .group:00000000 wm4.SR5E1_MEMU.h.14.04bad7ae4c52ce334a4fc900aad2ae5b
+                           .group:00000000 wm4.SR5E1_NVM_CTRL.h.14.5f442617f0628d4f16258f211c614ef9
+                           .group:00000000 wm4.SR5E1_PLLDIG.h.14.bd87a8e6917eee17dae2f312c8e5fa53
+                           .group:00000000 wm4.SR5E1_PMC_DIG.h.14.54173b566c6656344766ec4ef46c9281
+                           .group:00000000 wm4.SR5E1_RCC.h.14.56734803c71534de286e793a53649740
+                           .group:00000000 wm4.SR5E1_RTC.h.14.47037cbc7d8175dbf2be1dc0bb955e3f
+                           .group:00000000 wm4.SR5E1_SD_ADC.h.14.552b97d0b8f3c1fd4df6d8964b2f1a80
+                           .group:00000000 wm4.SR5E1_SMPU.h.14.8ce5bb6d5d7c579cd725f492f46e9085
+                           .group:00000000 wm4.SR5E1_SPI.h.14.42d52112e540f85ade4d9135f8b87d72
+                           .group:00000000 wm4.SR5E1_SSCM.h.14.8e6a2ad0ce5fca422fc3d69939b6125b
+                           .group:00000000 wm4.SR5E1_SYSCFG.h.14.02b969490118ce4069914b5e94f7ca65
+                           .group:00000000 wm4.SR5E1_TDM.h.14.a40ed7928cad243a57fd233fccf01ad2
+                           .group:00000000 wm4.SR5E1_TIM.h.14.05b8efc5395873619642d61a4b0b5a54
+                           .group:00000000 wm4.SR5E1_UART.h.14.eec3ab82b02b3bdb3de500483675b83f
+                           .group:00000000 wm4.SR5E1_WWDG.h.14.59b45efc70e442cc6ef03702aad4ad88
+                           .group:00000000 wm4.stddef.h.39.38eb7ec030421799c657b13be5aa21c7
+                           .group:00000000 wm4.typedefs.h.36.07fe3956b4e751037cfee70edcd0b397
+                           .group:00000000 wm4.irq_numbers.h.38.6294b95aed1bf7b3a2cda0eed8ce8f57
+                           .group:00000000 wm4.regs.h.23.2ac145b4f57126d16daed5fbd86d99c6
+                           .group:00000000 wm4.sr5e1_wrapper.h.20.64eb3ae8ac9b19f101ec010f065b27e0
+                           .group:00000000 wm4.sr5e1_macros.h.48.23238fd8be149bfd93a4b06f4d1d3e48
+                           .group:00000000 wm4.sr5e1_ll_system.h.75.323fef6699ff2ef93649a75fbc3b9dc0
+                           .group:00000000 wm4.sr5e1_ll_tim.h.21.35d0409c49249d40ffa0621f7fd1e49f
+                           .group:00000000 wm4.sr5e1_ll_adc.h.21.a09418770aae8e8540b1ce15e5fd6881
+                           .group:00000000 wm4.sr5e1_ll_dac.h.21.e617f768d26181c75ac38760d82ada91
+                           .group:00000000 wm4.sr5e1_ll_cordic.h.21.601660824250c93d03fb6b7dd46d0750
+                           .group:00000000 wm4.sr5e1_ll_usart.h.21.edc232fc61ffb518b3051f74f786aac1
+                           .group:00000000 wm4.sr5e1_ll_dmamux.h.21.e0f20dc23ecc4be39502f49d8383668f
+                           .group:00000000 wm4.sr5e1_ll_dma.h.74.155fcc98e704261e48b273dd9cbd510c
+                           .group:00000000 wm4.mc_stm_types.h.52.4cccb248a2fcd7dfda158e1610af49bf
+                           .group:00000000 wm4.mc_type.h.47.50da95e050e3bfbddab14d990c2d05af
+                           .group:00000000 wm4.pwm_curr_fdbk.h.25.8b72d58784715ceca81111ec103a103d
+                           .group:00000000 wm4.motor_power_measurement.h.29.8342149da3785e7815d1120573fd9cfb
+                           .group:00000000 wm4.digital_output.h.25.02fba90b0f6ba87331476d93a103f49e
+                           .group:00000000 wm4.mp_self_com_ctrl.h.49.e6dcc6aedc61e25d555994ebab97d8b3
+                           .group:00000000 wm4.mc_math.h.24.97493115228829e070d95a4855b66df8
+                           .group:00000000 wm4.pmsm_motor_parameters.h.23.867a6fd3770391a9f66bba183e9e75b3
+                           .group:00000000 wm4.drive_parameters.h.23.dbf96a4337bbb9088dab9827bb0ccc4b
+                           .group:00000000 wm4.power_stage_parameters.h.22.736335d2c78f651593d5c3a7eabd2f7e
+                           .group:00000000 wm4.parameters_conversion_SR5E1.h.29.eabcdfadd7af4fdc121c865f8fc2acbd
+                           .group:00000000 wm4.parameters_conversion.h.29.c695296455e156423051d03c26fc218c
+                           .group:00000000 wm4.encoder_speed_pos_fdbk.h.54.a7b391f390958238bafe12d9ec286eba
+                           .group:00000000 wm4.trajectory_ctrl.h.36.88ccddbc168ae81030ff0d853fd72660
+                           .group:00000000 wm4.user_interface.h.220.79f4987d3bb68b2ddc49cbd0ba2c5f63
+                           .group:00000000 wm4.frame_communication_protocol.h.23.41250e506dcaa9b3bb0fb3b62addffac
+                           .group:00000000 wm4.dac_common_ui.h.26.3857a0f796702d55fc08b1c9fba1ab0f
+                           .group:00000000 wm4.dac_ui.h.48.4302a85d070412e322de9cfee8982dc0
+                           .group:00000000 wm4.can_frame_communication_protocol.h.22.33ba1ca3757fdb135afcb321b74128f5
+                           .group:00000000 wm4.dac_rctimer_ui.h.26.502751ff603279109795a0a74dd8775c
+                           .group:00000000 wm4.ics_SR5E1_pwm_curr_fdbk.h.25.0077b176383d68ec03d55e3ef8c6c349
+                           .group:00000000 wm4.gpio.h.25.d41a0c19fda8c2de42e666afb48ec15a
+                           .group:00000000 wm4.hall_speed_pos_fdbk.h.47.c079bfc346ef7d5d51093236881f5a4c
+                           .group:00000000 wm4.mc_config.h.84.9f66d495ae5fdd9c09aa66372a42b3d9
+
+UNDEFINED SYMBOLS
+VSS_Clear
+STC_SetControlMode
+VSS_SetMecAngle
+STC_ExecRamp
+VSS_SetMecAcceleration
+SPD_GetAvrgMecSpeedUnit
+VSS_SetCopyObserver
+PWMC_SwitchOffPWM
+PWMC_TurnOnLowSides
+PWMC_SwitchOnPWM

@@ -1,0 +1,374 @@
+   1              		.cpu cortex-m7
+   2              		.arch armv7e-m
+   3              		.fpu fpv5-d16
+   4              		.eabi_attribute 28, 1
+   5              		.eabi_attribute 20, 1
+   6              		.eabi_attribute 21, 1
+   7              		.eabi_attribute 23, 3
+   8              		.eabi_attribute 24, 1
+   9              		.eabi_attribute 25, 1
+  10              		.eabi_attribute 26, 1
+  11              		.eabi_attribute 30, 6
+  12              		.eabi_attribute 34, 1
+  13              		.eabi_attribute 18, 4
+  14              		.file	"pqd_motor_power_measurement.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.file 1 ".sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c"
+  19              		.section	.rodata.OFFSET_TAB_CCMRx,"a"
+  20              		.align	2
+  23              	OFFSET_TAB_CCMRx:
+  24 0000 00000000 		.ascii	"\000\000\000\000\004\004\004\00488"
+  24      04040404 
+  24      3838
+  25              		.section	.rodata.SHIFT_TAB_OCxx,"a"
+  26              		.align	2
+  29              	SHIFT_TAB_OCxx:
+  30 0000 00000800 		.ascii	"\000\000\010\000\000\000\010\000\000\010"
+  30      00000800 
+  30      0008
+  31              		.section	.rodata.SHIFT_TAB_ICxx,"a"
+  32              		.align	2
+  35              	SHIFT_TAB_ICxx:
+  36 0000 00000800 		.ascii	"\000\000\010\000\000\000\010\000\000\000"
+  36      00000800 
+  36      0000
+  37              		.section	.rodata.SHIFT_TAB_CCxP,"a"
+  38              		.align	2
+  41              	SHIFT_TAB_CCxP:
+  42 0000 00020406 		.ascii	"\000\002\004\006\010\012\014\016\020\024"
+  42      080A0C0E 
+  42      1014
+  43              		.section	.rodata.SHIFT_TAB_OISx,"a"
+  44              		.align	2
+  47              	SHIFT_TAB_OISx:
+  48 0000 00010203 		.ascii	"\000\001\002\003\004\005\006\007\010\012"
+  48      04050607 
+  48      080A
+  49              		.section	.rodata.USART_PRESCALER_TAB,"a"
+  50              		.align	2
+  53              	USART_PRESCALER_TAB:
+  54 0000 01000000 		.word	1
+  55 0004 02000000 		.word	2
+  56 0008 04000000 		.word	4
+  57 000c 06000000 		.word	6
+  58 0010 08000000 		.word	8
+  59 0014 0A000000 		.word	10
+  60 0018 0C000000 		.word	12
+  61 001c 10000000 		.word	16
+  62 0020 20000000 		.word	32
+  63 0024 40000000 		.word	64
+  64 0028 80000000 		.word	128
+  65 002c 00010000 		.word	256
+  66              		.section	.rodata.LL_DMA_STR_OFFSET_TAB,"a"
+  67              		.align	2
+  70              	LL_DMA_STR_OFFSET_TAB:
+  71 0000 10284058 		.ascii	"\020(@Xp\210\240\270"
+  71      7088A0B8 
+  72              		.section	.text.PQD_CalcElMotorPower,"ax",%progbits
+  73              		.align	1
+  74              		.p2align 4,,15
+  75              		.weak	PQD_CalcElMotorPower
+  76              		.syntax unified
+  77              		.thumb
+  78              		.thumb_func
+  80              	PQD_CalcElMotorPower:
+  81              	.LFB1225:
+   1:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c **** /****************************************************************************
+   2:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c **** *
+   3:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c **** * Copyright (c) 2023 STMicroelectronics - All Rights Reserved
+   4:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c **** *
+   5:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c **** * License terms: STMicroelectronics Proprietary in accordance with licensing
+   6:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c **** * terms SLA0098 at www.st.com.
+   7:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c **** *
+   8:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c **** * THIS SOFTWARE IS DISTRIBUTED "AS IS," AND ALL WARRANTIES ARE DISCLAIMED,
+   9:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c **** * INCLUDING MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+  10:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c **** *****************************************************************************/
+  11:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c **** /**
+  12:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c **** *   @file    pqd_motor_power_measurement.c
+  13:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c **** *   @version M4_VERSION
+  14:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c **** *   @brief   This file provides firmware functions that implement the features
+  15:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c **** *            of the PQD Motor Power Measurement component of the Stellar Motor Control.
+  16:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c **** *
+  17:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c **** *   @details This file provides firmware functions that implement the features
+  18:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c **** *            of the PQD Motor Power Measurement component of the Stellar Motor Control.
+  19:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c **** *
+  20:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c ****  */
+  21:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c **** 
+  22:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c **** /* Includes ------------------------------------------------------------------*/
+  23:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c **** #include "pqd_motor_power_measurement.h"
+  24:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c **** #include "mc_type.h"
+  25:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c **** 
+  26:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c **** /** @addtogroup STELLAR_PMSM_MC_FOC_LIBRARY
+  27:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c ****   * @{
+  28:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c ****   */
+  29:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c **** 
+  30:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c **** /** @addtogroup motorpowermeasurement
+  31:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c ****   * @{
+  32:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c ****   */
+  33:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c **** 
+  34:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c **** /** @defgroup pqd_motorpowermeasurement PQD Motor Power Measurement
+  35:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c ****   * @brief PQD Motor Power Measurement component of the Stellar Motor Control
+  36:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c ****   *
+  37:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c ****   * pqd method to measure power of the motor
+  38:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c ****   *
+  39:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c ****   * @todo Document the PQD Motor Power Measurement "module".
+  40:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c ****   *
+  41:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c ****   * @{
+  42:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c ****   */
+  43:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c **** 
+  44:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c **** /**
+  45:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c ****   * @brief  This method should be called with periodicity. It computes and
+  46:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c ****   *         returns the measured motor power expressed in watt. It is also used
+  47:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c ****   *         to fill, with that measure, the buffer used to compute the average
+  48:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c ****   *         motor power.
+  49:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c ****   * @param power handle.
+  50:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c ****   * @retval int16_t The measured motor power expressed in watt.
+  51:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c ****   */
+  52:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c **** __weak void PQD_CalcElMotorPower( PQD_MotorPowMeas_Handle_t * pHandle )
+  53:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c **** {
+  82              		.loc 1 53 1
+  83              		.cfi_startproc
+  84              		@ args = 0, pretend = 0, frame = 32
+  85              		@ frame_needed = 0, uses_anonymous_args = 0
+  86 0000 10B5     		push	{r4, lr}
+  87              		.cfi_def_cfa_offset 8
+  88              		.cfi_offset 4, -8
+  89              		.cfi_offset 14, -4
+  90 0002 88B0     		sub	sp, sp, #32
+  91              		.cfi_def_cfa_offset 40
+  92 0004 0190     		str	r0, [sp, #4]
+  54:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c **** 
+  55:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c ****   int32_t wAux, wAux2, wAux3;
+  56:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c ****   qd_t Iqd = pHandle->pFOCVars->Iqd;
+  93              		.loc 1 56 21
+  94 0006 019B     		ldr	r3, [sp, #4]
+  95 0008 D3F80C21 		ldr	r2, [r3, #268]
+  96              		.loc 1 56 8
+  97 000c 04AB     		add	r3, sp, #16
+  98 000e 0C32     		adds	r2, r2, #12
+  99 0010 1068     		ldr	r0, [r2]	@ unaligned
+ 100 0012 1860     		str	r0, [r3]
+  57:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c ****   qd_t Vqd = pHandle->pFOCVars->Vqd;
+ 101              		.loc 1 57 21
+ 102 0014 019B     		ldr	r3, [sp, #4]
+ 103 0016 D3F80C21 		ldr	r2, [r3, #268]
+ 104              		.loc 1 57 8
+ 105 001a 03AB     		add	r3, sp, #12
+ 106 001c 1632     		adds	r2, r2, #22
+ 107 001e 1068     		ldr	r0, [r2]	@ unaligned
+ 108 0020 1860     		str	r0, [r3]
+  58:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c ****   wAux = ( ( int32_t )Iqd.q * ( int32_t )Vqd.q ) +
+ 109              		.loc 1 58 26
+ 110 0022 BDF91030 		ldrsh	r3, [sp, #16]
+ 111              		.loc 1 58 45
+ 112 0026 BDF90C20 		ldrsh	r2, [sp, #12]
+ 113              		.loc 1 58 29
+ 114 002a 03FB02F2 		mul	r2, r3, r2
+  59:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c ****          ( ( int32_t )Iqd.d * ( int32_t )Vqd.d );
+ 115              		.loc 1 59 26
+ 116 002e BDF91230 		ldrsh	r3, [sp, #18]
+ 117              		.loc 1 59 45
+ 118 0032 BDF90E10 		ldrsh	r1, [sp, #14]
+ 119              		.loc 1 59 29
+ 120 0036 01FB03F3 		mul	r3, r1, r3
+  58:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c ****   wAux = ( ( int32_t )Iqd.q * ( int32_t )Vqd.q ) +
+ 121              		.loc 1 58 8
+ 122 003a 1344     		add	r3, r3, r2
+ 123 003c 0793     		str	r3, [sp, #28]
+  60:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c ****   wAux /= 65536;
+ 124              		.loc 1 60 8
+ 125 003e 079B     		ldr	r3, [sp, #28]
+ 126 0040 002B     		cmp	r3, #0
+ 127 0042 03DA     		bge	.L2
+ 128 0044 4FF6FF72 		movw	r2, #65535
+ 129 0048 1A44     		add	r2, r2, r3
+ 130 004a 1346     		mov	r3, r2
+ 131              	.L2:
+ 132 004c 1B14     		asrs	r3, r3, #16
+ 133 004e 0793     		str	r3, [sp, #28]
+  61:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c **** 
+  62:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c ****   wAux2 = pHandle->wConvFact * ( int32_t )VBS_GetAvBusVoltage_V( pHandle->pVBS );
+ 134              		.loc 1 62 18
+ 135 0050 019B     		ldr	r3, [sp, #4]
+ 136 0052 D3F80841 		ldr	r4, [r3, #264]
+ 137              		.loc 1 62 43
+ 138 0056 019B     		ldr	r3, [sp, #4]
+ 139 0058 D3F81031 		ldr	r3, [r3, #272]
+ 140 005c 1846     		mov	r0, r3
+ 141 005e FFF7FEFF 		bl	VBS_GetAvBusVoltage_V
+ 142 0062 0346     		mov	r3, r0
+ 143              		.loc 1 62 9 discriminator 1
+ 144 0064 04FB03F3 		mul	r3, r4, r3
+ 145 0068 0693     		str	r3, [sp, #24]
+  63:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c ****   wAux2 /= 600; /* 600 is max bus voltage expressed in volt.*/
+ 146              		.loc 1 63 9
+ 147 006a 069B     		ldr	r3, [sp, #24]
+ 148 006c 164A     		ldr	r2, .L4
+ 149 006e 82FB0312 		smull	r1, r2, r2, r3
+ 150 0072 9211     		asrs	r2, r2, #6
+ 151 0074 DB17     		asrs	r3, r3, #31
+ 152 0076 D31A     		subs	r3, r2, r3
+ 153 0078 0693     		str	r3, [sp, #24]
+  64:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c **** 
+  65:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c ****   wAux3 = wAux * wAux2;
+ 154              		.loc 1 65 9
+ 155 007a 079B     		ldr	r3, [sp, #28]
+ 156 007c 069A     		ldr	r2, [sp, #24]
+ 157 007e 02FB03F3 		mul	r3, r2, r3
+ 158 0082 0593     		str	r3, [sp, #20]
+  66:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c ****   wAux3 *= 6; /* 6 is max bus voltage expressed in thousend of volt.*/
+ 159              		.loc 1 66 9
+ 160 0084 059A     		ldr	r2, [sp, #20]
+ 161 0086 1346     		mov	r3, r2
+ 162 0088 5B00     		lsls	r3, r3, #1
+ 163 008a 1344     		add	r3, r3, r2
+ 164 008c 5B00     		lsls	r3, r3, #1
+ 165 008e 0593     		str	r3, [sp, #20]
+  67:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c ****   wAux3 /= 10;
+ 166              		.loc 1 67 9
+ 167 0090 059B     		ldr	r3, [sp, #20]
+ 168 0092 0E4A     		ldr	r2, .L4+4
+ 169 0094 82FB0312 		smull	r1, r2, r2, r3
+ 170 0098 9210     		asrs	r2, r2, #2
+ 171 009a DB17     		asrs	r3, r3, #31
+ 172 009c D31A     		subs	r3, r2, r3
+ 173 009e 0593     		str	r3, [sp, #20]
+  68:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c ****   wAux3 /= 65536;
+ 174              		.loc 1 68 9
+ 175 00a0 059B     		ldr	r3, [sp, #20]
+ 176 00a2 002B     		cmp	r3, #0
+ 177 00a4 03DA     		bge	.L3
+ 178 00a6 4FF6FF72 		movw	r2, #65535
+ 179 00aa 1A44     		add	r2, r2, r3
+ 180 00ac 1346     		mov	r3, r2
+ 181              	.L3:
+ 182 00ae 1B14     		asrs	r3, r3, #16
+ 183 00b0 0593     		str	r3, [sp, #20]
+  69:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c **** 
+  70:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c ****   MPM_CalcElMotorPower( &pHandle->_super, wAux3 );
+ 184              		.loc 1 70 3
+ 185 00b2 019B     		ldr	r3, [sp, #4]
+ 186 00b4 059A     		ldr	r2, [sp, #20]
+ 187 00b6 12B2     		sxth	r2, r2
+ 188 00b8 1146     		mov	r1, r2
+ 189 00ba 1846     		mov	r0, r3
+ 190 00bc FFF7FEFF 		bl	MPM_CalcElMotorPower
+  71:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c **** 
+  72:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/pqd_motor_power_measurement.c **** }
+ 191              		.loc 1 72 1
+ 192 00c0 00BF     		nop
+ 193 00c2 08B0     		add	sp, sp, #32
+ 194              		.cfi_def_cfa_offset 8
+ 195              		@ sp needed
+ 196 00c4 10BD     		pop	{r4, pc}
+ 197              	.L5:
+ 198 00c6 00BF     		.align	2
+ 199              	.L4:
+ 200 00c8 B5814E1B 		.word	458129845
+ 201 00cc 67666666 		.word	1717986919
+ 202              		.cfi_endproc
+ 203              	.LFE1225:
+ 205              		.text
+ 206              	.Letext0:
+ 207              		.file 2 "C:/StellarStudio-9.2/SDKS/TOOLS/Toolchain/ARM/MINGW64_NT/13.3.1-2024.06/arm-none-eabi/inc
+ 208              		.file 3 "C:/StellarStudio-9.2/SDKS/TOOLS/Toolchain/ARM/MINGW64_NT/13.3.1-2024.06/arm-none-eabi/inc
+ 209              		.file 4 ".sdk/SR5E1_MCTK-1.3.0/include/LL_Library/sr5e1_ll_tim.h"
+ 210              		.file 5 ".sdk/SR5E1_MCTK-1.3.0/include/LL_Library/sr5e1_ll_usart.h"
+ 211              		.file 6 ".sdk/SR5E1_MCTK-1.3.0/include/LL_Library/sr5e1_ll_dma.h"
+ 212              		.file 7 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/mc_type.h"
+ 213              		.file 8 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/motor_power_measurement.h"
+ 214              		.file 9 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/bus_voltage_sensor.h"
+ 215              		.file 10 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/pqd_motor_power_measurement.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 pqd_motor_power_measurement.c
+C:\Users\ttqpe\AppData\Local\Temp\cctVZC3L.s:20     .rodata.OFFSET_TAB_CCMRx:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\cctVZC3L.s:23     .rodata.OFFSET_TAB_CCMRx:00000000 OFFSET_TAB_CCMRx
+C:\Users\ttqpe\AppData\Local\Temp\cctVZC3L.s:26     .rodata.SHIFT_TAB_OCxx:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\cctVZC3L.s:29     .rodata.SHIFT_TAB_OCxx:00000000 SHIFT_TAB_OCxx
+C:\Users\ttqpe\AppData\Local\Temp\cctVZC3L.s:32     .rodata.SHIFT_TAB_ICxx:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\cctVZC3L.s:35     .rodata.SHIFT_TAB_ICxx:00000000 SHIFT_TAB_ICxx
+C:\Users\ttqpe\AppData\Local\Temp\cctVZC3L.s:38     .rodata.SHIFT_TAB_CCxP:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\cctVZC3L.s:41     .rodata.SHIFT_TAB_CCxP:00000000 SHIFT_TAB_CCxP
+C:\Users\ttqpe\AppData\Local\Temp\cctVZC3L.s:44     .rodata.SHIFT_TAB_OISx:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\cctVZC3L.s:47     .rodata.SHIFT_TAB_OISx:00000000 SHIFT_TAB_OISx
+C:\Users\ttqpe\AppData\Local\Temp\cctVZC3L.s:50     .rodata.USART_PRESCALER_TAB:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\cctVZC3L.s:53     .rodata.USART_PRESCALER_TAB:00000000 USART_PRESCALER_TAB
+C:\Users\ttqpe\AppData\Local\Temp\cctVZC3L.s:67     .rodata.LL_DMA_STR_OFFSET_TAB:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\cctVZC3L.s:70     .rodata.LL_DMA_STR_OFFSET_TAB:00000000 LL_DMA_STR_OFFSET_TAB
+C:\Users\ttqpe\AppData\Local\Temp\cctVZC3L.s:73     .text.PQD_CalcElMotorPower:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\cctVZC3L.s:80     .text.PQD_CalcElMotorPower:00000000 PQD_CalcElMotorPower
+C:\Users\ttqpe\AppData\Local\Temp\cctVZC3L.s:200    .text.PQD_CalcElMotorPower:000000c8 $d
+                           .group:00000000 wm4.0.6093079fab0af1ca2c5a0ad5709343e3
+                           .group:00000000 wm4._newlib_version.h.4.411db44ea2338a62eca2f0777f81481b
+                           .group:00000000 wm4.features.h.33.5ea28ceb8be6621901b9d58b4c3ee651
+                           .group:00000000 wm4._default_types.h.15.247e5cd201eca3442cbf5404108c4935
+                           .group:00000000 wm4._intsup.h.10.48bafbb683905c4daa4565a85aeeb264
+                           .group:00000000 wm4._stdint.h.10.c24fa3af3bc1706662bb5593a907e841
+                           .group:00000000 wm4.stdint.h.23.d53047a68f4a85177f80b422d52785ed
+                           .group:00000000 wm4.stdbool.h.29.c08aa3eec75cf5b9b5003883f43253f0
+                           .group:00000000 wm4.mc_stm_types.h.20.2d7d6ac163527ff5d1947d422c918f78
+                           .group:00000000 wm4.sr5e1xx.h.22.e5c808533cc52ed19fb0830cd7d98924
+                           .group:00000000 wm4.cmsis_version.h.32.0f826810625204eca22a19868bdc7586
+                           .group:00000000 wm4.core_cm7.h.66.8ab2de36917d6fcae18019067fda13e0
+                           .group:00000000 wm4.cmsis_gcc.h.26.498d0ad17a45fc9ef20fdc01caf02259
+                           .group:00000000 wm4.core_cm7.h.174.43edb295ecdaadad738f48ba6011ffad
+                           .group:00000000 wm4.mpu_armv7.h.32.83326921a797fa9d6f70449916b4b839
+                           .group:00000000 wm4.cachel1_armv7.h.32.abd77761a989e008b0c60891114a33c7
+                           .group:00000000 wm4.SR5E1_ADC.h.14.21608e6aff125ba995dd767d6d8dc311
+                           .group:00000000 wm4.SR5E1_CEM.h.14.01fe5742c8f1ae35b1f3af05932f702e
+                           .group:00000000 wm4.SR5E1_CMU.h.14.2617b38b159abe38028862394531e06d
+                           .group:00000000 wm4.SR5E1_COMP.h.14.4b6fdfe4f5f7fd9bedf3a99b98bdf4cd
+                           .group:00000000 wm4.SR5E1_CORDIC.h.14.354fbf7c9eaf6963d38eaa25cf28ffe8
+                           .group:00000000 wm4.SR5E1_CRC.h.14.c64d0f7767671ddb92e9ead0a1162100
+                           .group:00000000 wm4.SR5E1_DAC.h.14.8c26a0ff04b0cfeb55306cc3f22187b8
+                           .group:00000000 wm4.SR5E1_DBGMCU.h.14.427df893d53a8044654f017ba01c25ed
+                           .group:00000000 wm4.SR5E1_DMA.h.14.a7f9a92f844b40a86965798c2e64240b
+                           .group:00000000 wm4.SR5E1_DMAMUX.h.14.471b3b4dfd4d41515f1df49493698866
+                           .group:00000000 wm4.SR5E1_EXTI.h.14.a325ea3fe89cd84894660551c33241ea
+                           .group:00000000 wm4.SR5E1_FCCU.h.14.0ebf0f0f36e079d28613ad2c80e17e23
+                           .group:00000000 wm4.SR5E1_FDCAN.h.14.ac57101fad5dbc798bfb93f34c899de7
+                           .group:00000000 wm4.SR5E1_FLASH_REG_ITF.h.14.d23d1d44923f9b20b8c8fdb51d66aefd
+                           .group:00000000 wm4.SR5E1_GPIO.h.14.1c84071e130d7c64b62470ab0e18a1f1
+                           .group:00000000 wm4.SR5E1_HRTIM.h.24.03932387d2522e6bd5c772a4edaf2f5d
+                           .group:00000000 wm4.SR5E1_HSEM.h.14.cbe70eee519f01b16452c3f8c99d8df1
+                           .group:00000000 wm4.SR5E1_I2C.h.14.350ba3e0f4fd57828457efa80135c36c
+                           .group:00000000 wm4.SR5E1_IMA.h.14.62b7088985ab2b7ce9b030a02daa1f7d
+                           .group:00000000 wm4.SR5E1_IWDG.h.14.20b7c5f05cf7ae94464c360d7af3660d
+                           .group:00000000 wm4.SR5E1_MEMU.h.14.04bad7ae4c52ce334a4fc900aad2ae5b
+                           .group:00000000 wm4.SR5E1_NVM_CTRL.h.14.5f442617f0628d4f16258f211c614ef9
+                           .group:00000000 wm4.SR5E1_PLLDIG.h.14.bd87a8e6917eee17dae2f312c8e5fa53
+                           .group:00000000 wm4.SR5E1_PMC_DIG.h.14.54173b566c6656344766ec4ef46c9281
+                           .group:00000000 wm4.SR5E1_RCC.h.14.56734803c71534de286e793a53649740
+                           .group:00000000 wm4.SR5E1_RTC.h.14.47037cbc7d8175dbf2be1dc0bb955e3f
+                           .group:00000000 wm4.SR5E1_SD_ADC.h.14.552b97d0b8f3c1fd4df6d8964b2f1a80
+                           .group:00000000 wm4.SR5E1_SMPU.h.14.8ce5bb6d5d7c579cd725f492f46e9085
+                           .group:00000000 wm4.SR5E1_SPI.h.14.42d52112e540f85ade4d9135f8b87d72
+                           .group:00000000 wm4.SR5E1_SSCM.h.14.8e6a2ad0ce5fca422fc3d69939b6125b
+                           .group:00000000 wm4.SR5E1_SYSCFG.h.14.02b969490118ce4069914b5e94f7ca65
+                           .group:00000000 wm4.SR5E1_TDM.h.14.a40ed7928cad243a57fd233fccf01ad2
+                           .group:00000000 wm4.SR5E1_TIM.h.14.05b8efc5395873619642d61a4b0b5a54
+                           .group:00000000 wm4.SR5E1_UART.h.14.eec3ab82b02b3bdb3de500483675b83f
+                           .group:00000000 wm4.SR5E1_WWDG.h.14.59b45efc70e442cc6ef03702aad4ad88
+                           .group:00000000 wm4.stddef.h.39.38eb7ec030421799c657b13be5aa21c7
+                           .group:00000000 wm4.typedefs.h.36.07fe3956b4e751037cfee70edcd0b397
+                           .group:00000000 wm4.irq_numbers.h.38.6294b95aed1bf7b3a2cda0eed8ce8f57
+                           .group:00000000 wm4.regs.h.23.2ac145b4f57126d16daed5fbd86d99c6
+                           .group:00000000 wm4.sr5e1_wrapper.h.20.64eb3ae8ac9b19f101ec010f065b27e0
+                           .group:00000000 wm4.sr5e1_macros.h.48.23238fd8be149bfd93a4b06f4d1d3e48
+                           .group:00000000 wm4.sr5e1_ll_system.h.75.323fef6699ff2ef93649a75fbc3b9dc0
+                           .group:00000000 wm4.sr5e1_ll_tim.h.21.35d0409c49249d40ffa0621f7fd1e49f
+                           .group:00000000 wm4.sr5e1_ll_adc.h.21.a09418770aae8e8540b1ce15e5fd6881
+                           .group:00000000 wm4.sr5e1_ll_dac.h.21.e617f768d26181c75ac38760d82ada91
+                           .group:00000000 wm4.sr5e1_ll_cordic.h.21.601660824250c93d03fb6b7dd46d0750
+                           .group:00000000 wm4.sr5e1_ll_usart.h.21.edc232fc61ffb518b3051f74f786aac1
+                           .group:00000000 wm4.sr5e1_ll_dmamux.h.21.e0f20dc23ecc4be39502f49d8383668f
+                           .group:00000000 wm4.sr5e1_ll_dma.h.74.155fcc98e704261e48b273dd9cbd510c
+                           .group:00000000 wm4.mc_stm_types.h.52.4cccb248a2fcd7dfda158e1610af49bf
+                           .group:00000000 wm4.mc_type.h.47.50da95e050e3bfbddab14d990c2d05af
+                           .group:00000000 wm4.pwm_curr_fdbk.h.25.8b72d58784715ceca81111ec103a103d
+
+UNDEFINED SYMBOLS
+VBS_GetAvBusVoltage_V
+MPM_CalcElMotorPower

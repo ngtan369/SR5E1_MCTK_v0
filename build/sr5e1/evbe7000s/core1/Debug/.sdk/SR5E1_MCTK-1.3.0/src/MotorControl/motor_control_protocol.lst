@@ -1,0 +1,3071 @@
+   1              		.cpu cortex-m7
+   2              		.arch armv7e-m
+   3              		.fpu fpv5-d16
+   4              		.eabi_attribute 28, 1
+   5              		.eabi_attribute 20, 1
+   6              		.eabi_attribute 21, 1
+   7              		.eabi_attribute 23, 3
+   8              		.eabi_attribute 24, 1
+   9              		.eabi_attribute 25, 1
+  10              		.eabi_attribute 26, 1
+  11              		.eabi_attribute 30, 6
+  12              		.eabi_attribute 34, 1
+  13              		.eabi_attribute 18, 4
+  14              		.file	"motor_control_protocol.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.file 1 ".sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c"
+  19              		.section	.rodata.OFFSET_TAB_CCMRx,"a"
+  20              		.align	2
+  23              	OFFSET_TAB_CCMRx:
+  24 0000 00000000 		.ascii	"\000\000\000\000\004\004\004\00488"
+  24      04040404 
+  24      3838
+  25              		.section	.rodata.SHIFT_TAB_OCxx,"a"
+  26              		.align	2
+  29              	SHIFT_TAB_OCxx:
+  30 0000 00000800 		.ascii	"\000\000\010\000\000\000\010\000\000\010"
+  30      00000800 
+  30      0008
+  31              		.section	.rodata.SHIFT_TAB_ICxx,"a"
+  32              		.align	2
+  35              	SHIFT_TAB_ICxx:
+  36 0000 00000800 		.ascii	"\000\000\010\000\000\000\010\000\000\000"
+  36      00000800 
+  36      0000
+  37              		.section	.rodata.SHIFT_TAB_CCxP,"a"
+  38              		.align	2
+  41              	SHIFT_TAB_CCxP:
+  42 0000 00020406 		.ascii	"\000\002\004\006\010\012\014\016\020\024"
+  42      080A0C0E 
+  42      1014
+  43              		.section	.rodata.SHIFT_TAB_OISx,"a"
+  44              		.align	2
+  47              	SHIFT_TAB_OISx:
+  48 0000 00010203 		.ascii	"\000\001\002\003\004\005\006\007\010\012"
+  48      04050607 
+  48      080A
+  49              		.section	.rodata.USART_PRESCALER_TAB,"a"
+  50              		.align	2
+  53              	USART_PRESCALER_TAB:
+  54 0000 01000000 		.word	1
+  55 0004 02000000 		.word	2
+  56 0008 04000000 		.word	4
+  57 000c 06000000 		.word	6
+  58 0010 08000000 		.word	8
+  59 0014 0A000000 		.word	10
+  60 0018 0C000000 		.word	12
+  61 001c 10000000 		.word	16
+  62 0020 20000000 		.word	32
+  63 0024 40000000 		.word	64
+  64 0028 80000000 		.word	128
+  65 002c 00010000 		.word	256
+  66              		.section	.rodata.LL_DMA_STR_OFFSET_TAB,"a"
+  67              		.align	2
+  70              	LL_DMA_STR_OFFSET_TAB:
+  71 0000 10284058 		.ascii	"\020(@Xp\210\240\270"
+  71      7088A0B8 
+  72              		.global	MPInfo
+  73              		.section	.bss.MPInfo,"aw",%nobits
+  74              		.align	2
+  77              	MPInfo:
+  78 0000 00000000 		.space	8
+  78      00000000 
+  79              		.section	.text.MCP_SentFrameCallback,"ax",%progbits
+  80              		.align	1
+  81              		.p2align 4,,15
+  82              		.syntax unified
+  83              		.thumb
+  84              		.thumb_func
+  86              	MCP_SentFrameCallback:
+  87              	.LFB1225:
+   1:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** /****************************************************************************
+   2:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** *
+   3:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** * Copyright (c) 2023 STMicroelectronics - All Rights Reserved
+   4:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** *
+   5:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** * License terms: STMicroelectronics Proprietary in accordance with licensing
+   6:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** * terms SLA0098 at www.st.com.
+   7:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** *
+   8:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** * THIS SOFTWARE IS DISTRIBUTED "AS IS," AND ALL WARRANTIES ARE DISCLAIMED,
+   9:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** * INCLUDING MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+  10:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** *****************************************************************************/
+  11:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** /**
+  12:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** *   @file    motor_control_protocol.c
+  13:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** *   @version M4_VERSION
+  14:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** *   @brief   This file provides firmware functions that implement the features
+  15:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** *            of the motor control protocol component of the Stellar Motor Control.
+  16:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** *
+  17:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** *   @details This file provides firmware functions that implement the features
+  18:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** *            of the motor control protocol component of the Stellar Motor Control.
+  19:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** *
+  20:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****  */
+  21:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+  22:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** /* Includes ------------------------------------------------------------------*/
+  23:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** #include "user_interface.h"
+  24:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** #include "motor_control_protocol.h"
+  25:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+  26:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** /**
+  27:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****  * @addtogroup STELLAR_PMSM_MC_UI_LIBRARY
+  28:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****  * @{
+  29:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****  */
+  30:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+  31:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** /**
+  32:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****  * @addtogroup MCUI
+  33:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****  * @{
+  34:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****  */
+  35:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+  36:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** /**
+  37:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****  * @defgroup motor_control_protocol Motor Control Protocol
+  38:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****  *
+  39:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****  * @brief Transmission protocol designed to report Motor Control subsystem status and to control mo
+  40:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****  *
+  41:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****  * The Motor Control Protocol defines a transmission mechanism that allows a Motor Control
+  42:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****  * Application to send in real time the values of a defined set of internal variables to an
+  43:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****  * external recipient and to receive Motor Control commands from this recipient.
+  44:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****  *
+  45:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****  * The Commands that can be sent with the Motor Control Protocol are defined in **TBD**.
+  46:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****  *
+  47:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****  * The variables which values can be exchanged through the Motor Control Protocol are listed in
+  48:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****  * @ref MC_Protocol_REG.
+  49:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****  *
+  50:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****  * An example of external recipient is the Motor Control Monitor tool that is part of the Motor
+  51:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****  * Control Workbench.
+  52:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****  *
+  53:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****  * The Motor Control Protocol defines frames that contain either commands or variables values.
+  54:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****  * These frames are the exchanged between the Application and the external recipient. To that end,
+  55:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****  * the Motor Control Protocol relies on a lower level transport protocol to actually send them.
+  56:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****  *
+  57:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****  * @todo Complete documentation
+  58:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****  * @{
+  59:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****  */
+  60:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+  61:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** /* Private define ------------------------------------------------------------*/
+  62:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+  63:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** #define ACK_NOERROR 0xF0
+  64:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** #define ACK_ERROR   0xFF
+  65:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** #define ATR_FRAME_START 0xE0
+  66:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+  67:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** #define MC_PROTOCOL_CODE_NONE        0x00
+  68:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+  69:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** /**
+  70:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** * @brief  Function used to decode received data
+  71:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** *
+  72:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** * @param  pHandle Pointer on the handle of the component.
+  73:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** * @param  Code code value of frame to send.
+  74:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** * @param  buffer frame data buffer.
+  75:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** * @param  Size size of data frame.
+  76:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** */
+  77:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** /* To change endianess when read 4 bytes from memory and sent over UART byte by byte */
+  78:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** #define SWAP_ENDIAN_32(value) \
+  79:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** { \
+  80:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     int32_t swappedvalue; \
+  81:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     swappedvalue = ((value>>24)&0xff) | ((value<<8)&0xff0000) |((value>>8)&0xff00) | ((value<<24)&0
+  82:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     value = swappedvalue; \
+  83:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** }
+  84:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+  85:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** /* List of error codes */
+  86:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** typedef enum ERROR_CODE_e
+  87:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** {
+  88:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 	ERROR_NONE = 0,             /**<  0x00 - No error */
+  89:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 	ERROR_BAD_FRAME_ID,         /**<  0x01 - BAD Frame ID. The Frame ID has not been recognized by the
+  90:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 	ERROR_CODE_SET_READ_ONLY,   /**<  0x02 - Write on read-only. The master wants to write on a read-o
+  91:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 	ERROR_CODE_GET_WRITE_ONLY,  /**<  0x03 - Read not allowed. The value cannot be read. */
+  92:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 	ERROR_CODE_NO_TARGET_DRIVE, /**<  0x04 - Bad target drive. The target motor is not supported by th
+  93:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 	ERROR_CODE_WRONG_SET,       /**<  0x05 - Value used in the frame is out of range expected by the F
+  94:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 	ERROR_CODE_CMD_ID,          /**<  0x06 - NOT USED */
+  95:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 	ERROR_CODE_WRONG_CMD,       /**<  0x07 - Bad command ID. The command ID has not been recognized. *
+  96:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 	ERROR_CODE_OVERRUN,         /**<  0x08 - Overrun error. Transmission speed too fast, frame not rec
+  97:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 	ERROR_CODE_TIMEOUT,         /**<  0x09 - Timeout error. Received frame corrupted or unrecognized b
+  98:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 	ERROR_CODE_BAD_CRC,         /**<  0x0A - The computed CRC is not equal to the received CRC byte. *
+  99:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 	ERROR_BAD_MOTOR_SELECTED,   /**<  0x0B - Bad target drive. The target motor is not supported by th
+ 100:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 	ERROR_MP_NOT_ENABLED        /**<  0x0C - Motor Profiler not enabled. */
+ 101:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** } ERROR_CODE;
+ 102:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 103:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** MPInfo_t MPInfo = {0, 0};
+ 104:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 105:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** #if defined USE_L9502 
+ 106:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** #define MULTI_DRIVER_CMD
+ 107:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** #endif
+ 108:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 109:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** #if defined USE_STGAP4S
+ 110:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** #define MULTI_DRIVER_CMD
+ 111:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** #endif
+ 112:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 113:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** /**
+ 114:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** * @brief  Initializes  MCP component parameters
+ 115:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** *
+ 116:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** * @param  pHandle Pointer on the handle of the component to initialize.
+ 117:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** * @param  pFCP Pointer on Frame communication protocol component's handle to use.
+ 118:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** * @param  fFcpSend Pointer on FCP's send message function
+ 119:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** * @param  fFcpReceive Pointer on FCP's receive message function
+ 120:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** * @param  fFcpAbortReceive Pointer on FCP's abort receive message function
+ 121:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** * @param  pDAC Pointer on DAC component.
+ 122:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** * @param  s_fwVer Pointer on string containing FW release version.
+ 123:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** */
+ 124:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** static void MCP_SentFrameCallback(MCP_Handle_t *pHandle)
+ 125:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** {
+  88              		.loc 1 125 1
+  89              		.cfi_startproc
+  90              		@ args = 0, pretend = 0, frame = 8
+  91              		@ frame_needed = 0, uses_anonymous_args = 0
+  92 0000 00B5     		push	{lr}
+  93              		.cfi_def_cfa_offset 4
+  94              		.cfi_offset 14, -4
+  95 0002 83B0     		sub	sp, sp, #12
+  96              		.cfi_def_cfa_offset 16
+  97 0004 0190     		str	r0, [sp, #4]
+ 126:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   MCP_SentFrame(pHandle, 0U, MC_NULL, 0U);
+  98              		.loc 1 126 3
+  99 0006 0023     		movs	r3, #0
+ 100 0008 0022     		movs	r2, #0
+ 101 000a 0021     		movs	r1, #0
+ 102 000c 0198     		ldr	r0, [sp, #4]
+ 103 000e FFF7FEFF 		bl	MCP_SentFrame
+ 127:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** }
+ 104              		.loc 1 127 1
+ 105 0012 00BF     		nop
+ 106 0014 03B0     		add	sp, sp, #12
+ 107              		.cfi_def_cfa_offset 4
+ 108              		@ sp needed
+ 109 0016 5DF804FB 		ldr	pc, [sp], #4
+ 110              		.cfi_endproc
+ 111              	.LFE1225:
+ 113 001a 00BF     		.section	.text.MCP_Init,"ax",%progbits
+ 114              		.align	1
+ 115              		.p2align 4,,15
+ 116              		.weak	MCP_Init
+ 117              		.syntax unified
+ 118              		.thumb
+ 119              		.thumb_func
+ 121              	MCP_Init:
+ 122              	.LFB1226:
+ 128:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 129:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** __weak void MCP_Init( MCP_Handle_t *pHandle,
+ 130:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****                FCP_Handle_t * pFCP,
+ 131:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****                FCP_SendFct_t fFcpSend,
+ 132:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****                FCP_ReceiveFct_t fFcpReceive,
+ 133:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****                FCP_AbortReceiveFct_t fFcpAbortReceive,
+ 134:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****                DAC_UI_Handle_t * pDAC,
+ 135:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****                const char* s_fwVer )
+ 136:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** {
+ 123              		.loc 1 136 1
+ 124              		.cfi_startproc
+ 125              		@ args = 12, pretend = 0, frame = 16
+ 126              		@ frame_needed = 0, uses_anonymous_args = 0
+ 127 0000 00B5     		push	{lr}
+ 128              		.cfi_def_cfa_offset 4
+ 129              		.cfi_offset 14, -4
+ 130 0002 87B0     		sub	sp, sp, #28
+ 131              		.cfi_def_cfa_offset 32
+ 132 0004 0590     		str	r0, [sp, #20]
+ 133 0006 0491     		str	r1, [sp, #16]
+ 134 0008 0392     		str	r2, [sp, #12]
+ 135 000a 0293     		str	r3, [sp, #8]
+ 137:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   pHandle->pFCP = pFCP;
+ 136              		.loc 1 137 17
+ 137 000c 059B     		ldr	r3, [sp, #20]
+ 138 000e 049A     		ldr	r2, [sp, #16]
+ 139 0010 1A63     		str	r2, [r3, #48]
+ 138:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   pHandle->pDAC = pDAC;
+ 140              		.loc 1 138 17
+ 141 0012 059B     		ldr	r3, [sp, #20]
+ 142 0014 099A     		ldr	r2, [sp, #36]
+ 143 0016 C3F8C420 		str	r2, [r3, #196]
+ 139:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   pHandle->s_fwVer = s_fwVer;
+ 144              		.loc 1 139 20
+ 145 001a 059B     		ldr	r3, [sp, #20]
+ 146 001c 0A9A     		ldr	r2, [sp, #40]
+ 147 001e C3F8C020 		str	r2, [r3, #192]
+ 140:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   FCP_SetClient( pFCP, pHandle,
+ 148              		.loc 1 140 3
+ 149 0022 0C4B     		ldr	r3, .L3
+ 150 0024 0093     		str	r3, [sp]
+ 151 0026 0C4B     		ldr	r3, .L3+4
+ 152 0028 0C4A     		ldr	r2, .L3+8
+ 153 002a 0599     		ldr	r1, [sp, #20]
+ 154 002c 0498     		ldr	r0, [sp, #16]
+ 155 002e FFF7FEFF 		bl	FCP_SetClient
+ 141:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****                  & MCP_SentFrameCallback,
+ 142:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****                  (FCP_ReceivedFrameCallback_t) & MCP_ReceivedFrame,
+ 143:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****                  (FCP_RxTimeoutCallback_t) & MCP_OnTimeOut );
+ 144:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   pHandle->fFcpSend = fFcpSend;
+ 156              		.loc 1 144 21
+ 157 0032 059B     		ldr	r3, [sp, #20]
+ 158 0034 039A     		ldr	r2, [sp, #12]
+ 159 0036 5A63     		str	r2, [r3, #52]
+ 145:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   pHandle->fFcpReceive = fFcpReceive;
+ 160              		.loc 1 145 24
+ 161 0038 059B     		ldr	r3, [sp, #20]
+ 162 003a 029A     		ldr	r2, [sp, #8]
+ 163 003c 9A63     		str	r2, [r3, #56]
+ 146:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   pHandle->fFcpAbortReceive = fFcpAbortReceive;
+ 164              		.loc 1 146 29
+ 165 003e 059B     		ldr	r3, [sp, #20]
+ 166 0040 089A     		ldr	r2, [sp, #32]
+ 167 0042 DA63     		str	r2, [r3, #60]
+ 147:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 148:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   MCP_WaitNextFrame(pHandle);
+ 168              		.loc 1 148 3
+ 169 0044 0598     		ldr	r0, [sp, #20]
+ 170 0046 FFF7FEFF 		bl	MCP_WaitNextFrame
+ 149:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** }
+ 171              		.loc 1 149 1
+ 172 004a 00BF     		nop
+ 173 004c 07B0     		add	sp, sp, #28
+ 174              		.cfi_def_cfa_offset 4
+ 175              		@ sp needed
+ 176 004e 5DF804FB 		ldr	pc, [sp], #4
+ 177              	.L4:
+ 178 0052 00BF     		.align	2
+ 179              	.L3:
+ 180 0054 00000000 		.word	MCP_OnTimeOut
+ 181 0058 00000000 		.word	MCP_ReceivedFrame
+ 182 005c 00000000 		.word	MCP_SentFrameCallback
+ 183              		.cfi_endproc
+ 184              	.LFE1226:
+ 186              		.section	.text.MCP_OnTimeOut,"ax",%progbits
+ 187              		.align	1
+ 188              		.p2align 4,,15
+ 189              		.weak	MCP_OnTimeOut
+ 190              		.syntax unified
+ 191              		.thumb
+ 192              		.thumb_func
+ 194              	MCP_OnTimeOut:
+ 195              	.LFB1227:
+ 150:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 151:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** /**
+ 152:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** * @brief  Function used to set and report the Time Out.
+ 153:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** *
+ 154:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** * @param  pHandle Pointer on the handle of the component.
+ 155:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** */
+ 156:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** __weak void MCP_OnTimeOut(MCP_Handle_t *pHandle)
+ 157:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** {
+ 196              		.loc 1 157 1
+ 197              		.cfi_startproc
+ 198              		@ args = 0, pretend = 0, frame = 8
+ 199              		@ frame_needed = 0, uses_anonymous_args = 0
+ 200 0000 00B5     		push	{lr}
+ 201              		.cfi_def_cfa_offset 4
+ 202              		.cfi_offset 14, -4
+ 203 0002 83B0     		sub	sp, sp, #12
+ 204              		.cfi_def_cfa_offset 16
+ 205 0004 0190     		str	r0, [sp, #4]
+ 158:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****      MCP_WaitNextFrame(pHandle);
+ 206              		.loc 1 158 6
+ 207 0006 0198     		ldr	r0, [sp, #4]
+ 208 0008 FFF7FEFF 		bl	MCP_WaitNextFrame
+ 159:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** }
+ 209              		.loc 1 159 1
+ 210 000c 00BF     		nop
+ 211 000e 03B0     		add	sp, sp, #12
+ 212              		.cfi_def_cfa_offset 4
+ 213              		@ sp needed
+ 214 0010 5DF804FB 		ldr	pc, [sp], #4
+ 215              		.cfi_endproc
+ 216              	.LFE1227:
+ 218              		.section	.text.MCP_WaitNextFrame,"ax",%progbits
+ 219              		.align	1
+ 220              		.p2align 4,,15
+ 221              		.weak	MCP_WaitNextFrame
+ 222              		.syntax unified
+ 223              		.thumb
+ 224              		.thumb_func
+ 226              	MCP_WaitNextFrame:
+ 227              	.LFB1228:
+ 160:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 161:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** /**
+ 162:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** * @brief  Function used to check next reception frame
+ 163:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** *
+ 164:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** * @param  pHandle Pointer on the handle of the component.
+ 165:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** */
+ 166:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** __weak void MCP_WaitNextFrame(MCP_Handle_t *pHandle)
+ 167:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** {
+ 228              		.loc 1 167 1
+ 229              		.cfi_startproc
+ 230              		@ args = 0, pretend = 0, frame = 8
+ 231              		@ frame_needed = 0, uses_anonymous_args = 0
+ 232 0000 00B5     		push	{lr}
+ 233              		.cfi_def_cfa_offset 4
+ 234              		.cfi_offset 14, -4
+ 235 0002 83B0     		sub	sp, sp, #12
+ 236              		.cfi_def_cfa_offset 16
+ 237 0004 0190     		str	r0, [sp, #4]
+ 168:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   pHandle->fFcpAbortReceive(pHandle->pFCP);
+ 238              		.loc 1 168 10
+ 239 0006 019B     		ldr	r3, [sp, #4]
+ 240 0008 DB6B     		ldr	r3, [r3, #60]
+ 241              		.loc 1 168 3
+ 242 000a 019A     		ldr	r2, [sp, #4]
+ 243 000c 126B     		ldr	r2, [r2, #48]
+ 244 000e 1046     		mov	r0, r2
+ 245 0010 9847     		blx	r3
+ 246              	.LVL0:
+ 169:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   pHandle->BufferSize = FCP_MAX_PAYLOAD_SIZE;
+ 247              		.loc 1 169 23
+ 248 0012 019B     		ldr	r3, [sp, #4]
+ 249 0014 8022     		movs	r2, #128
+ 250 0016 83F8C820 		strb	r2, [r3, #200]
+ 170:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   pHandle->fFcpReceive(pHandle->pFCP);
+ 251              		.loc 1 170 10
+ 252 001a 019B     		ldr	r3, [sp, #4]
+ 253 001c 9B6B     		ldr	r3, [r3, #56]
+ 254              		.loc 1 170 3
+ 255 001e 019A     		ldr	r2, [sp, #4]
+ 256 0020 126B     		ldr	r2, [r2, #48]
+ 257 0022 1046     		mov	r0, r2
+ 258 0024 9847     		blx	r3
+ 259              	.LVL1:
+ 171:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** }
+ 260              		.loc 1 171 1
+ 261 0026 00BF     		nop
+ 262 0028 03B0     		add	sp, sp, #12
+ 263              		.cfi_def_cfa_offset 4
+ 264              		@ sp needed
+ 265 002a 5DF804FB 		ldr	pc, [sp], #4
+ 266              		.cfi_endproc
+ 267              	.LFE1228:
+ 269 002e 00BF     		.section	.text.MCP_SentFrame,"ax",%progbits
+ 270              		.align	1
+ 271              		.p2align 4,,15
+ 272              		.weak	MCP_SentFrame
+ 273              		.syntax unified
+ 274              		.thumb
+ 275              		.thumb_func
+ 277              	MCP_SentFrame:
+ 278              	.LFB1229:
+ 172:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 173:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** /**
+ 174:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** * @brief  Function used to transmit the data
+ 175:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** *
+ 176:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** * @param  pHandle Pointer on the handle of the component.
+ 177:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** * @param  Code code value of frame to send.
+ 178:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** * @param  buffer frame data buffer.
+ 179:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** * @param  Size size of data frame.
+ 180:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** */
+ 181:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** __weak void MCP_SentFrame(MCP_Handle_t *pHandle, uint8_t Code, uint8_t *buffer, uint8_t Size)
+ 182:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** {
+ 279              		.loc 1 182 1
+ 280              		.cfi_startproc
+ 281              		@ args = 0, pretend = 0, frame = 16
+ 282              		@ frame_needed = 0, uses_anonymous_args = 0
+ 283 0000 00B5     		push	{lr}
+ 284              		.cfi_def_cfa_offset 4
+ 285              		.cfi_offset 14, -4
+ 286 0002 85B0     		sub	sp, sp, #20
+ 287              		.cfi_def_cfa_offset 24
+ 288 0004 0390     		str	r0, [sp, #12]
+ 289 0006 0192     		str	r2, [sp, #4]
+ 290 0008 1A46     		mov	r2, r3
+ 291 000a 0B46     		mov	r3, r1
+ 292 000c 8DF80B30 		strb	r3, [sp, #11]
+ 293 0010 1346     		mov	r3, r2
+ 294 0012 8DF80A30 		strb	r3, [sp, #10]
+ 183:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     (void) Code; /* not used */
+ 184:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     (void) buffer; /* not used */
+ 185:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     (void) Size; /* not used */
+ 186:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     MCP_WaitNextFrame(pHandle);
+ 295              		.loc 1 186 5
+ 296 0016 0398     		ldr	r0, [sp, #12]
+ 297 0018 FFF7FEFF 		bl	MCP_WaitNextFrame
+ 187:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** }
+ 298              		.loc 1 187 1
+ 299 001c 00BF     		nop
+ 300 001e 05B0     		add	sp, sp, #20
+ 301              		.cfi_def_cfa_offset 4
+ 302              		@ sp needed
+ 303 0020 5DF804FB 		ldr	pc, [sp], #4
+ 304              		.cfi_endproc
+ 305              	.LFE1229:
+ 307              		.section	.text.MCP_ReceivedFrame,"ax",%progbits
+ 308              		.align	1
+ 309              		.p2align 4,,15
+ 310              		.weak	MCP_ReceivedFrame
+ 311              		.syntax unified
+ 312              		.thumb
+ 313              		.thumb_func
+ 315              	MCP_ReceivedFrame:
+ 316              	.LFB1230:
+ 188:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 189:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** __weak void MCP_ReceivedFrame(MCP_Handle_t *pHandle, uint8_t Code, uint8_t *buffer, uint8_t Size)
+ 190:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** {
+ 317              		.loc 1 190 1
+ 318              		.cfi_startproc
+ 319              		@ args = 0, pretend = 0, frame = 168
+ 320              		@ frame_needed = 0, uses_anonymous_args = 0
+ 321 0000 10B5     		push	{r4, lr}
+ 322              		.cfi_def_cfa_offset 8
+ 323              		.cfi_offset 4, -8
+ 324              		.cfi_offset 14, -4
+ 325 0002 ACB0     		sub	sp, sp, #176
+ 326              		.cfi_def_cfa_offset 184
+ 327 0004 0590     		str	r0, [sp, #20]
+ 328 0006 0392     		str	r2, [sp, #12]
+ 329 0008 1A46     		mov	r2, r3
+ 330 000a 0B46     		mov	r3, r1
+ 331 000c 8DF81330 		strb	r3, [sp, #19]
+ 332 0010 1346     		mov	r3, r2
+ 333 0012 8DF81230 		strb	r3, [sp, #18]
+ 191:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   bool RequireAck = true;
+ 334              		.loc 1 191 8
+ 335 0016 0123     		movs	r3, #1
+ 336 0018 8DF8AF30 		strb	r3, [sp, #175]
+ 192:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   bool bNoError = false; // Default is error
+ 337              		.loc 1 192 8
+ 338 001c 0023     		movs	r3, #0
+ 339 001e 8DF86F30 		strb	r3, [sp, #111]
+ 193:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   uint8_t bErrorCode;
+ 194:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 195:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   /* Protocol version >3.3 motor selection inside Frame ID */
+ 196:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   uint8_t bMotorSelection = (Code & 0xE0) >> 5; /* Mask: 1110|0000 */
+ 340              		.loc 1 196 11
+ 341 0022 9DF81330 		ldrb	r3, [sp, #19]	@ zero_extendqisi2
+ 342 0026 5B09     		lsrs	r3, r3, #5
+ 343 0028 8DF8AC30 		strb	r3, [sp, #172]
+ 197:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   if (bMotorSelection != 0)
+ 344              		.loc 1 197 6
+ 345 002c 9DF8AC30 		ldrb	r3, [sp, #172]	@ zero_extendqisi2
+ 346 0030 002B     		cmp	r3, #0
+ 347 0032 27D0     		beq	.L9
+ 198:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   {
+ 199:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     if (UI_SetReg(&pHandle->_Super, MC_PROTOCOL_REG_TARGET_MOTOR, bMotorSelection - 1))
+ 348              		.loc 1 199 9
+ 349 0034 0598     		ldr	r0, [sp, #20]
+ 350 0036 9DF8AC30 		ldrb	r3, [sp, #172]	@ zero_extendqisi2
+ 351              		.loc 1 199 83
+ 352 003a 013B     		subs	r3, r3, #1
+ 353              		.loc 1 199 9
+ 354 003c 1A46     		mov	r2, r3
+ 355 003e 0021     		movs	r1, #0
+ 356 0040 FFF7FEFF 		bl	UI_SetReg
+ 357 0044 0346     		mov	r3, r0
+ 358              		.loc 1 199 8 discriminator 1
+ 359 0046 002B     		cmp	r3, #0
+ 360 0048 16D0     		beq	.L10
+ 200:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     {
+ 201:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       Code &= 0x1F; /* Mask: 0001|1111 */
+ 361              		.loc 1 201 12
+ 362 004a 9DF81330 		ldrb	r3, [sp, #19]
+ 363 004e 03F01F03 		and	r3, r3, #31
+ 364 0052 8DF81330 		strb	r3, [sp, #19]
+ 202:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 203:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       /* Change also the DAC selected motor */
+ 204:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       if (pHandle->pDAC)
+ 365              		.loc 1 204 18
+ 366 0056 059B     		ldr	r3, [sp, #20]
+ 367 0058 D3F8C430 		ldr	r3, [r3, #196]
+ 368              		.loc 1 204 10
+ 369 005c 002B     		cmp	r3, #0
+ 370 005e 11D0     		beq	.L9
+ 205:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       {
+ 206:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         UI_SetReg(&pHandle->pDAC->_Super, MC_PROTOCOL_REG_TARGET_MOTOR, bMotorSelection - 1);
+ 371              		.loc 1 206 27
+ 372 0060 059B     		ldr	r3, [sp, #20]
+ 373 0062 D3F8C430 		ldr	r3, [r3, #196]
+ 374              		.loc 1 206 9
+ 375 0066 1846     		mov	r0, r3
+ 376 0068 9DF8AC30 		ldrb	r3, [sp, #172]	@ zero_extendqisi2
+ 377              		.loc 1 206 89
+ 378 006c 013B     		subs	r3, r3, #1
+ 379              		.loc 1 206 9
+ 380 006e 1A46     		mov	r2, r3
+ 381 0070 0021     		movs	r1, #0
+ 382 0072 FFF7FEFF 		bl	UI_SetReg
+ 383 0076 05E0     		b	.L9
+ 384              	.L10:
+ 207:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       }
+ 208:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     }
+ 209:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     else
+ 210:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     {
+ 211:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       Code = MC_PROTOCOL_CODE_NONE; /* Error */
+ 385              		.loc 1 211 12
+ 386 0078 0023     		movs	r3, #0
+ 387 007a 8DF81330 		strb	r3, [sp, #19]
+ 212:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       bErrorCode = ERROR_BAD_MOTOR_SELECTED;
+ 388              		.loc 1 212 18
+ 389 007e 0B23     		movs	r3, #11
+ 390 0080 8DF86E30 		strb	r3, [sp, #110]
+ 391              	.L9:
+ 213:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     }
+ 214:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   }
+ 215:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 216:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   switch (Code)
+ 392              		.loc 1 216 3
+ 393 0084 9DF81330 		ldrb	r3, [sp, #19]	@ zero_extendqisi2
+ 394 0088 122B     		cmp	r3, #18
+ 395 008a 00F2B985 		bhi	.L11
+ 396 008e 01A2     		adr	r2, .L13
+ 397 0090 52F823F0 		ldr	pc, [r2, r3, lsl #2]
+ 398              		.p2align 2
+ 399              	.L13:
+ 400 0094 090C0000 		.word	.L77+1
+ 401 0098 E1000000 		.word	.L25+1
+ 402 009c FB030000 		.word	.L24+1
+ 403 00a0 B1070000 		.word	.L23+1
+ 404 00a4 010C0000 		.word	.L11+1
+ 405 00a8 010C0000 		.word	.L11+1
+ 406 00ac D5070000 		.word	.L22+1
+ 407 00b0 B9080000 		.word	.L21+1
+ 408 00b4 C7090000 		.word	.L20+1
+ 409 00b8 570A0000 		.word	.L19+1
+ 410 00bc EB0A0000 		.word	.L18+1
+ 411 00c0 350B0000 		.word	.L17+1
+ 412 00c4 7B0B0000 		.word	.L16+1
+ 413 00c8 71090000 		.word	.L15+1
+ 414 00cc 0D090000 		.word	.L14+1
+ 415 00d0 010C0000 		.word	.L11+1
+ 416 00d4 010C0000 		.word	.L11+1
+ 417 00d8 010C0000 		.word	.L11+1
+ 418 00dc 090C0000 		.word	.L77+1
+ 419              		.p2align 1
+ 420              	.L25:
+ 421              	.LBB2:
+ 217:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   {
+ 218:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   case MC_PROTOCOL_CODE_SET_REG:
+ 219:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     {
+ 220:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       MC_Protocol_REG_t bRegID = (MC_Protocol_REG_t)buffer[0];
+ 422              		.loc 1 220 25
+ 423 00e0 039B     		ldr	r3, [sp, #12]
+ 424 00e2 1B78     		ldrb	r3, [r3]
+ 425 00e4 8DF87F30 		strb	r3, [sp, #127]
+ 221:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       bErrorCode = ERROR_CODE_WRONG_SET;
+ 426              		.loc 1 221 18
+ 427 00e8 0523     		movs	r3, #5
+ 428 00ea 8DF86E30 		strb	r3, [sp, #110]
+ 222:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 223:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       switch (bRegID)
+ 429              		.loc 1 223 7
+ 430 00ee 9DF87F30 		ldrb	r3, [sp, #127]	@ zero_extendqisi2
+ 431 00f2 8A2B     		cmp	r3, #138
+ 432 00f4 00F37B81 		bgt	.L27
+ 433 00f8 732B     		cmp	r3, #115
+ 434 00fa 05DA     		bge	.L28
+ 435 00fc 482B     		cmp	r3, #72
+ 436 00fe 00F3F780 		bgt	.L29
+ 437 0102 002B     		cmp	r3, #0
+ 438 0104 5BDA     		bge	.L30
+ 439 0106 72E1     		b	.L27
+ 440              	.L28:
+ 441 0108 733B     		subs	r3, r3, #115
+ 442 010a 172B     		cmp	r3, #23
+ 443 010c 00F26F81 		bhi	.L27
+ 444 0110 01A2     		adr	r2, .L32
+ 445 0112 52F823F0 		ldr	pc, [r2, r3, lsl #2]
+ 446 0116 00BF     		.p2align 2
+ 447              	.L32:
+ 448 0118 87030000 		.word	.L31+1
+ 449 011c 2F030000 		.word	.L34+1
+ 450 0120 B1030000 		.word	.L33+1
+ 451 0124 B1030000 		.word	.L33+1
+ 452 0128 B1030000 		.word	.L33+1
+ 453 012c B1030000 		.word	.L33+1
+ 454 0130 B1030000 		.word	.L33+1
+ 455 0134 EF030000 		.word	.L27+1
+ 456 0138 EF030000 		.word	.L27+1
+ 457 013c EF030000 		.word	.L27+1
+ 458 0140 B1030000 		.word	.L33+1
+ 459 0144 B1030000 		.word	.L33+1
+ 460 0148 EF030000 		.word	.L27+1
+ 461 014c EF030000 		.word	.L27+1
+ 462 0150 EF030000 		.word	.L27+1
+ 463 0154 EF030000 		.word	.L27+1
+ 464 0158 EF030000 		.word	.L27+1
+ 465 015c EF030000 		.word	.L27+1
+ 466 0160 EF030000 		.word	.L27+1
+ 467 0164 87030000 		.word	.L31+1
+ 468 0168 87030000 		.word	.L31+1
+ 469 016c 87030000 		.word	.L31+1
+ 470 0170 87030000 		.word	.L31+1
+ 471 0174 87030000 		.word	.L31+1
+ 472              		.p2align 1
+ 473              	.L39:
+ 474 0178 4F3B     		subs	r3, r3, #79
+ 475 017a 0122     		movs	r2, #1
+ 476 017c 02FA03F3 		lsl	r3, r2, r3
+ 477 0180 A84A     		ldr	r2, .L103
+ 478 0182 1A40     		ands	r2, r2, r3
+ 479 0184 002A     		cmp	r2, #0
+ 480 0186 14BF     		ite	ne
+ 481 0188 0122     		movne	r2, #1
+ 482 018a 0022     		moveq	r2, #0
+ 483 018c D2B2     		uxtb	r2, r2
+ 484 018e 002A     		cmp	r2, #0
+ 485 0190 40F0F980 		bne	.L31
+ 486 0194 03F48052 		and	r2, r3, #4096
+ 487 0198 002A     		cmp	r2, #0
+ 488 019a 14BF     		ite	ne
+ 489 019c 0122     		movne	r2, #1
+ 490 019e 0022     		moveq	r2, #0
+ 491 01a0 D2B2     		uxtb	r2, r2
+ 492 01a2 002A     		cmp	r2, #0
+ 493 01a4 40F00481 		bne	.L33
+ 494 01a8 03F40003 		and	r3, r3, #8388608
+ 495 01ac 002B     		cmp	r3, #0
+ 496 01ae 14BF     		ite	ne
+ 497 01b0 0123     		movne	r3, #1
+ 498 01b2 0023     		moveq	r3, #0
+ 499 01b4 DBB2     		uxtb	r3, r3
+ 500 01b6 002B     		cmp	r3, #0
+ 501 01b8 40F0B980 		bne	.L34
+ 502 01bc 17E1     		b	.L27
+ 503              	.L30:
+ 504 01be 482B     		cmp	r3, #72
+ 505 01c0 00F21581 		bhi	.L27
+ 506 01c4 01A2     		adr	r2, .L35
+ 507 01c6 52F823F0 		ldr	pc, [r2, r3, lsl #2]
+ 508 01ca 00BF     		.p2align 2
+ 509              	.L35:
+ 510 01cc FD020000 		.word	.L38+1
+ 511 01d0 EF030000 		.word	.L27+1
+ 512 01d4 EF030000 		.word	.L27+1
+ 513 01d8 2F030000 		.word	.L34+1
+ 514 01dc EF030000 		.word	.L27+1
+ 515 01e0 87030000 		.word	.L31+1
+ 516 01e4 87030000 		.word	.L31+1
+ 517 01e8 87030000 		.word	.L31+1
+ 518 01ec 87030000 		.word	.L31+1
+ 519 01f0 87030000 		.word	.L31+1
+ 520 01f4 87030000 		.word	.L31+1
+ 521 01f8 87030000 		.word	.L31+1
+ 522 01fc 87030000 		.word	.L31+1
+ 523 0200 87030000 		.word	.L31+1
+ 524 0204 87030000 		.word	.L31+1
+ 525 0208 87030000 		.word	.L31+1
+ 526 020c B1030000 		.word	.L33+1
+ 527 0210 B1030000 		.word	.L33+1
+ 528 0214 EF030000 		.word	.L27+1
+ 529 0218 EF030000 		.word	.L27+1
+ 530 021c 87030000 		.word	.L31+1
+ 531 0220 87030000 		.word	.L31+1
+ 532 0224 87030000 		.word	.L31+1
+ 533 0228 87030000 		.word	.L31+1
+ 534 022c 87030000 		.word	.L31+1
+ 535 0230 EF030000 		.word	.L27+1
+ 536 0234 EF030000 		.word	.L27+1
+ 537 0238 EF030000 		.word	.L27+1
+ 538 023c 4B030000 		.word	.L37+1
+ 539 0240 69030000 		.word	.L36+1
+ 540 0244 EF030000 		.word	.L27+1
+ 541 0248 EF030000 		.word	.L27+1
+ 542 024c EF030000 		.word	.L27+1
+ 543 0250 EF030000 		.word	.L27+1
+ 544 0254 EF030000 		.word	.L27+1
+ 545 0258 EF030000 		.word	.L27+1
+ 546 025c EF030000 		.word	.L27+1
+ 547 0260 EF030000 		.word	.L27+1
+ 548 0264 EF030000 		.word	.L27+1
+ 549 0268 EF030000 		.word	.L27+1
+ 550 026c EF030000 		.word	.L27+1
+ 551 0270 EF030000 		.word	.L27+1
+ 552 0274 EF030000 		.word	.L27+1
+ 553 0278 EF030000 		.word	.L27+1
+ 554 027c EF030000 		.word	.L27+1
+ 555 0280 EF030000 		.word	.L27+1
+ 556 0284 EF030000 		.word	.L27+1
+ 557 0288 EF030000 		.word	.L27+1
+ 558 028c EF030000 		.word	.L27+1
+ 559 0290 EF030000 		.word	.L27+1
+ 560 0294 EF030000 		.word	.L27+1
+ 561 0298 EF030000 		.word	.L27+1
+ 562 029c EF030000 		.word	.L27+1
+ 563 02a0 EF030000 		.word	.L27+1
+ 564 02a4 EF030000 		.word	.L27+1
+ 565 02a8 EF030000 		.word	.L27+1
+ 566 02ac EF030000 		.word	.L27+1
+ 567 02b0 EF030000 		.word	.L27+1
+ 568 02b4 EF030000 		.word	.L27+1
+ 569 02b8 EF030000 		.word	.L27+1
+ 570 02bc EF030000 		.word	.L27+1
+ 571 02c0 EF030000 		.word	.L27+1
+ 572 02c4 EF030000 		.word	.L27+1
+ 573 02c8 EF030000 		.word	.L27+1
+ 574 02cc EF030000 		.word	.L27+1
+ 575 02d0 87030000 		.word	.L31+1
+ 576 02d4 EF030000 		.word	.L27+1
+ 577 02d8 EF030000 		.word	.L27+1
+ 578 02dc EF030000 		.word	.L27+1
+ 579 02e0 EF030000 		.word	.L27+1
+ 580 02e4 B1030000 		.word	.L33+1
+ 581 02e8 B1030000 		.word	.L33+1
+ 582 02ec B1030000 		.word	.L33+1
+ 583              		.p2align 1
+ 584              	.L29:
+ 585 02f0 662B     		cmp	r3, #102
+ 586 02f2 7CDC     		bgt	.L27
+ 587 02f4 4F2B     		cmp	r3, #79
+ 588 02f6 BFF63FAF 		bge	.L39
+ 589 02fa 78E0     		b	.L27
+ 590              	.L38:
+ 591              	.LBB3:
+ 224:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       {
+ 225:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_TARGET_MOTOR:
+ 226:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         {
+ 227:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****           /* Deprecated */
+ 228:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****           int32_t wValue = (int32_t)(buffer[1]);
+ 592              		.loc 1 228 44
+ 593 02fc 039B     		ldr	r3, [sp, #12]
+ 594 02fe 0133     		adds	r3, r3, #1
+ 595 0300 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 596              		.loc 1 228 19
+ 597 0302 1C93     		str	r3, [sp, #112]
+ 229:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 230:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****           UI_SetReg(&pHandle->pDAC->_Super, bRegID, wValue);
+ 598              		.loc 1 230 29
+ 599 0304 059B     		ldr	r3, [sp, #20]
+ 600 0306 D3F8C430 		ldr	r3, [r3, #196]
+ 601              		.loc 1 230 11
+ 602 030a 1846     		mov	r0, r3
+ 603 030c 9DF87F30 		ldrb	r3, [sp, #127]	@ zero_extendqisi2
+ 604 0310 1C9A     		ldr	r2, [sp, #112]
+ 605 0312 1946     		mov	r1, r3
+ 606 0314 FFF7FEFF 		bl	UI_SetReg
+ 231:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****           bNoError = UI_SetReg(&pHandle->_Super, bRegID, wValue);
+ 607              		.loc 1 231 22
+ 608 0318 059B     		ldr	r3, [sp, #20]
+ 609 031a 9DF87F10 		ldrb	r1, [sp, #127]	@ zero_extendqisi2
+ 610 031e 1C9A     		ldr	r2, [sp, #112]
+ 611 0320 1846     		mov	r0, r3
+ 612 0322 FFF7FEFF 		bl	UI_SetReg
+ 613 0326 0346     		mov	r3, r0
+ 614              		.loc 1 231 20 discriminator 1
+ 615 0328 8DF86F30 		strb	r3, [sp, #111]
+ 616              	.LBE3:
+ 232:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         }
+ 233:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         break;
+ 617              		.loc 1 233 9
+ 618 032c 63E0     		b	.L40
+ 619              	.L34:
+ 234:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_CONTROL_MODE:
+ 235:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_EXT_FAULT1:
+ 236:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_SC_PP:
+ 237:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         {
+ 238:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****           /* 8bit variables */
+ 239:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****           bNoError = UI_SetReg(&pHandle->_Super, bRegID, (int32_t)(buffer[1]));
+ 620              		.loc 1 239 22
+ 621 032e 0598     		ldr	r0, [sp, #20]
+ 622              		.loc 1 239 74
+ 623 0330 039B     		ldr	r3, [sp, #12]
+ 624 0332 0133     		adds	r3, r3, #1
+ 625 0334 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 626              		.loc 1 239 22
+ 627 0336 1A46     		mov	r2, r3
+ 628 0338 9DF87F30 		ldrb	r3, [sp, #127]	@ zero_extendqisi2
+ 629 033c 1946     		mov	r1, r3
+ 630 033e FFF7FEFF 		bl	UI_SetReg
+ 631 0342 0346     		mov	r3, r0
+ 632              		.loc 1 239 20 discriminator 1
+ 633 0344 8DF86F30 		strb	r3, [sp, #111]
+ 240:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         }
+ 241:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         break;
+ 634              		.loc 1 241 9
+ 635 0348 55E0     		b	.L40
+ 636              	.L37:
+ 242:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 243:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_DAC_OUT1:
+ 244:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         {
+ 245:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****           UI_SetDAC(&pHandle->pDAC->_Super, DAC_CH0, (MC_Protocol_REG_t)(buffer[1]));
+ 637              		.loc 1 245 29
+ 638 034a 059B     		ldr	r3, [sp, #20]
+ 639 034c D3F8C430 		ldr	r3, [r3, #196]
+ 640              		.loc 1 245 11
+ 641 0350 1846     		mov	r0, r3
+ 642              		.loc 1 245 80
+ 643 0352 039B     		ldr	r3, [sp, #12]
+ 644 0354 0133     		adds	r3, r3, #1
+ 645              		.loc 1 245 11
+ 646 0356 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 647 0358 1A46     		mov	r2, r3
+ 648 035a 0021     		movs	r1, #0
+ 649 035c FFF7FEFF 		bl	UI_SetDAC
+ 246:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****           bNoError = true; /* No check inside class return always true*/
+ 650              		.loc 1 246 20
+ 651 0360 0123     		movs	r3, #1
+ 652 0362 8DF86F30 		strb	r3, [sp, #111]
+ 247:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         }
+ 248:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         break;
+ 653              		.loc 1 248 9
+ 654 0366 46E0     		b	.L40
+ 655              	.L36:
+ 249:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 250:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_DAC_OUT2:
+ 251:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         {
+ 252:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****           UI_SetDAC(&pHandle->pDAC->_Super, DAC_CH1, (MC_Protocol_REG_t)(buffer[1]));
+ 656              		.loc 1 252 29
+ 657 0368 059B     		ldr	r3, [sp, #20]
+ 658 036a D3F8C430 		ldr	r3, [r3, #196]
+ 659              		.loc 1 252 11
+ 660 036e 1846     		mov	r0, r3
+ 661              		.loc 1 252 80
+ 662 0370 039B     		ldr	r3, [sp, #12]
+ 663 0372 0133     		adds	r3, r3, #1
+ 664              		.loc 1 252 11
+ 665 0374 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 666 0376 1A46     		mov	r2, r3
+ 667 0378 0121     		movs	r1, #1
+ 668 037a FFF7FEFF 		bl	UI_SetDAC
+ 253:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****           bNoError = true; /* No check inside class return always true*/
+ 669              		.loc 1 253 20
+ 670 037e 0123     		movs	r3, #1
+ 671 0380 8DF86F30 		strb	r3, [sp, #111]
+ 254:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         }
+ 255:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         break;
+ 672              		.loc 1 255 9
+ 673 0384 37E0     		b	.L40
+ 674              	.L31:
+ 675              	.LBB4:
+ 256:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 257:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_TORQUE_REF:
+ 258:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_FLUX_REF:
+ 259:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_SPEED_KP:
+ 260:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_SPEED_KI:
+ 261:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_SPEED_KD:
+ 262:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_TORQUE_KP:
+ 263:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_TORQUE_KI:
+ 264:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_TORQUE_KD:
+ 265:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_FLUX_KP:
+ 266:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_FLUX_KI:
+ 267:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_FLUX_KD:
+ 268:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_PLL_KI:
+ 269:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_PLL_KP:
+ 270:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_FLUXWK_KP:
+ 271:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_FLUXWK_KI:
+ 272:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_FLUXWK_BUS:
+ 273:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_IQ_SPEEDMODE:
+ 274:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_PFC_DCBUS_REF:
+ 275:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_PFC_I_KP:
+ 276:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_PFC_I_KI:
+ 277:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_PFC_I_KD:
+ 278:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_PFC_V_KP:
+ 279:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_PFC_V_KI:
+ 280:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_PFC_V_KD:
+ 281:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_PFC_STARTUP_DURATION:
+ 282:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_HFI_INIT_ANG_SAT_DIFF:
+ 283:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_HFI_PI_TRACK_KP:
+ 284:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_HFI_PI_TRACK_KI:
+ 285:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_POSITION_KP:
+ 286:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_POSITION_KI:
+ 287:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_POSITION_KD:
+ 288:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_RES_PHASE_SHIFT:
+ 289:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_RES_DEMOD_DELAY:	  
+ 290:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_RES_MAX_ADC_RES:	  
+ 291:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         {
+ 292:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****           /* 16bit variables */
+ 293:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****           int32_t wValue = buffer[1] + (buffer[2] << 8);
+ 676              		.loc 1 293 34
+ 677 0386 039B     		ldr	r3, [sp, #12]
+ 678 0388 0133     		adds	r3, r3, #1
+ 679 038a 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 680 038c 1A46     		mov	r2, r3
+ 681              		.loc 1 293 47
+ 682 038e 039B     		ldr	r3, [sp, #12]
+ 683 0390 0233     		adds	r3, r3, #2
+ 684 0392 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 685              		.loc 1 293 51
+ 686 0394 1B02     		lsls	r3, r3, #8
+ 687              		.loc 1 293 19
+ 688 0396 1344     		add	r3, r3, r2
+ 689 0398 1D93     		str	r3, [sp, #116]
+ 294:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****           bNoError = UI_SetReg(&pHandle->_Super, bRegID, wValue);
+ 690              		.loc 1 294 22
+ 691 039a 059B     		ldr	r3, [sp, #20]
+ 692 039c 9DF87F10 		ldrb	r1, [sp, #127]	@ zero_extendqisi2
+ 693 03a0 1D9A     		ldr	r2, [sp, #116]
+ 694 03a2 1846     		mov	r0, r3
+ 695 03a4 FFF7FEFF 		bl	UI_SetReg
+ 696 03a8 0346     		mov	r3, r0
+ 697              		.loc 1 294 20 discriminator 1
+ 698 03aa 8DF86F30 		strb	r3, [sp, #111]
+ 699              	.LBE4:
+ 295:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         }
+ 296:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         break;
+ 700              		.loc 1 296 9
+ 701 03ae 22E0     		b	.L40
+ 702              	.L33:
+ 703              	.LBB5:
+ 297:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 298:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_OBSERVER_C1:
+ 299:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_OBSERVER_C2:
+ 300:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_FF_1Q:
+ 301:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_FF_1D:
+ 302:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_FF_2:
+ 303:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_RAMP_FINAL_SPEED:
+ 304:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_SC_CURRENT:
+ 305:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_SC_SPDBANDWIDTH:
+ 306:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_SC_LDLQRATIO:
+ 307:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_SC_NOMINAL_SPEED:
+ 308:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_SC_CURRBANDWIDTH:
+ 309:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_SC_STARTUP_SPEED:
+ 310:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_SC_STARTUP_ACC:
+ 311:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         {
+ 312:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****           /* 32bit variables */
+ 313:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****           int32_t wValue = buffer[1] + (buffer[2] << 8) + (buffer[3] << 16) + (buffer[4] << 24);
+ 704              		.loc 1 313 34
+ 705 03b0 039B     		ldr	r3, [sp, #12]
+ 706 03b2 0133     		adds	r3, r3, #1
+ 707 03b4 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 708 03b6 1A46     		mov	r2, r3
+ 709              		.loc 1 313 47
+ 710 03b8 039B     		ldr	r3, [sp, #12]
+ 711 03ba 0233     		adds	r3, r3, #2
+ 712 03bc 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 713              		.loc 1 313 51
+ 714 03be 1B02     		lsls	r3, r3, #8
+ 715              		.loc 1 313 38
+ 716 03c0 1A44     		add	r2, r2, r3
+ 717              		.loc 1 313 66
+ 718 03c2 039B     		ldr	r3, [sp, #12]
+ 719 03c4 0333     		adds	r3, r3, #3
+ 720 03c6 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 721              		.loc 1 313 70
+ 722 03c8 1B04     		lsls	r3, r3, #16
+ 723              		.loc 1 313 57
+ 724 03ca 1A44     		add	r2, r2, r3
+ 725              		.loc 1 313 86
+ 726 03cc 039B     		ldr	r3, [sp, #12]
+ 727 03ce 0433     		adds	r3, r3, #4
+ 728 03d0 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 729              		.loc 1 313 90
+ 730 03d2 1B06     		lsls	r3, r3, #24
+ 731              		.loc 1 313 19
+ 732 03d4 1344     		add	r3, r3, r2
+ 733 03d6 1E93     		str	r3, [sp, #120]
+ 314:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****           bNoError = UI_SetReg(&pHandle->_Super, bRegID, wValue);
+ 734              		.loc 1 314 22
+ 735 03d8 059B     		ldr	r3, [sp, #20]
+ 736 03da 9DF87F10 		ldrb	r1, [sp, #127]	@ zero_extendqisi2
+ 737 03de 1E9A     		ldr	r2, [sp, #120]
+ 738 03e0 1846     		mov	r0, r3
+ 739 03e2 FFF7FEFF 		bl	UI_SetReg
+ 740 03e6 0346     		mov	r3, r0
+ 741              		.loc 1 314 20 discriminator 1
+ 742 03e8 8DF86F30 		strb	r3, [sp, #111]
+ 743              	.LBE5:
+ 315:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         }
+ 316:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         break;
+ 744              		.loc 1 316 9
+ 745 03ec 03E0     		b	.L40
+ 746              	.L27:
+ 317:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 318:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       default:
+ 319:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         {
+ 320:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****           bErrorCode = ERROR_CODE_SET_READ_ONLY;
+ 747              		.loc 1 320 22
+ 748 03ee 0223     		movs	r3, #2
+ 749 03f0 8DF86E30 		strb	r3, [sp, #110]
+ 321:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         }
+ 322:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         break;
+ 750              		.loc 1 322 9
+ 751 03f4 00BF     		nop
+ 752              	.L40:
+ 753              	.LBE2:
+ 323:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       }
+ 324:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     }
+ 325:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     break;
+ 754              		.loc 1 325 5
+ 755 03f6 00F00ABC 		b	.L41
+ 756              	.L24:
+ 757              	.LBB6:
+ 326:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 327:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   case MC_PROTOCOL_CODE_GET_REG:
+ 328:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     {
+ 329:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       MC_Protocol_REG_t bRegID = (MC_Protocol_REG_t)buffer[0];
+ 758              		.loc 1 329 25
+ 759 03fa 039B     		ldr	r3, [sp, #12]
+ 760 03fc 1B78     		ldrb	r3, [r3]
+ 761 03fe 8DF88630 		strb	r3, [sp, #134]
+ 330:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       bErrorCode = ERROR_CODE_GET_WRITE_ONLY;
+ 762              		.loc 1 330 18
+ 763 0402 0323     		movs	r3, #3
+ 764 0404 8DF86E30 		strb	r3, [sp, #110]
+ 331:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 332:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       switch (bRegID)
+ 765              		.loc 1 332 7
+ 766 0408 9DF88630 		ldrb	r3, [sp, #134]	@ zero_extendqisi2
+ 767 040c 8A2B     		cmp	r3, #138
+ 768 040e 00F3BD81 		bgt	.L42
+ 769 0412 5B2B     		cmp	r3, #91
+ 770 0414 08DA     		bge	.L43
+ 771 0416 222B     		cmp	r3, #34
+ 772 0418 00F3DE80 		bgt	.L44
+ 773 041c 002B     		cmp	r3, #0
+ 774 041e 80F28E80 		bge	.L45
+ 775 0422 B3E1     		b	.L42
+ 776              	.L104:
+ 777              		.align	2
+ 778              	.L103:
+ 779 0424 F1076400 		.word	6555633
+ 780              	.L43:
+ 781 0428 5B3B     		subs	r3, r3, #91
+ 782 042a 2F2B     		cmp	r3, #47
+ 783 042c 00F2AE81 		bhi	.L42
+ 784 0430 01A2     		adr	r2, .L47
+ 785 0432 52F823F0 		ldr	pc, [r2, r3, lsl #2]
+ 786 0436 00BF     		.p2align 2
+ 787              	.L47:
+ 788 0438 C9060000 		.word	.L50+1
+ 789 043c 8D070000 		.word	.L42+1
+ 790 0440 95060000 		.word	.L46+1
+ 791 0444 95060000 		.word	.L46+1
+ 792 0448 95060000 		.word	.L46+1
+ 793 044c 95060000 		.word	.L46+1
+ 794 0450 95060000 		.word	.L46+1
+ 795 0454 8D070000 		.word	.L42+1
+ 796 0458 8D070000 		.word	.L42+1
+ 797 045c 95060000 		.word	.L46+1
+ 798 0460 95060000 		.word	.L46+1
+ 799 0464 FD060000 		.word	.L51+1
+ 800 0468 FD060000 		.word	.L51+1
+ 801 046c 8D070000 		.word	.L42+1
+ 802 0470 8D070000 		.word	.L42+1
+ 803 0474 8D070000 		.word	.L42+1
+ 804 0478 8D070000 		.word	.L42+1
+ 805 047c 8D070000 		.word	.L42+1
+ 806 0480 8D070000 		.word	.L42+1
+ 807 0484 8D070000 		.word	.L42+1
+ 808 0488 8D070000 		.word	.L42+1
+ 809 048c 8D070000 		.word	.L42+1
+ 810 0490 95060000 		.word	.L46+1
+ 811 0494 95060000 		.word	.L46+1
+ 812 0498 95060000 		.word	.L46+1
+ 813 049c E5050000 		.word	.L49+1
+ 814 04a0 C9060000 		.word	.L50+1
+ 815 04a4 C9060000 		.word	.L50+1
+ 816 04a8 C9060000 		.word	.L50+1
+ 817 04ac C9060000 		.word	.L50+1
+ 818 04b0 C9060000 		.word	.L50+1
+ 819 04b4 C9060000 		.word	.L50+1
+ 820 04b8 8D070000 		.word	.L42+1
+ 821 04bc C9060000 		.word	.L50+1
+ 822 04c0 C9060000 		.word	.L50+1
+ 823 04c4 C9060000 		.word	.L50+1
+ 824 04c8 C9060000 		.word	.L50+1
+ 825 04cc E5050000 		.word	.L49+1
+ 826 04d0 8D070000 		.word	.L42+1
+ 827 04d4 E5050000 		.word	.L49+1
+ 828 04d8 59070000 		.word	.L48+1
+ 829 04dc 59070000 		.word	.L48+1
+ 830 04e0 59070000 		.word	.L48+1
+ 831 04e4 95060000 		.word	.L46+1
+ 832 04e8 95060000 		.word	.L46+1
+ 833 04ec 95060000 		.word	.L46+1
+ 834 04f0 95060000 		.word	.L46+1
+ 835 04f4 95060000 		.word	.L46+1
+ 836              		.p2align 1
+ 837              	.L55:
+ 838 04f8 3F3B     		subs	r3, r3, #63
+ 839 04fa 0122     		movs	r2, #1
+ 840 04fc 02FA03F3 		lsl	r3, r2, r3
+ 841 0500 C04A     		ldr	r2, .L105
+ 842 0502 1A40     		ands	r2, r2, r3
+ 843 0504 002A     		cmp	r2, #0
+ 844 0506 14BF     		ite	ne
+ 845 0508 0122     		movne	r2, #1
+ 846 050a 0022     		moveq	r2, #0
+ 847 050c D2B2     		uxtb	r2, r2
+ 848 050e 002A     		cmp	r2, #0
+ 849 0510 40F0C080 		bne	.L46
+ 850 0514 48F28332 		movw	r2, #33667
+ 851 0518 1A40     		ands	r2, r2, r3
+ 852 051a 002A     		cmp	r2, #0
+ 853 051c 14BF     		ite	ne
+ 854 051e 0122     		movne	r2, #1
+ 855 0520 0022     		moveq	r2, #0
+ 856 0522 D2B2     		uxtb	r2, r2
+ 857 0524 002A     		cmp	r2, #0
+ 858 0526 40F0CF80 		bne	.L50
+ 859 052a B74A     		ldr	r2, .L105+4
+ 860 052c 1A40     		ands	r2, r2, r3
+ 861 052e 002A     		cmp	r2, #0
+ 862 0530 14BF     		ite	ne
+ 863 0532 0123     		movne	r3, #1
+ 864 0534 0023     		moveq	r3, #0
+ 865 0536 DBB2     		uxtb	r3, r3
+ 866 0538 002B     		cmp	r3, #0
+ 867 053a 53D1     		bne	.L49
+ 868 053c 26E1     		b	.L42
+ 869              	.L45:
+ 870 053e 222B     		cmp	r3, #34
+ 871 0540 00F22481 		bhi	.L42
+ 872 0544 01A2     		adr	r2, .L52
+ 873 0546 52F823F0 		ldr	pc, [r2, r3, lsl #2]
+ 874 054a 00BF     		.p2align 2
+ 875              	.L52:
+ 876 054c E5050000 		.word	.L49+1
+ 877 0550 C9060000 		.word	.L50+1
+ 878 0554 E5050000 		.word	.L49+1
+ 879 0558 E5050000 		.word	.L49+1
+ 880 055c C9060000 		.word	.L50+1
+ 881 0560 95060000 		.word	.L46+1
+ 882 0564 95060000 		.word	.L46+1
+ 883 0568 95060000 		.word	.L46+1
+ 884 056c 95060000 		.word	.L46+1
+ 885 0570 95060000 		.word	.L46+1
+ 886 0574 95060000 		.word	.L46+1
+ 887 0578 95060000 		.word	.L46+1
+ 888 057c 95060000 		.word	.L46+1
+ 889 0580 95060000 		.word	.L46+1
+ 890 0584 95060000 		.word	.L46+1
+ 891 0588 95060000 		.word	.L46+1
+ 892 058c 95060000 		.word	.L46+1
+ 893 0590 95060000 		.word	.L46+1
+ 894 0594 95060000 		.word	.L46+1
+ 895 0598 95060000 		.word	.L46+1
+ 896 059c 95060000 		.word	.L46+1
+ 897 05a0 95060000 		.word	.L46+1
+ 898 05a4 95060000 		.word	.L46+1
+ 899 05a8 95060000 		.word	.L46+1
+ 900 05ac 95060000 		.word	.L46+1
+ 901 05b0 95060000 		.word	.L46+1
+ 902 05b4 95060000 		.word	.L46+1
+ 903 05b8 95060000 		.word	.L46+1
+ 904 05bc 1B060000 		.word	.L54+1
+ 905 05c0 5B060000 		.word	.L53+1
+ 906 05c4 C9060000 		.word	.L50+1
+ 907 05c8 95060000 		.word	.L46+1
+ 908 05cc 95060000 		.word	.L46+1
+ 909 05d0 95060000 		.word	.L46+1
+ 910 05d4 E5050000 		.word	.L49+1
+ 911              		.p2align 1
+ 912              	.L44:
+ 913 05d8 5A2B     		cmp	r3, #90
+ 914 05da 00F3D780 		bgt	.L42
+ 915 05de 3F2B     		cmp	r3, #63
+ 916 05e0 8ADA     		bge	.L55
+ 917 05e2 D3E0     		b	.L42
+ 918              	.L49:
+ 919              	.LBB7:
+ 333:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       {
+ 334:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_TARGET_MOTOR:
+ 335:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_STATUS:
+ 336:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_CONTROL_MODE:
+ 337:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_RUC_STAGE_NBR:
+ 338:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_PFC_STATUS:
+ 339:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_PFC_ENABLED:
+ 340:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** /*      case MC_PROTOCOL_REG_SC_CHECK: */
+ 341:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** /*      case MC_PROTOCOL_REG_SC_STATE: */
+ 342:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** /*      case MC_PROTOCOL_REG_SC_STEPS: */
+ 343:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_SC_PP:
+ 344:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_SC_FOC_REP_RATE:
+ 345:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_SC_COMPLETED:
+ 346:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         {
+ 347:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****           /* 8bit variables */
+ 348:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****           int32_t value = UI_GetReg( &pHandle->_Super, bRegID, &bNoError );
+ 920              		.loc 1 348 27
+ 921 05e4 059B     		ldr	r3, [sp, #20]
+ 922 05e6 0DF16F02 		add	r2, sp, #111
+ 923 05ea 9DF88610 		ldrb	r1, [sp, #134]	@ zero_extendqisi2
+ 924 05ee 1846     		mov	r0, r3
+ 925 05f0 FFF7FEFF 		bl	UI_GetReg
+ 926 05f4 0346     		mov	r3, r0
+ 927              		.loc 1 348 19 discriminator 1
+ 928 05f6 1A93     		str	r3, [sp, #104]
+ 349:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****            if ( bNoError == true )
+ 929              		.loc 1 349 26
+ 930 05f8 9DF86F30 		ldrb	r3, [sp, #111]	@ zero_extendqisi2
+ 931              		.loc 1 349 15
+ 932 05fc 002B     		cmp	r3, #0
+ 933 05fe 00F0C980 		beq	.L78
+ 350:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****           {
+ 351:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****             pHandle->fFcpSend(pHandle->pFCP, ACK_NOERROR, (uint8_t*)(&value), 1);
+ 934              		.loc 1 351 20
+ 935 0602 059B     		ldr	r3, [sp, #20]
+ 936 0604 5C6B     		ldr	r4, [r3, #52]
+ 937              		.loc 1 351 13
+ 938 0606 059B     		ldr	r3, [sp, #20]
+ 939 0608 186B     		ldr	r0, [r3, #48]
+ 940 060a 1AAA     		add	r2, sp, #104
+ 941 060c 0123     		movs	r3, #1
+ 942 060e F021     		movs	r1, #240
+ 943 0610 A047     		blx	r4
+ 944              	.LVL2:
+ 352:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****             RequireAck = false;
+ 945              		.loc 1 352 24
+ 946 0612 0023     		movs	r3, #0
+ 947 0614 8DF8AF30 		strb	r3, [sp, #175]
+ 948              	.LBE7:
+ 353:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****           }
+ 354:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         }
+ 355:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         break;
+ 949              		.loc 1 355 9
+ 950 0618 BCE0     		b	.L78
+ 951              	.L54:
+ 356:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 357:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_DAC_OUT1:
+ 358:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         {
+ 359:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****           if (pHandle->pDAC)
+ 952              		.loc 1 359 22
+ 953 061a 059B     		ldr	r3, [sp, #20]
+ 954 061c D3F8C430 		ldr	r3, [r3, #196]
+ 955              		.loc 1 359 14
+ 956 0620 002B     		cmp	r3, #0
+ 957 0622 00F0B980 		beq	.L79
+ 958              	.LBB8:
+ 360:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****           {
+ 361:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****             MC_Protocol_REG_t value = UI_GetDAC(&pHandle->pDAC->_Super, DAC_CH0);
+ 959              		.loc 1 361 57
+ 960 0626 059B     		ldr	r3, [sp, #20]
+ 961 0628 D3F8C430 		ldr	r3, [r3, #196]
+ 962              		.loc 1 361 39
+ 963 062c 0021     		movs	r1, #0
+ 964 062e 1846     		mov	r0, r3
+ 965 0630 FFF7FEFF 		bl	UI_GetDAC
+ 966 0634 0346     		mov	r3, r0
+ 967              		.loc 1 361 31 discriminator 1
+ 968 0636 8DF86730 		strb	r3, [sp, #103]
+ 362:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****             pHandle->fFcpSend(pHandle->pFCP, ACK_NOERROR, (uint8_t*)(&value), 1);
+ 969              		.loc 1 362 20
+ 970 063a 059B     		ldr	r3, [sp, #20]
+ 971 063c 5C6B     		ldr	r4, [r3, #52]
+ 972              		.loc 1 362 13
+ 973 063e 059B     		ldr	r3, [sp, #20]
+ 974 0640 186B     		ldr	r0, [r3, #48]
+ 975 0642 0DF16702 		add	r2, sp, #103
+ 976 0646 0123     		movs	r3, #1
+ 977 0648 F021     		movs	r1, #240
+ 978 064a A047     		blx	r4
+ 979              	.LVL3:
+ 363:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****             bNoError = true;
+ 980              		.loc 1 363 22
+ 981 064c 0123     		movs	r3, #1
+ 982 064e 8DF86F30 		strb	r3, [sp, #111]
+ 364:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****             RequireAck = false;
+ 983              		.loc 1 364 24
+ 984 0652 0023     		movs	r3, #0
+ 985 0654 8DF8AF30 		strb	r3, [sp, #175]
+ 986              	.LBE8:
+ 365:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****           }
+ 366:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         }
+ 367:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         break;
+ 987              		.loc 1 367 9
+ 988 0658 9EE0     		b	.L79
+ 989              	.L53:
+ 368:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 369:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_DAC_OUT2:
+ 370:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         {
+ 371:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****           if (pHandle->pDAC)
+ 990              		.loc 1 371 22
+ 991 065a 059B     		ldr	r3, [sp, #20]
+ 992 065c D3F8C430 		ldr	r3, [r3, #196]
+ 993              		.loc 1 371 14
+ 994 0660 002B     		cmp	r3, #0
+ 995 0662 00F09B80 		beq	.L80
+ 996              	.LBB9:
+ 372:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****           {
+ 373:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****             MC_Protocol_REG_t value = UI_GetDAC(&pHandle->pDAC->_Super, DAC_CH1);
+ 997              		.loc 1 373 57
+ 998 0666 059B     		ldr	r3, [sp, #20]
+ 999 0668 D3F8C430 		ldr	r3, [r3, #196]
+ 1000              		.loc 1 373 39
+ 1001 066c 0121     		movs	r1, #1
+ 1002 066e 1846     		mov	r0, r3
+ 1003 0670 FFF7FEFF 		bl	UI_GetDAC
+ 1004 0674 0346     		mov	r3, r0
+ 1005              		.loc 1 373 31 discriminator 1
+ 1006 0676 8DF86630 		strb	r3, [sp, #102]
+ 374:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****             pHandle->fFcpSend(pHandle->pFCP, ACK_NOERROR, (uint8_t*)(&value), 1);
+ 1007              		.loc 1 374 20
+ 1008 067a 059B     		ldr	r3, [sp, #20]
+ 1009 067c 5C6B     		ldr	r4, [r3, #52]
+ 1010              		.loc 1 374 13
+ 1011 067e 059B     		ldr	r3, [sp, #20]
+ 1012 0680 186B     		ldr	r0, [r3, #48]
+ 1013 0682 0DF16602 		add	r2, sp, #102
+ 1014 0686 0123     		movs	r3, #1
+ 1015 0688 F021     		movs	r1, #240
+ 1016 068a A047     		blx	r4
+ 1017              	.LVL4:
+ 375:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****             bNoError = true;
+ 1018              		.loc 1 375 22
+ 1019 068c 0123     		movs	r3, #1
+ 1020 068e 8DF86F30 		strb	r3, [sp, #111]
+ 1021              	.LBE9:
+ 376:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****           }
+ 377:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         }
+ 378:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         break;
+ 1022              		.loc 1 378 9
+ 1023 0692 83E0     		b	.L80
+ 1024              	.L46:
+ 1025              	.LBB10:
+ 379:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 380:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_SPEED_KP:
+ 381:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_SPEED_KP_DIV:
+ 382:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_SPEED_KI:
+ 383:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_SPEED_KI_DIV:
+ 384:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_SPEED_KD:
+ 385:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_TORQUE_REF:
+ 386:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_TORQUE_KP:
+ 387:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_TORQUE_KI:
+ 388:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_TORQUE_KD:
+ 389:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_FLUX_REF:
+ 390:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_FLUX_KP:
+ 391:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_FLUX_KI:
+ 392:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_FLUX_KD:
+ 393:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_OBSERVER_C1:
+ 394:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_OBSERVER_C2:
+ 395:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_OBSERVER_CR_C1:
+ 396:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_OBSERVER_CR_C2:
+ 397:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_PLL_KP:
+ 398:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_PLL_KI:
+ 399:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_FLUXWK_KP:
+ 400:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_FLUXWK_KI:
+ 401:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_FLUXWK_BUS:
+ 402:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_BUS_VOLTAGE:
+ 403:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_HEATS_TEMP:
+ 404:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_MOTOR_POWER:
+ 405:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_TORQUE_MEAS:
+ 406:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_FLUX_MEAS:
+ 407:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_FLUXWK_BUS_MEAS:
+ 408:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_IQ_SPEEDMODE:
+ 409:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_FF_VQ:
+ 410:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_FF_VD:
+ 411:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_FF_VQ_PIOUT:
+ 412:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_FF_VD_PIOUT:
+ 413:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_PFC_DCBUS_REF:
+ 414:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_PFC_DCBUS_MEAS:
+ 415:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_PFC_ACBUS_FREQ:
+ 416:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_PFC_ACBUS_RMS:
+ 417:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_PFC_I_KP:
+ 418:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_PFC_I_KI:
+ 419:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_PFC_I_KD:
+ 420:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_PFC_V_KP:
+ 421:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_PFC_V_KI:
+ 422:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_PFC_V_KD:
+ 423:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_PFC_STARTUP_DURATION:
+ 424:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_HFI_EL_ANGLE:
+ 425:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_HFI_ROT_SPEED:
+ 426:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_HFI_CURRENT:
+ 427:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_HFI_INIT_ANG_PLL:
+ 428:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_HFI_INIT_ANG_SAT_DIFF:
+ 429:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_HFI_PI_TRACK_KP:
+ 430:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_HFI_PI_TRACK_KI:
+ 431:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** /*      case MC_PROTOCOL_REG_CTRBDID: */
+ 432:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** /*      case MC_PROTOCOL_REG_PWBDID: */
+ 433:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_POSITION_KP:
+ 434:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_POSITION_KI:
+ 435:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_POSITION_KD:
+ 436:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_RES_PHASE_SHIFT:
+ 437:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_RES_DEMOD_DELAY:	  	  
+ 438:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_RES_MAX_ADC_RES:
+ 439:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         {
+ 440:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****           int32_t value = UI_GetReg( &pHandle->_Super, bRegID, &bNoError );
+ 1026              		.loc 1 440 27
+ 1027 0694 059B     		ldr	r3, [sp, #20]
+ 1028 0696 0DF16F02 		add	r2, sp, #111
+ 1029 069a 9DF88610 		ldrb	r1, [sp, #134]	@ zero_extendqisi2
+ 1030 069e 1846     		mov	r0, r3
+ 1031 06a0 FFF7FEFF 		bl	UI_GetReg
+ 1032 06a4 0346     		mov	r3, r0
+ 1033              		.loc 1 440 19 discriminator 1
+ 1034 06a6 1893     		str	r3, [sp, #96]
+ 441:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****           if ( bNoError == true )
+ 1035              		.loc 1 441 25
+ 1036 06a8 9DF86F30 		ldrb	r3, [sp, #111]	@ zero_extendqisi2
+ 1037              		.loc 1 441 14
+ 1038 06ac 002B     		cmp	r3, #0
+ 1039 06ae 77D0     		beq	.L81
+ 442:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****           {
+ 443:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****             /* 16bit variables */
+ 444:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****             pHandle->fFcpSend(pHandle->pFCP, ACK_NOERROR, (uint8_t*)(&value), 2);
+ 1040              		.loc 1 444 20
+ 1041 06b0 059B     		ldr	r3, [sp, #20]
+ 1042 06b2 5C6B     		ldr	r4, [r3, #52]
+ 1043              		.loc 1 444 13
+ 1044 06b4 059B     		ldr	r3, [sp, #20]
+ 1045 06b6 186B     		ldr	r0, [r3, #48]
+ 1046 06b8 18AA     		add	r2, sp, #96
+ 1047 06ba 0223     		movs	r3, #2
+ 1048 06bc F021     		movs	r1, #240
+ 1049 06be A047     		blx	r4
+ 1050              	.LVL5:
+ 445:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****             RequireAck = false;
+ 1051              		.loc 1 445 24
+ 1052 06c0 0023     		movs	r3, #0
+ 1053 06c2 8DF8AF30 		strb	r3, [sp, #175]
+ 1054              	.LBE10:
+ 446:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****           }
+ 447:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         }
+ 448:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         break;
+ 1055              		.loc 1 448 9
+ 1056 06c6 6BE0     		b	.L81
+ 1057              	.L50:
+ 1058              	.LBB11:
+ 449:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 450:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_FLAGS:
+ 451:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_SPEED_REF:
+ 452:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_SPEED_MEAS:
+ 453:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_MAX_APP_SPEED:
+ 454:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_MIN_APP_SPEED:
+ 455:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_FF_1Q:
+ 456:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_FF_1D:
+ 457:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_FF_2:
+ 458:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_PFC_FAULTS:
+ 459:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_RAMP_FINAL_SPEED:
+ 460:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** /*      case MC_PROTOCOL_REG_SC_RS:*/
+ 461:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** /*      case MC_PROTOCOL_REG_SC_LS: */
+ 462:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** /*      case MC_PROTOCOL_REG_SC_KE: */
+ 463:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** /*      case MC_PROTOCOL_REG_SC_VBUS: */
+ 464:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** /*      case MC_PROTOCOL_REG_SC_MEAS_NOMINALSPEED: */
+ 465:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_SC_CURRENT:
+ 466:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_SC_SPDBANDWIDTH:
+ 467:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_SC_LDLQRATIO:
+ 468:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_SC_NOMINAL_SPEED:
+ 469:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_SC_CURRBANDWIDTH:
+ 470:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_SC_J:
+ 471:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** /*      case MC_PROTOCOL_REG_SC_F: */
+ 472:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_SC_MAX_CURRENT:
+ 473:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_SC_STARTUP_SPEED:
+ 474:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_SC_STARTUP_ACC:
+ 475:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_SC_PWM_FREQUENCY:
+ 476:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** /*      case MC_PROTOCOL_REG_UID: */
+ 477:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         {
+ 478:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****           int32_t value = UI_GetReg( &pHandle->_Super, bRegID, &bNoError);
+ 1059              		.loc 1 478 27
+ 1060 06c8 059B     		ldr	r3, [sp, #20]
+ 1061 06ca 0DF16F02 		add	r2, sp, #111
+ 1062 06ce 9DF88610 		ldrb	r1, [sp, #134]	@ zero_extendqisi2
+ 1063 06d2 1846     		mov	r0, r3
+ 1064 06d4 FFF7FEFF 		bl	UI_GetReg
+ 1065 06d8 0346     		mov	r3, r0
+ 1066              		.loc 1 478 19 discriminator 1
+ 1067 06da 1793     		str	r3, [sp, #92]
+ 479:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****           if ( bNoError == true )
+ 1068              		.loc 1 479 25
+ 1069 06dc 9DF86F30 		ldrb	r3, [sp, #111]	@ zero_extendqisi2
+ 1070              		.loc 1 479 14
+ 1071 06e0 002B     		cmp	r3, #0
+ 1072 06e2 5FD0     		beq	.L82
+ 480:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****           {
+ 481:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****             /* 32bit variables */
+ 482:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****             pHandle->fFcpSend(pHandle->pFCP, ACK_NOERROR, (uint8_t*)(&value), 4);
+ 1073              		.loc 1 482 20
+ 1074 06e4 059B     		ldr	r3, [sp, #20]
+ 1075 06e6 5C6B     		ldr	r4, [r3, #52]
+ 1076              		.loc 1 482 13
+ 1077 06e8 059B     		ldr	r3, [sp, #20]
+ 1078 06ea 186B     		ldr	r0, [r3, #48]
+ 1079 06ec 17AA     		add	r2, sp, #92
+ 1080 06ee 0423     		movs	r3, #4
+ 1081 06f0 F021     		movs	r1, #240
+ 1082 06f2 A047     		blx	r4
+ 1083              	.LVL6:
+ 483:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****             RequireAck = false;
+ 1084              		.loc 1 483 24
+ 1085 06f4 0023     		movs	r3, #0
+ 1086 06f6 8DF8AF30 		strb	r3, [sp, #175]
+ 1087              	.LBE11:
+ 484:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****           }
+ 485:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         }
+ 486:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         break;
+ 1088              		.loc 1 486 9
+ 1089 06fa 53E0     		b	.L82
+ 1090              	.L51:
+ 1091              	.LBB12:
+ 487:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** #ifdef MULTI_DRIVER_CMD
+ 488:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         /* In case of L9502 driver provide 4 FHM + CFG_7 registers for variable number of device */
+ 489:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         case MC_PROTOCOL_REG_EXT_FAULT1:
+ 490:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         case MC_PROTOCOL_REG_EXT_FAULT2:
+ 491:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         case MC_PROTOCOL_REG_EXT_FAULT3:
+ 492:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         case MC_PROTOCOL_REG_EXT_FAULT4:
+ 493:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         case MC_PROTOCOL_REG_EXT_FAULT5:
+ 494:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         case MC_PROTOCOL_REG_EXT_FAULT6:
+ 495:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         {
+ 496:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****             uint8_t devBuff[14]; /* Max number of byte: 2 byte for 7 device */
+ 497:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****             uint32_t num;
+ 498:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****             //int32_t value = UI_GetReg((CUI)this, bRegID);
+ 499:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****             num = UI_GetMultiDeviceReg(bRegID, devBuff);
+ 500:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****             if (num != 0)
+ 501:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****             {
+ 502:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****               //Frame_Send(oMCP->DVars_str.oFCP,ACK_NOERROR, devBuff, num );
+ 503:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****               //SWAP_ENDIAN_32(devBuff);
+ 504:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****               pHandle->fFcpSend(pHandle->pFCP, ACK_NOERROR, (uint8_t*)(&devBuff), num);
+ 505:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****               bNoError = true;
+ 506:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****               RequireAck = false;
+ 507:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****             }
+ 508:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 509:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         }
+ 510:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         break;
+ 511:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** #else /* L9907, STGAP1S or L9908 */        
+ 512:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****        /* For L9907 it get DIAG and DIAG2*/
+ 513:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_EXT_FAULT1:
+ 514:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_EXT_FAULT2:
+ 515:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   #ifdef USE_STGAP1S
+ 516:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         /* In case of STGAP1S driver there are 3 status registers for 6 device */
+ 517:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_EXT_FAULT3:
+ 518:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_EXT_FAULT4:
+ 519:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_EXT_FAULT5:
+ 520:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_EXT_FAULT6:
+ 521:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   #endif      
+ 522:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** #endif      
+ 523:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         {
+ 524:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****           int32_t value = UI_GetReg( &pHandle->_Super, bRegID, &bNoError);
+ 1092              		.loc 1 524 27
+ 1093 06fc 059B     		ldr	r3, [sp, #20]
+ 1094 06fe 0DF16F02 		add	r2, sp, #111
+ 1095 0702 9DF88610 		ldrb	r1, [sp, #134]	@ zero_extendqisi2
+ 1096 0706 1846     		mov	r0, r3
+ 1097 0708 FFF7FEFF 		bl	UI_GetReg
+ 1098 070c 0346     		mov	r3, r0
+ 1099              		.loc 1 524 19 discriminator 1
+ 1100 070e 1693     		str	r3, [sp, #88]
+ 525:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****           if ( bNoError == true )
+ 1101              		.loc 1 525 25
+ 1102 0710 9DF86F30 		ldrb	r3, [sp, #111]	@ zero_extendqisi2
+ 1103              		.loc 1 525 14
+ 1104 0714 002B     		cmp	r3, #0
+ 1105 0716 47D0     		beq	.L83
+ 1106              	.LBB13:
+ 526:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****           {
+ 527:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****             SWAP_ENDIAN_32(value);
+ 1107              		.loc 1 527 13
+ 1108 0718 169B     		ldr	r3, [sp, #88]
+ 1109 071a 1B0E     		lsrs	r3, r3, #24
+ 1110 071c 1A46     		mov	r2, r3
+ 1111 071e 169B     		ldr	r3, [sp, #88]
+ 1112 0720 1B02     		lsls	r3, r3, #8
+ 1113 0722 03F47F03 		and	r3, r3, #16711680
+ 1114 0726 1A43     		orrs	r2, r2, r3
+ 1115 0728 169B     		ldr	r3, [sp, #88]
+ 1116 072a 1B12     		asrs	r3, r3, #8
+ 1117 072c 03F47F43 		and	r3, r3, #65280
+ 1118 0730 1343     		orrs	r3, r3, r2
+ 1119 0732 1A46     		mov	r2, r3
+ 1120 0734 169B     		ldr	r3, [sp, #88]
+ 1121 0736 1B06     		lsls	r3, r3, #24
+ 1122 0738 1343     		orrs	r3, r3, r2
+ 1123 073a 2093     		str	r3, [sp, #128]
+ 1124 073c 209B     		ldr	r3, [sp, #128]
+ 1125 073e 1693     		str	r3, [sp, #88]
+ 1126              	.LBE13:
+ 528:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****             pHandle->fFcpSend(pHandle->pFCP, ACK_NOERROR, (uint8_t*)(&value), 4);
+ 1127              		.loc 1 528 20
+ 1128 0740 059B     		ldr	r3, [sp, #20]
+ 1129 0742 5C6B     		ldr	r4, [r3, #52]
+ 1130              		.loc 1 528 13
+ 1131 0744 059B     		ldr	r3, [sp, #20]
+ 1132 0746 186B     		ldr	r0, [r3, #48]
+ 1133 0748 16AA     		add	r2, sp, #88
+ 1134 074a 0423     		movs	r3, #4
+ 1135 074c F021     		movs	r1, #240
+ 1136 074e A047     		blx	r4
+ 1137              	.LVL7:
+ 529:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****             RequireAck = false;
+ 1138              		.loc 1 529 24
+ 1139 0750 0023     		movs	r3, #0
+ 1140 0752 8DF8AF30 		strb	r3, [sp, #175]
+ 1141              	.LBE12:
+ 530:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****           }
+ 531:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****        }
+ 532:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****           break;
+ 1142              		.loc 1 532 11
+ 1143 0756 27E0     		b	.L83
+ 1144              	.L48:
+ 1145              	.LBB14:
+ 533:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_CURRENT_POSITION:
+ 534:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_TARGET_POSITION:
+ 535:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_MOVE_DURATION:
+ 536:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         {
+ 537:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****           int32_t value = UI_GetReg( &pHandle->_Super, bRegID, &bNoError);
+ 1146              		.loc 1 537 27
+ 1147 0758 059B     		ldr	r3, [sp, #20]
+ 1148 075a 0DF16F02 		add	r2, sp, #111
+ 1149 075e 9DF88610 		ldrb	r1, [sp, #134]	@ zero_extendqisi2
+ 1150 0762 1846     		mov	r0, r3
+ 1151 0764 FFF7FEFF 		bl	UI_GetReg
+ 1152 0768 0346     		mov	r3, r0
+ 1153              		.loc 1 537 19 discriminator 1
+ 1154 076a 1593     		str	r3, [sp, #84]
+ 538:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****           if ( bNoError == true )
+ 1155              		.loc 1 538 25
+ 1156 076c 9DF86F30 		ldrb	r3, [sp, #111]	@ zero_extendqisi2
+ 1157              		.loc 1 538 14
+ 1158 0770 002B     		cmp	r3, #0
+ 1159 0772 1BD0     		beq	.L84
+ 539:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****           {
+ 540:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****             /* 32bit variables */
+ 541:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****             pHandle->fFcpSend(pHandle->pFCP, ACK_NOERROR, (uint8_t*)(&value), 4);
+ 1160              		.loc 1 541 20
+ 1161 0774 059B     		ldr	r3, [sp, #20]
+ 1162 0776 5C6B     		ldr	r4, [r3, #52]
+ 1163              		.loc 1 541 13
+ 1164 0778 059B     		ldr	r3, [sp, #20]
+ 1165 077a 186B     		ldr	r0, [r3, #48]
+ 1166 077c 15AA     		add	r2, sp, #84
+ 1167 077e 0423     		movs	r3, #4
+ 1168 0780 F021     		movs	r1, #240
+ 1169 0782 A047     		blx	r4
+ 1170              	.LVL8:
+ 542:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****             RequireAck = false;
+ 1171              		.loc 1 542 24
+ 1172 0784 0023     		movs	r3, #0
+ 1173 0786 8DF8AF30 		strb	r3, [sp, #175]
+ 1174              	.LBE14:
+ 543:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****           }
+ 544:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         }
+ 545:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         break;
+ 1175              		.loc 1 545 9
+ 1176 078a 0FE0     		b	.L84
+ 1177              	.L42:
+ 546:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 547:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       default:
+ 548:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         bErrorCode = ERROR_CODE_GET_WRITE_ONLY;
+ 1178              		.loc 1 548 20
+ 1179 078c 0323     		movs	r3, #3
+ 1180 078e 8DF86E30 		strb	r3, [sp, #110]
+ 549:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         break;
+ 1181              		.loc 1 549 9
+ 1182 0792 0CE0     		b	.L57
+ 1183              	.L78:
+ 355:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 1184              		.loc 1 355 9
+ 1185 0794 00BF     		nop
+ 1186 0796 3AE2     		b	.L41
+ 1187              	.L79:
+ 367:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 1188              		.loc 1 367 9
+ 1189 0798 00BF     		nop
+ 1190 079a 38E2     		b	.L41
+ 1191              	.L80:
+ 378:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 1192              		.loc 1 378 9
+ 1193 079c 00BF     		nop
+ 1194 079e 36E2     		b	.L41
+ 1195              	.L81:
+ 448:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 1196              		.loc 1 448 9
+ 1197 07a0 00BF     		nop
+ 1198 07a2 34E2     		b	.L41
+ 1199              	.L82:
+ 486:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** #ifdef MULTI_DRIVER_CMD
+ 1200              		.loc 1 486 9
+ 1201 07a4 00BF     		nop
+ 1202 07a6 32E2     		b	.L41
+ 1203              	.L83:
+ 532:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       case MC_PROTOCOL_REG_CURRENT_POSITION:
+ 1204              		.loc 1 532 11
+ 1205 07a8 00BF     		nop
+ 1206 07aa 30E2     		b	.L41
+ 1207              	.L84:
+ 545:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 1208              		.loc 1 545 9
+ 1209 07ac 00BF     		nop
+ 1210              	.L57:
+ 1211              	.LBE6:
+ 550:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       }
+ 551:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     }
+ 552:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     break;
+ 1212              		.loc 1 552 5
+ 1213 07ae 2EE2     		b	.L41
+ 1214              	.L23:
+ 1215              	.LBB15:
+ 553:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 554:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   case MC_PROTOCOL_CODE_EXECUTE_CMD:
+ 555:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     {
+ 556:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       uint8_t bCmdID = buffer[0];
+ 1216              		.loc 1 556 15
+ 1217 07b0 039B     		ldr	r3, [sp, #12]
+ 1218 07b2 1B78     		ldrb	r3, [r3]
+ 1219 07b4 8DF88730 		strb	r3, [sp, #135]
+ 557:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       bErrorCode = ERROR_CODE_WRONG_CMD;
+ 1220              		.loc 1 557 18
+ 1221 07b8 0723     		movs	r3, #7
+ 1222 07ba 8DF86E30 		strb	r3, [sp, #110]
+ 558:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       bNoError = UI_ExecCmd(&pHandle->_Super,bCmdID);
+ 1223              		.loc 1 558 18
+ 1224 07be 059B     		ldr	r3, [sp, #20]
+ 1225 07c0 9DF88720 		ldrb	r2, [sp, #135]	@ zero_extendqisi2
+ 1226 07c4 1146     		mov	r1, r2
+ 1227 07c6 1846     		mov	r0, r3
+ 1228 07c8 FFF7FEFF 		bl	UI_ExecCmd
+ 1229 07cc 0346     		mov	r3, r0
+ 1230              		.loc 1 558 16 discriminator 1
+ 1231 07ce 8DF86F30 		strb	r3, [sp, #111]
+ 1232              	.LBE15:
+ 559:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     }
+ 560:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     break;
+ 1233              		.loc 1 560 5
+ 1234 07d2 1CE2     		b	.L41
+ 1235              	.L22:
+ 1236              	.LBB16:
+ 561:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 562:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   case MC_PROTOCOL_CODE_GET_BOARD_INFO:
+ 563:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     {
+ 564:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       /* GetBoardInfo */
+ 565:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       unsigned char i;
+ 566:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       uint8_t outBuff[32];
+ 567:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       for (i = 0; i < 32; i++)
+ 1237              		.loc 1 567 14
+ 1238 07d4 0023     		movs	r3, #0
+ 1239 07d6 8DF8AE30 		strb	r3, [sp, #174]
+ 1240              		.loc 1 567 7
+ 1241 07da 0BE0     		b	.L64
+ 1242              	.L65:
+ 568:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       {
+ 569:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         outBuff[i] = 0;
+ 1243              		.loc 1 569 16
+ 1244 07dc 9DF8AE30 		ldrb	r3, [sp, #174]	@ zero_extendqisi2
+ 1245              		.loc 1 569 20
+ 1246 07e0 B033     		adds	r3, r3, #176
+ 1247 07e2 6B44     		add	r3, sp, r3
+ 1248 07e4 0022     		movs	r2, #0
+ 1249 07e6 03F8982C 		strb	r2, [r3, #-152]
+ 567:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       {
+ 1250              		.loc 1 567 28 discriminator 3
+ 1251 07ea 9DF8AE30 		ldrb	r3, [sp, #174]	@ zero_extendqisi2
+ 1252 07ee 0133     		adds	r3, r3, #1
+ 1253 07f0 8DF8AE30 		strb	r3, [sp, #174]
+ 1254              	.L64:
+ 567:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       {
+ 1255              		.loc 1 567 21 discriminator 1
+ 1256 07f4 9DF8AE30 		ldrb	r3, [sp, #174]	@ zero_extendqisi2
+ 1257 07f8 1F2B     		cmp	r3, #31
+ 1258 07fa EFD9     		bls	.L65
+ 570:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       }
+ 571:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       for (i = 0; (i<29) && (pHandle->s_fwVer[i]!='\t'); i++)
+ 1259              		.loc 1 571 14
+ 1260 07fc 0023     		movs	r3, #0
+ 1261 07fe 8DF8AE30 		strb	r3, [sp, #174]
+ 1262              		.loc 1 571 7
+ 1263 0802 18E0     		b	.L66
+ 1264              	.L106:
+ 1265              		.align	2
+ 1266              	.L105:
+ 1267 0804 043CFF07 		.word	134167556
+ 1268 0808 00400008 		.word	134234112
+ 1269              	.L68:
+ 572:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       {
+ 573:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         outBuff[3+i] = pHandle->s_fwVer[i];
+ 1270              		.loc 1 573 31
+ 1271 080c 059B     		ldr	r3, [sp, #20]
+ 1272 080e D3F8C020 		ldr	r2, [r3, #192]
+ 1273              		.loc 1 573 40
+ 1274 0812 9DF8AE30 		ldrb	r3, [sp, #174]	@ zero_extendqisi2
+ 1275 0816 1344     		add	r3, r3, r2
+ 1276 0818 93F90020 		ldrsb	r2, [r3]
+ 1277              		.loc 1 573 18
+ 1278 081c 9DF8AE30 		ldrb	r3, [sp, #174]	@ zero_extendqisi2
+ 1279 0820 0333     		adds	r3, r3, #3
+ 1280              		.loc 1 573 40
+ 1281 0822 D2B2     		uxtb	r2, r2
+ 1282              		.loc 1 573 22
+ 1283 0824 B033     		adds	r3, r3, #176
+ 1284 0826 6B44     		add	r3, sp, r3
+ 1285 0828 03F8982C 		strb	r2, [r3, #-152]
+ 571:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       {
+ 1286              		.loc 1 571 59 discriminator 4
+ 1287 082c 9DF8AE30 		ldrb	r3, [sp, #174]	@ zero_extendqisi2
+ 1288 0830 0133     		adds	r3, r3, #1
+ 1289 0832 8DF8AE30 		strb	r3, [sp, #174]
+ 1290              	.L66:
+ 571:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       {
+ 1291              		.loc 1 571 26 discriminator 1
+ 1292 0836 9DF8AE30 		ldrb	r3, [sp, #174]	@ zero_extendqisi2
+ 1293 083a 1C2B     		cmp	r3, #28
+ 1294 083c 09D8     		bhi	.L67
+ 571:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       {
+ 1295              		.loc 1 571 37 discriminator 3
+ 1296 083e 059B     		ldr	r3, [sp, #20]
+ 1297 0840 D3F8C020 		ldr	r2, [r3, #192]
+ 571:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       {
+ 1298              		.loc 1 571 46 discriminator 3
+ 1299 0844 9DF8AE30 		ldrb	r3, [sp, #174]	@ zero_extendqisi2
+ 1300 0848 1344     		add	r3, r3, r2
+ 1301 084a 93F90030 		ldrsb	r3, [r3]
+ 571:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       {
+ 1302              		.loc 1 571 26 discriminator 3
+ 1303 084e 092B     		cmp	r3, #9
+ 1304 0850 DCD1     		bne	.L68
+ 1305              	.L67:
+ 574:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       }
+ 575:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       outBuff[0] = pHandle->s_fwVer[i+5];
+ 1306              		.loc 1 575 27
+ 1307 0852 059B     		ldr	r3, [sp, #20]
+ 1308 0854 D3F8C020 		ldr	r2, [r3, #192]
+ 1309              		.loc 1 575 36
+ 1310 0858 9DF8AE30 		ldrb	r3, [sp, #174]	@ zero_extendqisi2
+ 1311 085c 0533     		adds	r3, r3, #5
+ 1312 085e 1344     		add	r3, r3, r2
+ 1313 0860 93F90030 		ldrsb	r3, [r3]
+ 1314 0864 DBB2     		uxtb	r3, r3
+ 1315              		.loc 1 575 18
+ 1316 0866 8DF81830 		strb	r3, [sp, #24]
+ 576:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       outBuff[1] = pHandle->s_fwVer[i+7];
+ 1317              		.loc 1 576 27
+ 1318 086a 059B     		ldr	r3, [sp, #20]
+ 1319 086c D3F8C020 		ldr	r2, [r3, #192]
+ 1320              		.loc 1 576 36
+ 1321 0870 9DF8AE30 		ldrb	r3, [sp, #174]	@ zero_extendqisi2
+ 1322 0874 0733     		adds	r3, r3, #7
+ 1323 0876 1344     		add	r3, r3, r2
+ 1324 0878 93F90030 		ldrsb	r3, [r3]
+ 1325 087c DBB2     		uxtb	r3, r3
+ 1326              		.loc 1 576 18
+ 1327 087e 8DF81930 		strb	r3, [sp, #25]
+ 577:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       outBuff[2] = pHandle->s_fwVer[i+9];
+ 1328              		.loc 1 577 27
+ 1329 0882 059B     		ldr	r3, [sp, #20]
+ 1330 0884 D3F8C020 		ldr	r2, [r3, #192]
+ 1331              		.loc 1 577 36
+ 1332 0888 9DF8AE30 		ldrb	r3, [sp, #174]	@ zero_extendqisi2
+ 1333 088c 0933     		adds	r3, r3, #9
+ 1334 088e 1344     		add	r3, r3, r2
+ 1335 0890 93F90030 		ldrsb	r3, [r3]
+ 1336 0894 DBB2     		uxtb	r3, r3
+ 1337              		.loc 1 577 18
+ 1338 0896 8DF81A30 		strb	r3, [sp, #26]
+ 578:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       pHandle->fFcpSend(pHandle->pFCP, ACK_NOERROR, outBuff, 32 );
+ 1339              		.loc 1 578 14
+ 1340 089a 059B     		ldr	r3, [sp, #20]
+ 1341 089c 5C6B     		ldr	r4, [r3, #52]
+ 1342              		.loc 1 578 7
+ 1343 089e 059B     		ldr	r3, [sp, #20]
+ 1344 08a0 186B     		ldr	r0, [r3, #48]
+ 1345 08a2 06AA     		add	r2, sp, #24
+ 1346 08a4 2023     		movs	r3, #32
+ 1347 08a6 F021     		movs	r1, #240
+ 1348 08a8 A047     		blx	r4
+ 1349              	.LVL9:
+ 579:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       /* Ack is not needed as the answer is the board info */
+ 580:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       RequireAck = false;      
+ 1350              		.loc 1 580 18
+ 1351 08aa 0023     		movs	r3, #0
+ 1352 08ac 8DF8AF30 		strb	r3, [sp, #175]
+ 581:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       bNoError = true;
+ 1353              		.loc 1 581 16
+ 1354 08b0 0123     		movs	r3, #1
+ 1355 08b2 8DF86F30 		strb	r3, [sp, #111]
+ 1356              	.LBE16:
+ 582:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     }
+ 583:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     break;
+ 1357              		.loc 1 583 5
+ 1358 08b6 AAE1     		b	.L41
+ 1359              	.L21:
+ 1360              	.LBB17:
+ 584:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 585:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   case MC_PROTOCOL_CODE_SET_SPEED_RAMP:
+ 586:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     {
+ 587:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       uint16_t duration = buffer[4] + (buffer[5] << 8);
+ 1361              		.loc 1 587 33
+ 1362 08b8 039B     		ldr	r3, [sp, #12]
+ 1363 08ba 0433     		adds	r3, r3, #4
+ 1364 08bc 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1365 08be 1A46     		mov	r2, r3
+ 1366              		.loc 1 587 46
+ 1367 08c0 039B     		ldr	r3, [sp, #12]
+ 1368 08c2 0533     		adds	r3, r3, #5
+ 1369 08c4 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1370              		.loc 1 587 50
+ 1371 08c6 1B02     		lsls	r3, r3, #8
+ 1372 08c8 9BB2     		uxth	r3, r3
+ 1373              		.loc 1 587 16
+ 1374 08ca 1344     		add	r3, r3, r2
+ 1375 08cc ADF88E30 		strh	r3, [sp, #142]	@ movhi
+ 588:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       int32_t rpm = buffer[0] + (buffer[1] << 8) + (buffer[2] << 16) + (buffer[3] << 24);
+ 1376              		.loc 1 588 27
+ 1377 08d0 039B     		ldr	r3, [sp, #12]
+ 1378 08d2 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1379 08d4 1A46     		mov	r2, r3
+ 1380              		.loc 1 588 40
+ 1381 08d6 039B     		ldr	r3, [sp, #12]
+ 1382 08d8 0133     		adds	r3, r3, #1
+ 1383 08da 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1384              		.loc 1 588 44
+ 1385 08dc 1B02     		lsls	r3, r3, #8
+ 1386              		.loc 1 588 31
+ 1387 08de 1A44     		add	r2, r2, r3
+ 1388              		.loc 1 588 59
+ 1389 08e0 039B     		ldr	r3, [sp, #12]
+ 1390 08e2 0233     		adds	r3, r3, #2
+ 1391 08e4 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1392              		.loc 1 588 63
+ 1393 08e6 1B04     		lsls	r3, r3, #16
+ 1394              		.loc 1 588 50
+ 1395 08e8 1A44     		add	r2, r2, r3
+ 1396              		.loc 1 588 79
+ 1397 08ea 039B     		ldr	r3, [sp, #12]
+ 1398 08ec 0333     		adds	r3, r3, #3
+ 1399 08ee 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1400              		.loc 1 588 83
+ 1401 08f0 1B06     		lsls	r3, r3, #24
+ 1402              		.loc 1 588 15
+ 1403 08f2 1344     		add	r3, r3, r2
+ 1404 08f4 2293     		str	r3, [sp, #136]
+ 589:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       bNoError = UI_ExecSpeedRamp(&pHandle->_Super, rpm,duration);
+ 1405              		.loc 1 589 18
+ 1406 08f6 059B     		ldr	r3, [sp, #20]
+ 1407 08f8 BDF88E20 		ldrh	r2, [sp, #142]
+ 1408 08fc 2299     		ldr	r1, [sp, #136]
+ 1409 08fe 1846     		mov	r0, r3
+ 1410 0900 FFF7FEFF 		bl	UI_ExecSpeedRamp
+ 1411 0904 0346     		mov	r3, r0
+ 1412              		.loc 1 589 16 discriminator 1
+ 1413 0906 8DF86F30 		strb	r3, [sp, #111]
+ 1414              	.LBE17:
+ 590:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     }
+ 591:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     break;
+ 1415              		.loc 1 591 5
+ 1416 090a 80E1     		b	.L41
+ 1417              	.L14:
+ 1418              	.LBB18:
+ 592:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   case MC_PROTOCOL_CODE_SET_CURRENTS_RAMPS:
+ 593:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     {
+ 594:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       qd_t hqd;
+ 595:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       uint16_t duration = buffer[4] + (buffer[5] << 8);
+ 1419              		.loc 1 595 33
+ 1420 090c 039B     		ldr	r3, [sp, #12]
+ 1421 090e 0433     		adds	r3, r3, #4
+ 1422 0910 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1423 0912 1A46     		mov	r2, r3
+ 1424              		.loc 1 595 46
+ 1425 0914 039B     		ldr	r3, [sp, #12]
+ 1426 0916 0533     		adds	r3, r3, #5
+ 1427 0918 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1428              		.loc 1 595 50
+ 1429 091a 1B02     		lsls	r3, r3, #8
+ 1430 091c 9BB2     		uxth	r3, r3
+ 1431              		.loc 1 595 16
+ 1432 091e 1344     		add	r3, r3, r2
+ 1433 0920 ADF8AA30 		strh	r3, [sp, #170]	@ movhi
+ 596:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       hqd.q = buffer[0] + (buffer[1] << 8);
+ 1434              		.loc 1 596 21
+ 1435 0924 039B     		ldr	r3, [sp, #12]
+ 1436 0926 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1437 0928 1A46     		mov	r2, r3
+ 1438              		.loc 1 596 34
+ 1439 092a 039B     		ldr	r3, [sp, #12]
+ 1440 092c 0133     		adds	r3, r3, #1
+ 1441 092e 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1442              		.loc 1 596 38
+ 1443 0930 1B02     		lsls	r3, r3, #8
+ 1444 0932 9BB2     		uxth	r3, r3
+ 1445              		.loc 1 596 25
+ 1446 0934 1344     		add	r3, r3, r2
+ 1447 0936 9BB2     		uxth	r3, r3
+ 1448 0938 1BB2     		sxth	r3, r3
+ 1449              		.loc 1 596 13
+ 1450 093a ADF85030 		strh	r3, [sp, #80]	@ movhi
+ 597:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       hqd.d = buffer[2] + (buffer[3] << 8);
+ 1451              		.loc 1 597 21
+ 1452 093e 039B     		ldr	r3, [sp, #12]
+ 1453 0940 0233     		adds	r3, r3, #2
+ 1454 0942 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1455 0944 1A46     		mov	r2, r3
+ 1456              		.loc 1 597 34
+ 1457 0946 039B     		ldr	r3, [sp, #12]
+ 1458 0948 0333     		adds	r3, r3, #3
+ 1459 094a 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1460              		.loc 1 597 38
+ 1461 094c 1B02     		lsls	r3, r3, #8
+ 1462 094e 9BB2     		uxth	r3, r3
+ 1463              		.loc 1 597 25
+ 1464 0950 1344     		add	r3, r3, r2
+ 1465 0952 9BB2     		uxth	r3, r3
+ 1466 0954 1BB2     		sxth	r3, r3
+ 1467              		.loc 1 597 13
+ 1468 0956 ADF85230 		strh	r3, [sp, #82]	@ movhi
+ 598:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       bNoError = UI_ExecCurrentRamps(&pHandle->_Super,hqd,duration);
+ 1469              		.loc 1 598 18
+ 1470 095a 059B     		ldr	r3, [sp, #20]
+ 1471 095c BDF8AA20 		ldrh	r2, [sp, #170]
+ 1472 0960 1499     		ldr	r1, [sp, #80]
+ 1473 0962 1846     		mov	r0, r3
+ 1474 0964 FFF7FEFF 		bl	UI_ExecCurrentRamps
+ 1475 0968 0346     		mov	r3, r0
+ 1476              		.loc 1 598 16 discriminator 1
+ 1477 096a 8DF86F30 		strb	r3, [sp, #111]
+ 1478              	.LBE18:
+ 599:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     }
+ 600:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     break;
+ 1479              		.loc 1 600 5
+ 1480 096e 4EE1     		b	.L41
+ 1481              	.L15:
+ 1482              	.LBB19:
+ 601:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   case MC_PROTOCOL_CODE_SET_POSITION_CMD:
+ 602:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     {
+ 603:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     }
+ 604:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     break;
+ 605:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 606:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   case MC_PROTOCOL_CODE_SET_TORQUE_RAMP:
+ 607:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     {
+ 608:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       uint16_t duration = buffer[4] + (buffer[5] << 8);
+ 1483              		.loc 1 608 33
+ 1484 0970 039B     		ldr	r3, [sp, #12]
+ 1485 0972 0433     		adds	r3, r3, #4
+ 1486 0974 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1487 0976 1A46     		mov	r2, r3
+ 1488              		.loc 1 608 46
+ 1489 0978 039B     		ldr	r3, [sp, #12]
+ 1490 097a 0533     		adds	r3, r3, #5
+ 1491 097c 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1492              		.loc 1 608 50
+ 1493 097e 1B02     		lsls	r3, r3, #8
+ 1494 0980 9BB2     		uxth	r3, r3
+ 1495              		.loc 1 608 16
+ 1496 0982 1344     		add	r3, r3, r2
+ 1497 0984 ADF8A830 		strh	r3, [sp, #168]	@ movhi
+ 609:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       int32_t torque = buffer[0] + (buffer[1] << 8) + (buffer[2] << 16) + (buffer[3] << 24);
+ 1498              		.loc 1 609 30
+ 1499 0988 039B     		ldr	r3, [sp, #12]
+ 1500 098a 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1501 098c 1A46     		mov	r2, r3
+ 1502              		.loc 1 609 43
+ 1503 098e 039B     		ldr	r3, [sp, #12]
+ 1504 0990 0133     		adds	r3, r3, #1
+ 1505 0992 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1506              		.loc 1 609 47
+ 1507 0994 1B02     		lsls	r3, r3, #8
+ 1508              		.loc 1 609 34
+ 1509 0996 1A44     		add	r2, r2, r3
+ 1510              		.loc 1 609 62
+ 1511 0998 039B     		ldr	r3, [sp, #12]
+ 1512 099a 0233     		adds	r3, r3, #2
+ 1513 099c 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1514              		.loc 1 609 66
+ 1515 099e 1B04     		lsls	r3, r3, #16
+ 1516              		.loc 1 609 53
+ 1517 09a0 1A44     		add	r2, r2, r3
+ 1518              		.loc 1 609 82
+ 1519 09a2 039B     		ldr	r3, [sp, #12]
+ 1520 09a4 0333     		adds	r3, r3, #3
+ 1521 09a6 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1522              		.loc 1 609 86
+ 1523 09a8 1B06     		lsls	r3, r3, #24
+ 1524              		.loc 1 609 15
+ 1525 09aa 1344     		add	r3, r3, r2
+ 1526 09ac 2993     		str	r3, [sp, #164]
+ 610:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       bNoError = UI_ExecTorqueRamp(&pHandle->_Super, torque,duration);
+ 1527              		.loc 1 610 18
+ 1528 09ae 059B     		ldr	r3, [sp, #20]
+ 1529 09b0 299A     		ldr	r2, [sp, #164]
+ 1530 09b2 11B2     		sxth	r1, r2
+ 1531 09b4 BDF8A820 		ldrh	r2, [sp, #168]
+ 1532 09b8 1846     		mov	r0, r3
+ 1533 09ba FFF7FEFF 		bl	UI_ExecTorqueRamp
+ 1534 09be 0346     		mov	r3, r0
+ 1535              		.loc 1 610 16 discriminator 1
+ 1536 09c0 8DF86F30 		strb	r3, [sp, #111]
+ 1537              	.LBE19:
+ 611:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     }
+ 612:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     break;
+ 1538              		.loc 1 612 5
+ 1539 09c4 23E1     		b	.L41
+ 1540              	.L20:
+ 1541              	.LBB20:
+ 613:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 614:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   case MC_PROTOCOL_CODE_GET_REVUP_DATA:
+ 615:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     {
+ 616:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       uint8_t outBuff[8];
+ 617:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       uint16_t Durationms;
+ 618:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       int16_t FinalMecSpeedUnit;
+ 619:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       int16_t FinalTorque;
+ 620:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       int32_t rpm;
+ 621:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       UI_GetRevupData(&pHandle->_Super, buffer[0], &Durationms, &FinalMecSpeedUnit, &FinalTorque);
+ 1542              		.loc 1 621 7
+ 1543 09c6 0598     		ldr	r0, [sp, #20]
+ 1544 09c8 039B     		ldr	r3, [sp, #12]
+ 1545 09ca 1978     		ldrb	r1, [r3]	@ zero_extendqisi2
+ 1546 09cc 11AC     		add	r4, sp, #68
+ 1547 09ce 0DF14602 		add	r2, sp, #70
+ 1548 09d2 0DF14203 		add	r3, sp, #66
+ 1549 09d6 0093     		str	r3, [sp]
+ 1550 09d8 2346     		mov	r3, r4
+ 1551 09da FFF7FEFF 		bl	UI_GetRevupData
+ 622:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       rpm = (FinalMecSpeedUnit * _RPM) / SPEED_UNIT;
+ 1552              		.loc 1 622 40
+ 1553 09de BDF94430 		ldrsh	r3, [sp, #68]
+ 1554 09e2 1A46     		mov	r2, r3
+ 1555              		.loc 1 622 11
+ 1556 09e4 1346     		mov	r3, r2
+ 1557 09e6 5B00     		lsls	r3, r3, #1
+ 1558 09e8 1344     		add	r3, r3, r2
+ 1559 09ea 5B00     		lsls	r3, r3, #1
+ 1560 09ec 2493     		str	r3, [sp, #144]
+ 623:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       outBuff[0] = (uint8_t)(rpm);
+ 1561              		.loc 1 623 20
+ 1562 09ee 249B     		ldr	r3, [sp, #144]
+ 1563 09f0 DBB2     		uxtb	r3, r3
+ 1564              		.loc 1 623 18
+ 1565 09f2 8DF84830 		strb	r3, [sp, #72]
+ 624:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       outBuff[1] = (uint8_t)(rpm >> 8);
+ 1566              		.loc 1 624 34
+ 1567 09f6 249B     		ldr	r3, [sp, #144]
+ 1568 09f8 1B12     		asrs	r3, r3, #8
+ 1569              		.loc 1 624 20
+ 1570 09fa DBB2     		uxtb	r3, r3
+ 1571              		.loc 1 624 18
+ 1572 09fc 8DF84930 		strb	r3, [sp, #73]
+ 625:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       outBuff[2] = (uint8_t)(rpm >> 16);
+ 1573              		.loc 1 625 34
+ 1574 0a00 249B     		ldr	r3, [sp, #144]
+ 1575 0a02 1B14     		asrs	r3, r3, #16
+ 1576              		.loc 1 625 20
+ 1577 0a04 DBB2     		uxtb	r3, r3
+ 1578              		.loc 1 625 18
+ 1579 0a06 8DF84A30 		strb	r3, [sp, #74]
+ 626:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       outBuff[3] = (uint8_t)(rpm >> 24);
+ 1580              		.loc 1 626 34
+ 1581 0a0a 249B     		ldr	r3, [sp, #144]
+ 1582 0a0c 1B16     		asrs	r3, r3, #24
+ 1583              		.loc 1 626 20
+ 1584 0a0e DBB2     		uxtb	r3, r3
+ 1585              		.loc 1 626 18
+ 1586 0a10 8DF84B30 		strb	r3, [sp, #75]
+ 627:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       outBuff[4] = (uint8_t)(FinalTorque);
+ 1587              		.loc 1 627 20
+ 1588 0a14 BDF94230 		ldrsh	r3, [sp, #66]
+ 1589 0a18 DBB2     		uxtb	r3, r3
+ 1590              		.loc 1 627 18
+ 1591 0a1a 8DF84C30 		strb	r3, [sp, #76]
+ 628:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       outBuff[5] = (uint8_t)(FinalTorque >> 8);
+ 1592              		.loc 1 628 20
+ 1593 0a1e BDF94230 		ldrsh	r3, [sp, #66]
+ 1594 0a22 1B12     		asrs	r3, r3, #8
+ 1595 0a24 1BB2     		sxth	r3, r3
+ 1596 0a26 DBB2     		uxtb	r3, r3
+ 1597              		.loc 1 628 18
+ 1598 0a28 8DF84D30 		strb	r3, [sp, #77]
+ 629:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       outBuff[6] = (uint8_t)(Durationms);
+ 1599              		.loc 1 629 20
+ 1600 0a2c BDF84630 		ldrh	r3, [sp, #70]
+ 1601 0a30 DBB2     		uxtb	r3, r3
+ 1602              		.loc 1 629 18
+ 1603 0a32 8DF84E30 		strb	r3, [sp, #78]
+ 630:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       outBuff[7] = (uint8_t)(Durationms >> 8);
+ 1604              		.loc 1 630 20
+ 1605 0a36 BDF84630 		ldrh	r3, [sp, #70]
+ 1606 0a3a 1B0A     		lsrs	r3, r3, #8
+ 1607 0a3c 9BB2     		uxth	r3, r3
+ 1608 0a3e DBB2     		uxtb	r3, r3
+ 1609              		.loc 1 630 18
+ 1610 0a40 8DF84F30 		strb	r3, [sp, #79]
+ 631:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       pHandle->fFcpSend(pHandle->pFCP, ACK_NOERROR, outBuff, 8 );
+ 1611              		.loc 1 631 14
+ 1612 0a44 059B     		ldr	r3, [sp, #20]
+ 1613 0a46 5C6B     		ldr	r4, [r3, #52]
+ 1614              		.loc 1 631 7
+ 1615 0a48 059B     		ldr	r3, [sp, #20]
+ 1616 0a4a 186B     		ldr	r0, [r3, #48]
+ 1617 0a4c 12AA     		add	r2, sp, #72
+ 1618 0a4e 0823     		movs	r3, #8
+ 1619 0a50 F021     		movs	r1, #240
+ 1620 0a52 A047     		blx	r4
+ 1621              	.LVL10:
+ 1622              	.LBE20:
+ 632:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     }
+ 633:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     break;
+ 1623              		.loc 1 633 5
+ 1624 0a54 DBE0     		b	.L41
+ 1625              	.L19:
+ 1626              	.LBB21:
+ 634:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 635:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   case MC_PROTOCOL_CODE_SET_REVUP_DATA:
+ 636:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     {
+ 637:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       uint8_t bStage;
+ 638:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       uint16_t hDurationms;
+ 639:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       int16_t hFinalMecSpeedUnit;
+ 640:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       int16_t hFinalTorque;
+ 641:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       int32_t rpm;
+ 642:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       bStage = buffer[0];
+ 1627              		.loc 1 642 14
+ 1628 0a56 039B     		ldr	r3, [sp, #12]
+ 1629 0a58 1B78     		ldrb	r3, [r3]
+ 1630 0a5a 8DF89F30 		strb	r3, [sp, #159]
+ 643:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       hDurationms = buffer[7] + (buffer[8] << 8);
+ 1631              		.loc 1 643 27
+ 1632 0a5e 039B     		ldr	r3, [sp, #12]
+ 1633 0a60 0733     		adds	r3, r3, #7
+ 1634 0a62 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1635 0a64 1A46     		mov	r2, r3
+ 1636              		.loc 1 643 40
+ 1637 0a66 039B     		ldr	r3, [sp, #12]
+ 1638 0a68 0833     		adds	r3, r3, #8
+ 1639 0a6a 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1640              		.loc 1 643 44
+ 1641 0a6c 1B02     		lsls	r3, r3, #8
+ 1642 0a6e 9BB2     		uxth	r3, r3
+ 1643              		.loc 1 643 19
+ 1644 0a70 1344     		add	r3, r3, r2
+ 1645 0a72 ADF89C30 		strh	r3, [sp, #156]	@ movhi
+ 644:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       rpm = buffer[1] + (buffer[2] << 8) + (buffer[3] << 16) + (buffer[4] << 24);
+ 1646              		.loc 1 644 19
+ 1647 0a76 039B     		ldr	r3, [sp, #12]
+ 1648 0a78 0133     		adds	r3, r3, #1
+ 1649 0a7a 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1650 0a7c 1A46     		mov	r2, r3
+ 1651              		.loc 1 644 32
+ 1652 0a7e 039B     		ldr	r3, [sp, #12]
+ 1653 0a80 0233     		adds	r3, r3, #2
+ 1654 0a82 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1655              		.loc 1 644 36
+ 1656 0a84 1B02     		lsls	r3, r3, #8
+ 1657              		.loc 1 644 23
+ 1658 0a86 1A44     		add	r2, r2, r3
+ 1659              		.loc 1 644 51
+ 1660 0a88 039B     		ldr	r3, [sp, #12]
+ 1661 0a8a 0333     		adds	r3, r3, #3
+ 1662 0a8c 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1663              		.loc 1 644 55
+ 1664 0a8e 1B04     		lsls	r3, r3, #16
+ 1665              		.loc 1 644 42
+ 1666 0a90 1A44     		add	r2, r2, r3
+ 1667              		.loc 1 644 71
+ 1668 0a92 039B     		ldr	r3, [sp, #12]
+ 1669 0a94 0433     		adds	r3, r3, #4
+ 1670 0a96 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1671              		.loc 1 644 75
+ 1672 0a98 1B06     		lsls	r3, r3, #24
+ 1673              		.loc 1 644 11
+ 1674 0a9a 1344     		add	r3, r3, r2
+ 1675 0a9c 2693     		str	r3, [sp, #152]
+ 645:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       hFinalMecSpeedUnit = (rpm * SPEED_UNIT ) / _RPM ;
+ 1676              		.loc 1 645 48
+ 1677 0a9e 269B     		ldr	r3, [sp, #152]
+ 1678 0aa0 694A     		ldr	r2, .L107
+ 1679 0aa2 82FB0312 		smull	r1, r2, r2, r3
+ 1680 0aa6 DB17     		asrs	r3, r3, #31
+ 1681 0aa8 D31A     		subs	r3, r2, r3
+ 1682              		.loc 1 645 26
+ 1683 0aaa ADF89630 		strh	r3, [sp, #150]	@ movhi
+ 646:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       hFinalTorque = buffer[5] + (buffer[6] << 8);
+ 1684              		.loc 1 646 28
+ 1685 0aae 039B     		ldr	r3, [sp, #12]
+ 1686 0ab0 0533     		adds	r3, r3, #5
+ 1687 0ab2 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1688 0ab4 1A46     		mov	r2, r3
+ 1689              		.loc 1 646 41
+ 1690 0ab6 039B     		ldr	r3, [sp, #12]
+ 1691 0ab8 0633     		adds	r3, r3, #6
+ 1692 0aba 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1693              		.loc 1 646 45
+ 1694 0abc 1B02     		lsls	r3, r3, #8
+ 1695 0abe 9BB2     		uxth	r3, r3
+ 1696              		.loc 1 646 32
+ 1697 0ac0 1344     		add	r3, r3, r2
+ 1698 0ac2 9BB2     		uxth	r3, r3
+ 1699              		.loc 1 646 20
+ 1700 0ac4 ADF89430 		strh	r3, [sp, #148]	@ movhi
+ 647:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       bNoError = UI_SetRevupData( &pHandle->_Super, bStage, hDurationms, hFinalMecSpeedUnit, hFinal
+ 1701              		.loc 1 647 18
+ 1702 0ac8 0598     		ldr	r0, [sp, #20]
+ 1703 0aca BDF99640 		ldrsh	r4, [sp, #150]
+ 1704 0ace BDF89C20 		ldrh	r2, [sp, #156]
+ 1705 0ad2 9DF89F10 		ldrb	r1, [sp, #159]	@ zero_extendqisi2
+ 1706 0ad6 BDF99430 		ldrsh	r3, [sp, #148]
+ 1707 0ada 0093     		str	r3, [sp]
+ 1708 0adc 2346     		mov	r3, r4
+ 1709 0ade FFF7FEFF 		bl	UI_SetRevupData
+ 1710 0ae2 0346     		mov	r3, r0
+ 1711              		.loc 1 647 16 discriminator 1
+ 1712 0ae4 8DF86F30 		strb	r3, [sp, #111]
+ 1713              	.LBE21:
+ 648:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     }
+ 649:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     break;
+ 1714              		.loc 1 649 5
+ 1715 0ae8 91E0     		b	.L41
+ 1716              	.L18:
+ 1717              	.LBB22:
+ 650:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 651:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   case MC_PROTOCOL_CODE_SET_CURRENT_REF:
+ 652:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     {
+ 653:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       int16_t hIqRef;
+ 654:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       int16_t hIdRef;
+ 655:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       hIqRef = buffer[0] + (buffer[1] << 8);
+ 1718              		.loc 1 655 22
+ 1719 0aea 039B     		ldr	r3, [sp, #12]
+ 1720 0aec 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1721 0aee 1A46     		mov	r2, r3
+ 1722              		.loc 1 655 35
+ 1723 0af0 039B     		ldr	r3, [sp, #12]
+ 1724 0af2 0133     		adds	r3, r3, #1
+ 1725 0af4 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1726              		.loc 1 655 39
+ 1727 0af6 1B02     		lsls	r3, r3, #8
+ 1728 0af8 9BB2     		uxth	r3, r3
+ 1729              		.loc 1 655 26
+ 1730 0afa 1344     		add	r3, r3, r2
+ 1731 0afc 9BB2     		uxth	r3, r3
+ 1732              		.loc 1 655 14
+ 1733 0afe ADF8A230 		strh	r3, [sp, #162]	@ movhi
+ 656:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       hIdRef = buffer[2] + (buffer[3] << 8);
+ 1734              		.loc 1 656 22
+ 1735 0b02 039B     		ldr	r3, [sp, #12]
+ 1736 0b04 0233     		adds	r3, r3, #2
+ 1737 0b06 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1738 0b08 1A46     		mov	r2, r3
+ 1739              		.loc 1 656 35
+ 1740 0b0a 039B     		ldr	r3, [sp, #12]
+ 1741 0b0c 0333     		adds	r3, r3, #3
+ 1742 0b0e 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1743              		.loc 1 656 39
+ 1744 0b10 1B02     		lsls	r3, r3, #8
+ 1745 0b12 9BB2     		uxth	r3, r3
+ 1746              		.loc 1 656 26
+ 1747 0b14 1344     		add	r3, r3, r2
+ 1748 0b16 9BB2     		uxth	r3, r3
+ 1749              		.loc 1 656 14
+ 1750 0b18 ADF8A030 		strh	r3, [sp, #160]	@ movhi
+ 657:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       UI_SetCurrentReferences(&pHandle->_Super, hIqRef, hIdRef);
+ 1751              		.loc 1 657 7
+ 1752 0b1c 059B     		ldr	r3, [sp, #20]
+ 1753 0b1e BDF9A020 		ldrsh	r2, [sp, #160]
+ 1754 0b22 BDF9A210 		ldrsh	r1, [sp, #162]
+ 1755 0b26 1846     		mov	r0, r3
+ 1756 0b28 FFF7FEFF 		bl	UI_SetCurrentReferences
+ 658:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       bNoError = true;
+ 1757              		.loc 1 658 16
+ 1758 0b2c 0123     		movs	r3, #1
+ 1759 0b2e 8DF86F30 		strb	r3, [sp, #111]
+ 1760              	.LBE22:
+ 659:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     }
+ 660:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     break;
+ 1761              		.loc 1 660 5
+ 1762 0b32 6CE0     		b	.L41
+ 1763              	.L17:
+ 1764              	.LBB23:
+ 661:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 662:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   case MC_PROTOCOL_CODE_GET_MP_INFO:
+ 663:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     {
+ 664:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       MPInfo_t stepList;
+ 665:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       stepList.data = buffer;
+ 1765              		.loc 1 665 21
+ 1766 0b34 039B     		ldr	r3, [sp, #12]
+ 1767 0b36 0E93     		str	r3, [sp, #56]
+ 666:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       stepList.len = Size;
+ 1768              		.loc 1 666 20
+ 1769 0b38 9DF81230 		ldrb	r3, [sp, #18]
+ 1770 0b3c 8DF83C30 		strb	r3, [sp, #60]
+ 667:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       bErrorCode = ERROR_MP_NOT_ENABLED;
+ 1771              		.loc 1 667 18
+ 1772 0b40 0C23     		movs	r3, #12
+ 1773 0b42 8DF86E30 		strb	r3, [sp, #110]
+ 668:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       bNoError = UI_GetMPInfo(&stepList, &MPInfo);
+ 1774              		.loc 1 668 18
+ 1775 0b46 0EAB     		add	r3, sp, #56
+ 1776 0b48 4049     		ldr	r1, .L107+4
+ 1777 0b4a 1846     		mov	r0, r3
+ 1778 0b4c FFF7FEFF 		bl	UI_GetMPInfo
+ 1779 0b50 0346     		mov	r3, r0
+ 1780              		.loc 1 668 16 discriminator 1
+ 1781 0b52 8DF86F30 		strb	r3, [sp, #111]
+ 669:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 670:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       if (bNoError)
+ 1782              		.loc 1 670 11
+ 1783 0b56 9DF86F30 		ldrb	r3, [sp, #111]	@ zero_extendqisi2
+ 1784              		.loc 1 670 10
+ 1785 0b5a 002B     		cmp	r3, #0
+ 1786 0b5c 56D0     		beq	.L85
+ 671:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       {
+ 672:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         pHandle->fFcpSend(pHandle->pFCP, ACK_NOERROR, MPInfo.data, MPInfo.len);
+ 1787              		.loc 1 672 16
+ 1788 0b5e 059B     		ldr	r3, [sp, #20]
+ 1789 0b60 5C6B     		ldr	r4, [r3, #52]
+ 1790              		.loc 1 672 9
+ 1791 0b62 059B     		ldr	r3, [sp, #20]
+ 1792 0b64 186B     		ldr	r0, [r3, #48]
+ 1793 0b66 394B     		ldr	r3, .L107+4
+ 1794 0b68 1A68     		ldr	r2, [r3]
+ 1795 0b6a 384B     		ldr	r3, .L107+4
+ 1796 0b6c 1B79     		ldrb	r3, [r3, #4]	@ zero_extendqisi2
+ 1797 0b6e F021     		movs	r1, #240
+ 1798 0b70 A047     		blx	r4
+ 1799              	.LVL11:
+ 673:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         RequireAck = false;
+ 1800              		.loc 1 673 20
+ 1801 0b72 0023     		movs	r3, #0
+ 1802 0b74 8DF8AF30 		strb	r3, [sp, #175]
+ 1803              	.LBE23:
+ 674:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       }
+ 675:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     }
+ 676:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     break;
+ 1804              		.loc 1 676 5
+ 1805 0b78 48E0     		b	.L85
+ 1806              	.L16:
+ 1807              	.LBB24:
+ 677:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 678:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     case MC_PROTOCOL_CODE_GET_FW_VERSION:
+ 679:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     {
+ 680:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       /* Get Firmware Version */
+ 681:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       unsigned char i;
+ 682:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       uint8_t outBuff[32];
+ 683:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       for (i = 0; (i<32) && (pHandle->s_fwVer[i]!=0); i++)
+ 1808              		.loc 1 683 14
+ 1809 0b7a 0023     		movs	r3, #0
+ 1810 0b7c 8DF8AD30 		strb	r3, [sp, #173]
+ 1811              		.loc 1 683 7
+ 1812 0b80 13E0     		b	.L70
+ 1813              	.L72:
+ 684:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       {
+ 685:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         outBuff[i] = pHandle->s_fwVer[i];
+ 1814              		.loc 1 685 29
+ 1815 0b82 059B     		ldr	r3, [sp, #20]
+ 1816 0b84 D3F8C020 		ldr	r2, [r3, #192]
+ 1817              		.loc 1 685 38
+ 1818 0b88 9DF8AD30 		ldrb	r3, [sp, #173]	@ zero_extendqisi2
+ 1819 0b8c 1344     		add	r3, r3, r2
+ 1820 0b8e 93F90020 		ldrsb	r2, [r3]
+ 1821              		.loc 1 685 16
+ 1822 0b92 9DF8AD30 		ldrb	r3, [sp, #173]	@ zero_extendqisi2
+ 1823              		.loc 1 685 38
+ 1824 0b96 D2B2     		uxtb	r2, r2
+ 1825              		.loc 1 685 20
+ 1826 0b98 B033     		adds	r3, r3, #176
+ 1827 0b9a 6B44     		add	r3, sp, r3
+ 1828 0b9c 03F8982C 		strb	r2, [r3, #-152]
+ 683:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       {
+ 1829              		.loc 1 683 56 discriminator 4
+ 1830 0ba0 9DF8AD30 		ldrb	r3, [sp, #173]	@ zero_extendqisi2
+ 1831 0ba4 0133     		adds	r3, r3, #1
+ 1832 0ba6 8DF8AD30 		strb	r3, [sp, #173]
+ 1833              	.L70:
+ 683:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       {
+ 1834              		.loc 1 683 26 discriminator 1
+ 1835 0baa 9DF8AD30 		ldrb	r3, [sp, #173]	@ zero_extendqisi2
+ 1836 0bae 1F2B     		cmp	r3, #31
+ 1837 0bb0 16D8     		bhi	.L73
+ 683:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       {
+ 1838              		.loc 1 683 37 discriminator 3
+ 1839 0bb2 059B     		ldr	r3, [sp, #20]
+ 1840 0bb4 D3F8C020 		ldr	r2, [r3, #192]
+ 683:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       {
+ 1841              		.loc 1 683 46 discriminator 3
+ 1842 0bb8 9DF8AD30 		ldrb	r3, [sp, #173]	@ zero_extendqisi2
+ 1843 0bbc 1344     		add	r3, r3, r2
+ 1844 0bbe 93F90030 		ldrsb	r3, [r3]
+ 683:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       {
+ 1845              		.loc 1 683 26 discriminator 3
+ 1846 0bc2 002B     		cmp	r3, #0
+ 1847 0bc4 DDD1     		bne	.L72
+ 686:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       }
+ 687:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 688:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       for (; i < 32; i++)
+ 1848              		.loc 1 688 7
+ 1849 0bc6 0BE0     		b	.L73
+ 1850              	.L74:
+ 689:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       {
+ 690:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****         outBuff[i] = 0;
+ 1851              		.loc 1 690 16
+ 1852 0bc8 9DF8AD30 		ldrb	r3, [sp, #173]	@ zero_extendqisi2
+ 1853              		.loc 1 690 20
+ 1854 0bcc B033     		adds	r3, r3, #176
+ 1855 0bce 6B44     		add	r3, sp, r3
+ 1856 0bd0 0022     		movs	r2, #0
+ 1857 0bd2 03F8982C 		strb	r2, [r3, #-152]
+ 688:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       {
+ 1858              		.loc 1 688 23 discriminator 2
+ 1859 0bd6 9DF8AD30 		ldrb	r3, [sp, #173]	@ zero_extendqisi2
+ 1860 0bda 0133     		adds	r3, r3, #1
+ 1861 0bdc 8DF8AD30 		strb	r3, [sp, #173]
+ 1862              	.L73:
+ 688:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       {
+ 1863              		.loc 1 688 16 discriminator 1
+ 1864 0be0 9DF8AD30 		ldrb	r3, [sp, #173]	@ zero_extendqisi2
+ 1865 0be4 1F2B     		cmp	r3, #31
+ 1866 0be6 EFD9     		bls	.L74
+ 691:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       }
+ 692:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 693:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       pHandle->fFcpSend(pHandle->pFCP, ACK_NOERROR, outBuff, 32 );
+ 1867              		.loc 1 693 14
+ 1868 0be8 059B     		ldr	r3, [sp, #20]
+ 1869 0bea 5C6B     		ldr	r4, [r3, #52]
+ 1870              		.loc 1 693 7
+ 1871 0bec 059B     		ldr	r3, [sp, #20]
+ 1872 0bee 186B     		ldr	r0, [r3, #48]
+ 1873 0bf0 06AA     		add	r2, sp, #24
+ 1874 0bf2 2023     		movs	r3, #32
+ 1875 0bf4 F021     		movs	r1, #240
+ 1876 0bf6 A047     		blx	r4
+ 1877              	.LVL12:
+ 694:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       bNoError = true;
+ 1878              		.loc 1 694 16
+ 1879 0bf8 0123     		movs	r3, #1
+ 1880 0bfa 8DF86F30 		strb	r3, [sp, #111]
+ 1881              	.LBE24:
+ 695:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     }
+ 696:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     break;
+ 1882              		.loc 1 696 5
+ 1883 0bfe 06E0     		b	.L41
+ 1884              	.L11:
+ 697:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 698:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   case MC_PROTOCOL_CODE_NONE:
+ 699:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     {
+ 700:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     }
+ 701:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     break;
+ 702:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 703:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   default:
+ 704:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     {
+ 705:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       bErrorCode = ERROR_BAD_FRAME_ID;
+ 1885              		.loc 1 705 18
+ 1886 0c00 0123     		movs	r3, #1
+ 1887 0c02 8DF86E30 		strb	r3, [sp, #110]
+ 706:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     }
+ 707:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     break;
+ 1888              		.loc 1 707 5
+ 1889 0c06 02E0     		b	.L41
+ 1890              	.L77:
+ 701:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 1891              		.loc 1 701 5
+ 1892 0c08 00BF     		nop
+ 1893 0c0a 00E0     		b	.L41
+ 1894              	.L85:
+ 676:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 1895              		.loc 1 676 5
+ 1896 0c0c 00BF     		nop
+ 1897              	.L41:
+ 708:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   }
+ 709:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 710:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   if (RequireAck)
+ 1898              		.loc 1 710 6
+ 1899 0c0e 9DF8AF30 		ldrb	r3, [sp, #175]	@ zero_extendqisi2
+ 1900 0c12 002B     		cmp	r3, #0
+ 1901 0c14 15D0     		beq	.L86
+ 711:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   {
+ 712:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     if (bNoError)
+ 1902              		.loc 1 712 9
+ 1903 0c16 9DF86F30 		ldrb	r3, [sp, #111]	@ zero_extendqisi2
+ 1904              		.loc 1 712 8
+ 1905 0c1a 002B     		cmp	r3, #0
+ 1906 0c1c 08D0     		beq	.L76
+ 713:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     {
+ 714:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       pHandle->fFcpSend(pHandle->pFCP, ACK_NOERROR, MC_NULL, 0);
+ 1907              		.loc 1 714 14
+ 1908 0c1e 059B     		ldr	r3, [sp, #20]
+ 1909 0c20 5C6B     		ldr	r4, [r3, #52]
+ 1910              		.loc 1 714 7
+ 1911 0c22 059B     		ldr	r3, [sp, #20]
+ 1912 0c24 186B     		ldr	r0, [r3, #48]
+ 1913 0c26 0023     		movs	r3, #0
+ 1914 0c28 0022     		movs	r2, #0
+ 1915 0c2a F021     		movs	r1, #240
+ 1916 0c2c A047     		blx	r4
+ 1917              	.LVL13:
+ 715:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     }
+ 716:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     else
+ 717:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     {
+ 718:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****       pHandle->fFcpSend(pHandle->pFCP, ACK_ERROR, &bErrorCode, 1);
+ 719:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     }
+ 720:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   }
+ 721:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** }
+ 1918              		.loc 1 721 1
+ 1919 0c2e 08E0     		b	.L86
+ 1920              	.L76:
+ 718:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     }
+ 1921              		.loc 1 718 14
+ 1922 0c30 059B     		ldr	r3, [sp, #20]
+ 1923 0c32 5C6B     		ldr	r4, [r3, #52]
+ 718:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****     }
+ 1924              		.loc 1 718 7
+ 1925 0c34 059B     		ldr	r3, [sp, #20]
+ 1926 0c36 186B     		ldr	r0, [r3, #48]
+ 1927 0c38 0DF16E02 		add	r2, sp, #110
+ 1928 0c3c 0123     		movs	r3, #1
+ 1929 0c3e FF21     		movs	r1, #255
+ 1930 0c40 A047     		blx	r4
+ 1931              	.LVL14:
+ 1932              	.L86:
+ 1933              		.loc 1 721 1
+ 1934 0c42 00BF     		nop
+ 1935 0c44 2CB0     		add	sp, sp, #176
+ 1936              		.cfi_def_cfa_offset 8
+ 1937              		@ sp needed
+ 1938 0c46 10BD     		pop	{r4, pc}
+ 1939              	.L108:
+ 1940              		.align	2
+ 1941              	.L107:
+ 1942 0c48 ABAAAA2A 		.word	715827883
+ 1943 0c4c 00000000 		.word	MPInfo
+ 1944              		.cfi_endproc
+ 1945              	.LFE1230:
+ 1947              		.section	.text.MCP_SendOverrunMessage,"ax",%progbits
+ 1948              		.align	1
+ 1949              		.p2align 4,,15
+ 1950              		.weak	MCP_SendOverrunMessage
+ 1951              		.syntax unified
+ 1952              		.thumb
+ 1953              		.thumb_func
+ 1955              	MCP_SendOverrunMessage:
+ 1956              	.LFB1231:
+ 722:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 723:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** /**
+ 724:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** * @brief  Allow to report the overrun error message.
+ 725:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** *
+ 726:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** * Called when received frame has not been received correctly due to the
+ 727:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** * transmission speed too fast.
+ 728:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** *
+ 729:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** * @param  pHandle Pointer on the handle of the component.
+ 730:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** */
+ 731:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** __weak void MCP_SendOverrunMessage(MCP_Handle_t *pHandle)
+ 732:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** {
+ 1957              		.loc 1 732 1
+ 1958              		.cfi_startproc
+ 1959              		@ args = 0, pretend = 0, frame = 16
+ 1960              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1961 0000 10B5     		push	{r4, lr}
+ 1962              		.cfi_def_cfa_offset 8
+ 1963              		.cfi_offset 4, -8
+ 1964              		.cfi_offset 14, -4
+ 1965 0002 84B0     		sub	sp, sp, #16
+ 1966              		.cfi_def_cfa_offset 24
+ 1967 0004 0190     		str	r0, [sp, #4]
+ 733:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   uint8_t bErrorCode = ERROR_CODE_OVERRUN;
+ 1968              		.loc 1 733 11
+ 1969 0006 0823     		movs	r3, #8
+ 1970 0008 8DF80F30 		strb	r3, [sp, #15]
+ 734:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   pHandle->fFcpSend(pHandle->pFCP, ACK_ERROR, &bErrorCode, 1);
+ 1971              		.loc 1 734 10
+ 1972 000c 019B     		ldr	r3, [sp, #4]
+ 1973 000e 5C6B     		ldr	r4, [r3, #52]
+ 1974              		.loc 1 734 3
+ 1975 0010 019B     		ldr	r3, [sp, #4]
+ 1976 0012 186B     		ldr	r0, [r3, #48]
+ 1977 0014 0DF10F02 		add	r2, sp, #15
+ 1978 0018 0123     		movs	r3, #1
+ 1979 001a FF21     		movs	r1, #255
+ 1980 001c A047     		blx	r4
+ 1981              	.LVL15:
+ 735:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** }
+ 1982              		.loc 1 735 1
+ 1983 001e 00BF     		nop
+ 1984 0020 04B0     		add	sp, sp, #16
+ 1985              		.cfi_def_cfa_offset 8
+ 1986              		@ sp needed
+ 1987 0022 10BD     		pop	{r4, pc}
+ 1988              		.cfi_endproc
+ 1989              	.LFE1231:
+ 1991              		.section	.text.MCP_SendTimeoutMessage,"ax",%progbits
+ 1992              		.align	1
+ 1993              		.p2align 4,,15
+ 1994              		.weak	MCP_SendTimeoutMessage
+ 1995              		.syntax unified
+ 1996              		.thumb
+ 1997              		.thumb_func
+ 1999              	MCP_SendTimeoutMessage:
+ 2000              	.LFB1232:
+ 736:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 737:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** /**
+ 738:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** * @brief  Allow to report the time out error message.
+ 739:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** *
+ 740:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** * @param  pHandle Pointer on the handle of the component.
+ 741:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** */
+ 742:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** __weak void MCP_SendTimeoutMessage(MCP_Handle_t *pHandle)
+ 743:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** {
+ 2001              		.loc 1 743 1
+ 2002              		.cfi_startproc
+ 2003              		@ args = 0, pretend = 0, frame = 16
+ 2004              		@ frame_needed = 0, uses_anonymous_args = 0
+ 2005 0000 10B5     		push	{r4, lr}
+ 2006              		.cfi_def_cfa_offset 8
+ 2007              		.cfi_offset 4, -8
+ 2008              		.cfi_offset 14, -4
+ 2009 0002 84B0     		sub	sp, sp, #16
+ 2010              		.cfi_def_cfa_offset 24
+ 2011 0004 0190     		str	r0, [sp, #4]
+ 744:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   uint8_t bErrorCode = ERROR_CODE_TIMEOUT;
+ 2012              		.loc 1 744 11
+ 2013 0006 0923     		movs	r3, #9
+ 2014 0008 8DF80F30 		strb	r3, [sp, #15]
+ 745:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   pHandle->fFcpSend(pHandle->pFCP, ACK_ERROR, &bErrorCode, 1);
+ 2015              		.loc 1 745 10
+ 2016 000c 019B     		ldr	r3, [sp, #4]
+ 2017 000e 5C6B     		ldr	r4, [r3, #52]
+ 2018              		.loc 1 745 3
+ 2019 0010 019B     		ldr	r3, [sp, #4]
+ 2020 0012 186B     		ldr	r0, [r3, #48]
+ 2021 0014 0DF10F02 		add	r2, sp, #15
+ 2022 0018 0123     		movs	r3, #1
+ 2023 001a FF21     		movs	r1, #255
+ 2024 001c A047     		blx	r4
+ 2025              	.LVL16:
+ 746:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** }
+ 2026              		.loc 1 746 1
+ 2027 001e 00BF     		nop
+ 2028 0020 04B0     		add	sp, sp, #16
+ 2029              		.cfi_def_cfa_offset 8
+ 2030              		@ sp needed
+ 2031 0022 10BD     		pop	{r4, pc}
+ 2032              		.cfi_endproc
+ 2033              	.LFE1232:
+ 2035              		.section	.text.MCP_SendBadCRCMessage,"ax",%progbits
+ 2036              		.align	1
+ 2037              		.p2align 4,,15
+ 2038              		.weak	MCP_SendBadCRCMessage
+ 2039              		.syntax unified
+ 2040              		.thumb
+ 2041              		.thumb_func
+ 2043              	MCP_SendBadCRCMessage:
+ 2044              	.LFB1233:
+ 747:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 748:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** /**
+ 749:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** * @brief  Allow to send an ATR message.
+ 750:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** *
+ 751:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** * @param  pHandle Pointer on the handle of the component.
+ 752:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** */
+ 753:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** #if 0
+ 754:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** __weak void MCP_SendATRMessage(MCP_Handle_t *pHandle)
+ 755:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** {
+ 756:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   uint32_t wUID = UI_GetReg(&pHandle->_Super, MC_PROTOCOL_REG_UID, MC_NULL);
+ 757:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   unsigned char i;
+ 758:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   uint8_t bFWX;
+ 759:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   uint8_t bFWY;
+ 760:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   uint8_t bFWZ;
+ 761:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   uint16_t hCBDID = UI_GetReg( &pHandle->_Super, MC_PROTOCOL_REG_CTRBDID, MC_NULL );
+ 762:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   uint16_t hPBDID = UI_GetReg( &pHandle->_Super, MC_PROTOCOL_REG_PWBDID, MC_NULL );
+ 763:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   uint16_t hPBDID2 = UI_GetReg( &pHandle->_Super, MC_PROTOCOL_REG_PWBDID2, MC_NULL );
+ 764:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   uint8_t buff[13]={0,0,0,0,0,0,0,0,0,0,0,0,0};
+ 765:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 766:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   for (i = 0; (i<29) && (pHandle->s_fwVer[i]!='\t'); i++);
+ 767:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 768:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   bFWX = pHandle->s_fwVer[i+5];
+ 769:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   bFWY = pHandle->s_fwVer[i+7];
+ 770:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   bFWZ = pHandle->s_fwVer[i+9];
+ 771:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 772:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   //*(uint32_t*)(&buff[0]) = wUID;
+ 773:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   buff[0] = (uint8_t)(wUID & 0xff);
+ 774:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   buff[1] = (uint8_t)((wUID >> 8)  & 0xff);
+ 775:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   buff[2] = (uint8_t)((wUID >> 16) & 0xff);
+ 776:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   buff[3] = (uint8_t)((wUID >> 24) & 0xff);
+ 777:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   buff[4] = bFWX;
+ 778:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   buff[5] = bFWY;
+ 779:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   buff[6] = bFWZ;
+ 780:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   buff[7] = (uint8_t)(hCBDID);
+ 781:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   buff[8] = (uint8_t)(hCBDID>>8);
+ 782:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   buff[9] = (uint8_t)(hPBDID);
+ 783:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   buff[10]= (uint8_t)(hPBDID>>8);
+ 784:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   buff[11] = (uint8_t)(hPBDID2);
+ 785:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   buff[12]= (uint8_t)(hPBDID2>>8);
+ 786:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** 
+ 787:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   pHandle->fFcpSend(pHandle->pFCP, ATR_FRAME_START, buff, 13);
+ 788:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** }
+ 789:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** #endif
+ 790:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** /**
+ 791:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** * @brief  Allow to send back a BAD CRC message.
+ 792:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** *
+ 793:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** * @param  pHandle Pointer on the handle of the component.
+ 794:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** */
+ 795:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** __weak void MCP_SendBadCRCMessage(MCP_Handle_t *pHandle)
+ 796:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** {
+ 2045              		.loc 1 796 1
+ 2046              		.cfi_startproc
+ 2047              		@ args = 0, pretend = 0, frame = 16
+ 2048              		@ frame_needed = 0, uses_anonymous_args = 0
+ 2049 0000 10B5     		push	{r4, lr}
+ 2050              		.cfi_def_cfa_offset 8
+ 2051              		.cfi_offset 4, -8
+ 2052              		.cfi_offset 14, -4
+ 2053 0002 84B0     		sub	sp, sp, #16
+ 2054              		.cfi_def_cfa_offset 24
+ 2055 0004 0190     		str	r0, [sp, #4]
+ 797:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   uint8_t bErrorCode = ERROR_CODE_BAD_CRC;
+ 2056              		.loc 1 797 11
+ 2057 0006 0A23     		movs	r3, #10
+ 2058 0008 8DF80F30 		strb	r3, [sp, #15]
+ 798:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c ****   pHandle->fFcpSend(pHandle->pFCP, ACK_ERROR, &bErrorCode, 1);
+ 2059              		.loc 1 798 10
+ 2060 000c 019B     		ldr	r3, [sp, #4]
+ 2061 000e 5C6B     		ldr	r4, [r3, #52]
+ 2062              		.loc 1 798 3
+ 2063 0010 019B     		ldr	r3, [sp, #4]
+ 2064 0012 186B     		ldr	r0, [r3, #48]
+ 2065 0014 0DF10F02 		add	r2, sp, #15
+ 2066 0018 0123     		movs	r3, #1
+ 2067 001a FF21     		movs	r1, #255
+ 2068 001c A047     		blx	r4
+ 2069              	.LVL17:
+ 799:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/motor_control_protocol.c **** }
+ 2070              		.loc 1 799 1
+ 2071 001e 00BF     		nop
+ 2072 0020 04B0     		add	sp, sp, #16
+ 2073              		.cfi_def_cfa_offset 8
+ 2074              		@ sp needed
+ 2075 0022 10BD     		pop	{r4, pc}
+ 2076              		.cfi_endproc
+ 2077              	.LFE1233:
+ 2079              		.text
+ 2080              	.Letext0:
+ 2081              		.file 2 "C:/StellarStudio-9.2/SDKS/TOOLS/Toolchain/ARM/MINGW64_NT/13.3.1-2024.06/arm-none-eabi/inc
+ 2082              		.file 3 "C:/StellarStudio-9.2/SDKS/TOOLS/Toolchain/ARM/MINGW64_NT/13.3.1-2024.06/arm-none-eabi/inc
+ 2083              		.file 4 "C:/StellarStudio-9.2/workspace/SR5E1_MCTK_v0/.sdk/StellarESDK-1.7.0/Modules/Platform/MCU/
+ 2084              		.file 5 "C:/StellarStudio-9.2/workspace/SR5E1_MCTK_v0/.sdk/StellarESDK-1.7.0/Modules/Platform/MCU/
+ 2085              		.file 6 "C:/StellarStudio-9.2/workspace/SR5E1_MCTK_v0/.sdk/StellarESDK-1.7.0/Modules/Platform/MCU/
+ 2086              		.file 7 ".sdk/SR5E1_MCTK-1.3.0/include/LL_Library/sr5e1_macros.h"
+ 2087              		.file 8 ".sdk/SR5E1_MCTK-1.3.0/include/LL_Library/sr5e1_ll_tim.h"
+ 2088              		.file 9 ".sdk/SR5E1_MCTK-1.3.0/include/LL_Library/sr5e1_ll_usart.h"
+ 2089              		.file 10 ".sdk/SR5E1_MCTK-1.3.0/include/LL_Library/sr5e1_ll_dma.h"
+ 2090              		.file 11 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/mc_type.h"
+ 2091              		.file 12 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/state_machine.h"
+ 2092              		.file 13 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/pid_regulator.h"
+ 2093              		.file 14 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/speed_pos_fdbk.h"
+ 2094              		.file 15 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/speed_torq_ctrl.h"
+ 2095              		.file 16 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/mc_interface.h"
+ 2096              		.file 17 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/virtual_speed_sensor.h"
+ 2097              		.file 18 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/sto_speed_pos_fdbk.h"
+ 2098              		.file 19 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/pwm_curr_fdbk.h"
+ 2099              		.file 20 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/revup_ctrl.h"
+ 2100              		.file 21 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/sto_pll_speed_pos_fdbk.h"
+ 2101              		.file 22 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/digital_output.h"
+ 2102              		.file 23 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/motor_power_measurement.h"
+ 2103              		.file 24 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/bus_voltage_sensor.h"
+ 2104              		.file 25 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/regular_conversion_manager.h"
+ 2105              		.file 26 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/ntc_temperature_sensor.h"
+ 2106              		.file 27 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/feed_forward_ctrl.h"
+ 2107              		.file 28 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/flux_weakening_ctrl.h"
+ 2108              		.file 29 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/ramp_ext_mngr.h"
+ 2109              		.file 30 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/circle_limitation.h"
+ 2110              		.file 31 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/r_divider_bus_voltage_sensor.h"
+ 2111              		.file 32 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/mp_one_touch_tuning.h"
+ 2112              		.file 33 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/mp_self_com_ctrl.h"
+ 2113              		.file 34 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/encoder_speed_pos_fdbk.h"
+ 2114              		.file 35 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/trajectory_ctrl.h"
+ 2115              		.file 36 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/mc_tuning.h"
+ 2116              		.file 37 ".sdk/SR5E1_MCTK-1.3.0/include/UILibrary/user_interface.h"
+ 2117              		.file 38 ".sdk/SR5E1_MCTK-1.3.0/include/UILibrary/frame_communication_protocol.h"
+ 2118              		.file 39 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/motor_control_protocol.h"
+ 2119              		.file 40 ".sdk/SR5E1_MCTK-1.3.0/include/UILibrary/dac_common_ui.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 motor_control_protocol.c
+C:\Users\ttqpe\AppData\Local\Temp\cckGY9Zf.s:20     .rodata.OFFSET_TAB_CCMRx:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\cckGY9Zf.s:23     .rodata.OFFSET_TAB_CCMRx:00000000 OFFSET_TAB_CCMRx
+C:\Users\ttqpe\AppData\Local\Temp\cckGY9Zf.s:26     .rodata.SHIFT_TAB_OCxx:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\cckGY9Zf.s:29     .rodata.SHIFT_TAB_OCxx:00000000 SHIFT_TAB_OCxx
+C:\Users\ttqpe\AppData\Local\Temp\cckGY9Zf.s:32     .rodata.SHIFT_TAB_ICxx:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\cckGY9Zf.s:35     .rodata.SHIFT_TAB_ICxx:00000000 SHIFT_TAB_ICxx
+C:\Users\ttqpe\AppData\Local\Temp\cckGY9Zf.s:38     .rodata.SHIFT_TAB_CCxP:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\cckGY9Zf.s:41     .rodata.SHIFT_TAB_CCxP:00000000 SHIFT_TAB_CCxP
+C:\Users\ttqpe\AppData\Local\Temp\cckGY9Zf.s:44     .rodata.SHIFT_TAB_OISx:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\cckGY9Zf.s:47     .rodata.SHIFT_TAB_OISx:00000000 SHIFT_TAB_OISx
+C:\Users\ttqpe\AppData\Local\Temp\cckGY9Zf.s:50     .rodata.USART_PRESCALER_TAB:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\cckGY9Zf.s:53     .rodata.USART_PRESCALER_TAB:00000000 USART_PRESCALER_TAB
+C:\Users\ttqpe\AppData\Local\Temp\cckGY9Zf.s:67     .rodata.LL_DMA_STR_OFFSET_TAB:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\cckGY9Zf.s:70     .rodata.LL_DMA_STR_OFFSET_TAB:00000000 LL_DMA_STR_OFFSET_TAB
+C:\Users\ttqpe\AppData\Local\Temp\cckGY9Zf.s:77     .bss.MPInfo:00000000 MPInfo
+C:\Users\ttqpe\AppData\Local\Temp\cckGY9Zf.s:74     .bss.MPInfo:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\cckGY9Zf.s:80     .text.MCP_SentFrameCallback:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\cckGY9Zf.s:86     .text.MCP_SentFrameCallback:00000000 MCP_SentFrameCallback
+C:\Users\ttqpe\AppData\Local\Temp\cckGY9Zf.s:277    .text.MCP_SentFrame:00000000 MCP_SentFrame
+C:\Users\ttqpe\AppData\Local\Temp\cckGY9Zf.s:114    .text.MCP_Init:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\cckGY9Zf.s:121    .text.MCP_Init:00000000 MCP_Init
+C:\Users\ttqpe\AppData\Local\Temp\cckGY9Zf.s:226    .text.MCP_WaitNextFrame:00000000 MCP_WaitNextFrame
+C:\Users\ttqpe\AppData\Local\Temp\cckGY9Zf.s:180    .text.MCP_Init:00000054 $d
+C:\Users\ttqpe\AppData\Local\Temp\cckGY9Zf.s:194    .text.MCP_OnTimeOut:00000000 MCP_OnTimeOut
+C:\Users\ttqpe\AppData\Local\Temp\cckGY9Zf.s:315    .text.MCP_ReceivedFrame:00000000 MCP_ReceivedFrame
+C:\Users\ttqpe\AppData\Local\Temp\cckGY9Zf.s:187    .text.MCP_OnTimeOut:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\cckGY9Zf.s:219    .text.MCP_WaitNextFrame:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\cckGY9Zf.s:270    .text.MCP_SentFrame:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\cckGY9Zf.s:308    .text.MCP_ReceivedFrame:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\cckGY9Zf.s:400    .text.MCP_ReceivedFrame:00000094 $d
+C:\Users\ttqpe\AppData\Local\Temp\cckGY9Zf.s:419    .text.MCP_ReceivedFrame:000000e0 $t
+C:\Users\ttqpe\AppData\Local\Temp\cckGY9Zf.s:448    .text.MCP_ReceivedFrame:00000118 $d
+C:\Users\ttqpe\AppData\Local\Temp\cckGY9Zf.s:472    .text.MCP_ReceivedFrame:00000178 $t
+C:\Users\ttqpe\AppData\Local\Temp\cckGY9Zf.s:510    .text.MCP_ReceivedFrame:000001cc $d
+C:\Users\ttqpe\AppData\Local\Temp\cckGY9Zf.s:583    .text.MCP_ReceivedFrame:000002f0 $t
+C:\Users\ttqpe\AppData\Local\Temp\cckGY9Zf.s:779    .text.MCP_ReceivedFrame:00000424 $d
+C:\Users\ttqpe\AppData\Local\Temp\cckGY9Zf.s:781    .text.MCP_ReceivedFrame:00000428 $t
+C:\Users\ttqpe\AppData\Local\Temp\cckGY9Zf.s:788    .text.MCP_ReceivedFrame:00000438 $d
+C:\Users\ttqpe\AppData\Local\Temp\cckGY9Zf.s:836    .text.MCP_ReceivedFrame:000004f8 $t
+C:\Users\ttqpe\AppData\Local\Temp\cckGY9Zf.s:876    .text.MCP_ReceivedFrame:0000054c $d
+C:\Users\ttqpe\AppData\Local\Temp\cckGY9Zf.s:911    .text.MCP_ReceivedFrame:000005d8 $t
+C:\Users\ttqpe\AppData\Local\Temp\cckGY9Zf.s:1267   .text.MCP_ReceivedFrame:00000804 $d
+C:\Users\ttqpe\AppData\Local\Temp\cckGY9Zf.s:1271   .text.MCP_ReceivedFrame:0000080c $t
+C:\Users\ttqpe\AppData\Local\Temp\cckGY9Zf.s:1942   .text.MCP_ReceivedFrame:00000c48 $d
+C:\Users\ttqpe\AppData\Local\Temp\cckGY9Zf.s:1948   .text.MCP_SendOverrunMessage:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\cckGY9Zf.s:1955   .text.MCP_SendOverrunMessage:00000000 MCP_SendOverrunMessage
+C:\Users\ttqpe\AppData\Local\Temp\cckGY9Zf.s:1992   .text.MCP_SendTimeoutMessage:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\cckGY9Zf.s:1999   .text.MCP_SendTimeoutMessage:00000000 MCP_SendTimeoutMessage
+C:\Users\ttqpe\AppData\Local\Temp\cckGY9Zf.s:2036   .text.MCP_SendBadCRCMessage:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\cckGY9Zf.s:2043   .text.MCP_SendBadCRCMessage:00000000 MCP_SendBadCRCMessage
+                           .group:00000000 wm4.0.6093079fab0af1ca2c5a0ad5709343e3
+                           .group:00000000 wm4._newlib_version.h.4.411db44ea2338a62eca2f0777f81481b
+                           .group:00000000 wm4.features.h.33.5ea28ceb8be6621901b9d58b4c3ee651
+                           .group:00000000 wm4._default_types.h.15.247e5cd201eca3442cbf5404108c4935
+                           .group:00000000 wm4._intsup.h.10.48bafbb683905c4daa4565a85aeeb264
+                           .group:00000000 wm4._stdint.h.10.c24fa3af3bc1706662bb5593a907e841
+                           .group:00000000 wm4.stdint.h.23.d53047a68f4a85177f80b422d52785ed
+                           .group:00000000 wm4.stdbool.h.29.c08aa3eec75cf5b9b5003883f43253f0
+                           .group:00000000 wm4.mc_stm_types.h.20.2d7d6ac163527ff5d1947d422c918f78
+                           .group:00000000 wm4.sr5e1xx.h.22.e5c808533cc52ed19fb0830cd7d98924
+                           .group:00000000 wm4.cmsis_version.h.32.0f826810625204eca22a19868bdc7586
+                           .group:00000000 wm4.core_cm7.h.66.8ab2de36917d6fcae18019067fda13e0
+                           .group:00000000 wm4.cmsis_gcc.h.26.498d0ad17a45fc9ef20fdc01caf02259
+                           .group:00000000 wm4.core_cm7.h.174.43edb295ecdaadad738f48ba6011ffad
+                           .group:00000000 wm4.mpu_armv7.h.32.83326921a797fa9d6f70449916b4b839
+                           .group:00000000 wm4.cachel1_armv7.h.32.abd77761a989e008b0c60891114a33c7
+                           .group:00000000 wm4.SR5E1_ADC.h.14.21608e6aff125ba995dd767d6d8dc311
+                           .group:00000000 wm4.SR5E1_CEM.h.14.01fe5742c8f1ae35b1f3af05932f702e
+                           .group:00000000 wm4.SR5E1_CMU.h.14.2617b38b159abe38028862394531e06d
+                           .group:00000000 wm4.SR5E1_COMP.h.14.4b6fdfe4f5f7fd9bedf3a99b98bdf4cd
+                           .group:00000000 wm4.SR5E1_CORDIC.h.14.354fbf7c9eaf6963d38eaa25cf28ffe8
+                           .group:00000000 wm4.SR5E1_CRC.h.14.c64d0f7767671ddb92e9ead0a1162100
+                           .group:00000000 wm4.SR5E1_DAC.h.14.8c26a0ff04b0cfeb55306cc3f22187b8
+                           .group:00000000 wm4.SR5E1_DBGMCU.h.14.427df893d53a8044654f017ba01c25ed
+                           .group:00000000 wm4.SR5E1_DMA.h.14.a7f9a92f844b40a86965798c2e64240b
+                           .group:00000000 wm4.SR5E1_DMAMUX.h.14.471b3b4dfd4d41515f1df49493698866
+                           .group:00000000 wm4.SR5E1_EXTI.h.14.a325ea3fe89cd84894660551c33241ea
+                           .group:00000000 wm4.SR5E1_FCCU.h.14.0ebf0f0f36e079d28613ad2c80e17e23
+                           .group:00000000 wm4.SR5E1_FDCAN.h.14.ac57101fad5dbc798bfb93f34c899de7
+                           .group:00000000 wm4.SR5E1_FLASH_REG_ITF.h.14.d23d1d44923f9b20b8c8fdb51d66aefd
+                           .group:00000000 wm4.SR5E1_GPIO.h.14.1c84071e130d7c64b62470ab0e18a1f1
+                           .group:00000000 wm4.SR5E1_HRTIM.h.24.03932387d2522e6bd5c772a4edaf2f5d
+                           .group:00000000 wm4.SR5E1_HSEM.h.14.cbe70eee519f01b16452c3f8c99d8df1
+                           .group:00000000 wm4.SR5E1_I2C.h.14.350ba3e0f4fd57828457efa80135c36c
+                           .group:00000000 wm4.SR5E1_IMA.h.14.62b7088985ab2b7ce9b030a02daa1f7d
+                           .group:00000000 wm4.SR5E1_IWDG.h.14.20b7c5f05cf7ae94464c360d7af3660d
+                           .group:00000000 wm4.SR5E1_MEMU.h.14.04bad7ae4c52ce334a4fc900aad2ae5b
+                           .group:00000000 wm4.SR5E1_NVM_CTRL.h.14.5f442617f0628d4f16258f211c614ef9
+                           .group:00000000 wm4.SR5E1_PLLDIG.h.14.bd87a8e6917eee17dae2f312c8e5fa53
+                           .group:00000000 wm4.SR5E1_PMC_DIG.h.14.54173b566c6656344766ec4ef46c9281
+                           .group:00000000 wm4.SR5E1_RCC.h.14.56734803c71534de286e793a53649740
+                           .group:00000000 wm4.SR5E1_RTC.h.14.47037cbc7d8175dbf2be1dc0bb955e3f
+                           .group:00000000 wm4.SR5E1_SD_ADC.h.14.552b97d0b8f3c1fd4df6d8964b2f1a80
+                           .group:00000000 wm4.SR5E1_SMPU.h.14.8ce5bb6d5d7c579cd725f492f46e9085
+                           .group:00000000 wm4.SR5E1_SPI.h.14.42d52112e540f85ade4d9135f8b87d72
+                           .group:00000000 wm4.SR5E1_SSCM.h.14.8e6a2ad0ce5fca422fc3d69939b6125b
+                           .group:00000000 wm4.SR5E1_SYSCFG.h.14.02b969490118ce4069914b5e94f7ca65
+                           .group:00000000 wm4.SR5E1_TDM.h.14.a40ed7928cad243a57fd233fccf01ad2
+                           .group:00000000 wm4.SR5E1_TIM.h.14.05b8efc5395873619642d61a4b0b5a54
+                           .group:00000000 wm4.SR5E1_UART.h.14.eec3ab82b02b3bdb3de500483675b83f
+                           .group:00000000 wm4.SR5E1_WWDG.h.14.59b45efc70e442cc6ef03702aad4ad88
+                           .group:00000000 wm4.stddef.h.39.38eb7ec030421799c657b13be5aa21c7
+                           .group:00000000 wm4.typedefs.h.36.07fe3956b4e751037cfee70edcd0b397
+                           .group:00000000 wm4.irq_numbers.h.38.6294b95aed1bf7b3a2cda0eed8ce8f57
+                           .group:00000000 wm4.regs.h.23.2ac145b4f57126d16daed5fbd86d99c6
+                           .group:00000000 wm4.sr5e1_wrapper.h.20.64eb3ae8ac9b19f101ec010f065b27e0
+                           .group:00000000 wm4.sr5e1_macros.h.48.23238fd8be149bfd93a4b06f4d1d3e48
+                           .group:00000000 wm4.sr5e1_ll_system.h.75.323fef6699ff2ef93649a75fbc3b9dc0
+                           .group:00000000 wm4.sr5e1_ll_tim.h.21.35d0409c49249d40ffa0621f7fd1e49f
+                           .group:00000000 wm4.sr5e1_ll_adc.h.21.a09418770aae8e8540b1ce15e5fd6881
+                           .group:00000000 wm4.sr5e1_ll_dac.h.21.e617f768d26181c75ac38760d82ada91
+                           .group:00000000 wm4.sr5e1_ll_cordic.h.21.601660824250c93d03fb6b7dd46d0750
+                           .group:00000000 wm4.sr5e1_ll_usart.h.21.edc232fc61ffb518b3051f74f786aac1
+                           .group:00000000 wm4.sr5e1_ll_dmamux.h.21.e0f20dc23ecc4be39502f49d8383668f
+                           .group:00000000 wm4.sr5e1_ll_dma.h.74.155fcc98e704261e48b273dd9cbd510c
+                           .group:00000000 wm4.mc_stm_types.h.52.4cccb248a2fcd7dfda158e1610af49bf
+                           .group:00000000 wm4.mc_type.h.47.50da95e050e3bfbddab14d990c2d05af
+                           .group:00000000 wm4.pwm_curr_fdbk.h.25.8b72d58784715ceca81111ec103a103d
+                           .group:00000000 wm4.digital_output.h.25.02fba90b0f6ba87331476d93a103f49e
+                           .group:00000000 wm4.motor_power_measurement.h.29.8342149da3785e7815d1120573fd9cfb
+                           .group:00000000 wm4.mp_self_com_ctrl.h.49.e6dcc6aedc61e25d555994ebab97d8b3
+                           .group:00000000 wm4.mc_math.h.24.97493115228829e070d95a4855b66df8
+                           .group:00000000 wm4.pmsm_motor_parameters.h.23.867a6fd3770391a9f66bba183e9e75b3
+                           .group:00000000 wm4.drive_parameters.h.23.dbf96a4337bbb9088dab9827bb0ccc4b
+                           .group:00000000 wm4.power_stage_parameters.h.22.736335d2c78f651593d5c3a7eabd2f7e
+                           .group:00000000 wm4.parameters_conversion_SR5E1.h.29.eabcdfadd7af4fdc121c865f8fc2acbd
+                           .group:00000000 wm4.parameters_conversion.h.29.c695296455e156423051d03c26fc218c
+                           .group:00000000 wm4.encoder_speed_pos_fdbk.h.54.a7b391f390958238bafe12d9ec286eba
+                           .group:00000000 wm4.trajectory_ctrl.h.36.88ccddbc168ae81030ff0d853fd72660
+                           .group:00000000 wm4.user_interface.h.220.79f4987d3bb68b2ddc49cbd0ba2c5f63
+                           .group:00000000 wm4.frame_communication_protocol.h.23.41250e506dcaa9b3bb0fb3b62addffac
+                           .group:00000000 wm4.dac_common_ui.h.26.3857a0f796702d55fc08b1c9fba1ab0f
+                           .group:00000000 wm4.dac_ui.h.48.4302a85d070412e322de9cfee8982dc0
+
+UNDEFINED SYMBOLS
+FCP_SetClient
+UI_SetReg
+UI_SetDAC
+UI_GetReg
+UI_GetDAC
+UI_ExecCmd
+UI_ExecSpeedRamp
+UI_ExecCurrentRamps
+UI_ExecTorqueRamp
+UI_GetRevupData
+UI_SetRevupData
+UI_SetCurrentReferences
+UI_GetMPInfo

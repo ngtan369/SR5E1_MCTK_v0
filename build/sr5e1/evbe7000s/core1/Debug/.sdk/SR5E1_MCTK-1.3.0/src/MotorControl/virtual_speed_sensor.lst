@@ -1,0 +1,1796 @@
+   1              		.cpu cortex-m7
+   2              		.arch armv7e-m
+   3              		.fpu fpv5-d16
+   4              		.eabi_attribute 28, 1
+   5              		.eabi_attribute 20, 1
+   6              		.eabi_attribute 21, 1
+   7              		.eabi_attribute 23, 3
+   8              		.eabi_attribute 24, 1
+   9              		.eabi_attribute 25, 1
+  10              		.eabi_attribute 26, 1
+  11              		.eabi_attribute 30, 6
+  12              		.eabi_attribute 34, 1
+  13              		.eabi_attribute 18, 4
+  14              		.file	"virtual_speed_sensor.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.file 1 ".sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c"
+  19              		.section	.rodata.OFFSET_TAB_CCMRx,"a"
+  20              		.align	2
+  23              	OFFSET_TAB_CCMRx:
+  24 0000 00000000 		.ascii	"\000\000\000\000\004\004\004\00488"
+  24      04040404 
+  24      3838
+  25              		.section	.rodata.SHIFT_TAB_OCxx,"a"
+  26              		.align	2
+  29              	SHIFT_TAB_OCxx:
+  30 0000 00000800 		.ascii	"\000\000\010\000\000\000\010\000\000\010"
+  30      00000800 
+  30      0008
+  31              		.section	.rodata.SHIFT_TAB_ICxx,"a"
+  32              		.align	2
+  35              	SHIFT_TAB_ICxx:
+  36 0000 00000800 		.ascii	"\000\000\010\000\000\000\010\000\000\000"
+  36      00000800 
+  36      0000
+  37              		.section	.rodata.SHIFT_TAB_CCxP,"a"
+  38              		.align	2
+  41              	SHIFT_TAB_CCxP:
+  42 0000 00020406 		.ascii	"\000\002\004\006\010\012\014\016\020\024"
+  42      080A0C0E 
+  42      1014
+  43              		.section	.rodata.SHIFT_TAB_OISx,"a"
+  44              		.align	2
+  47              	SHIFT_TAB_OISx:
+  48 0000 00010203 		.ascii	"\000\001\002\003\004\005\006\007\010\012"
+  48      04050607 
+  48      080A
+  49              		.section	.rodata.USART_PRESCALER_TAB,"a"
+  50              		.align	2
+  53              	USART_PRESCALER_TAB:
+  54 0000 01000000 		.word	1
+  55 0004 02000000 		.word	2
+  56 0008 04000000 		.word	4
+  57 000c 06000000 		.word	6
+  58 0010 08000000 		.word	8
+  59 0014 0A000000 		.word	10
+  60 0018 0C000000 		.word	12
+  61 001c 10000000 		.word	16
+  62 0020 20000000 		.word	32
+  63 0024 40000000 		.word	64
+  64 0028 80000000 		.word	128
+  65 002c 00010000 		.word	256
+  66              		.section	.rodata.LL_DMA_STR_OFFSET_TAB,"a"
+  67              		.align	2
+  70              	LL_DMA_STR_OFFSET_TAB:
+  71 0000 10284058 		.ascii	"\020(@Xp\210\240\270"
+  71      7088A0B8 
+  72              		.section	.text.VSS_Init,"ax",%progbits
+  73              		.align	1
+  74              		.p2align 4,,15
+  75              		.weak	VSS_Init
+  76              		.syntax unified
+  77              		.thumb
+  78              		.thumb_func
+  80              	VSS_Init:
+  81              	.LFB1248:
+   1:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** /****************************************************************************
+   2:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** *
+   3:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** * Copyright (c) 2023 STMicroelectronics - All Rights Reserved
+   4:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** *
+   5:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** * License terms: STMicroelectronics Proprietary in accordance with licensing
+   6:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** * terms SLA0098 at www.st.com.
+   7:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** *
+   8:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** * THIS SOFTWARE IS DISTRIBUTED "AS IS," AND ALL WARRANTIES ARE DISCLAIMED,
+   9:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** * INCLUDING MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+  10:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** *****************************************************************************/
+  11:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** /**
+  12:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** *   @file    virtual_speed_sensor.c
+  13:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** *   @version M4_VERSION
+  14:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** *   @brief   This file provides firmware functions that implement the features
+  15:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** *            of the Virtual Speed Sensor component of the Stellar Motor Control.
+  16:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** *
+  17:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** *   @details This file provides firmware functions that implement the features
+  18:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** *            of the Virtual Speed Sensor component of the Stellar Motor Control.
+  19:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** *
+  20:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****  */
+  21:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+  22:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** /* Includes ------------------------------------------------------------------*/
+  23:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** #include "virtual_speed_sensor.h"
+  24:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** #include "mc_config.h"
+  25:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+  26:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** /** @addtogroup STELLAR_PMSM_MC_FOC_LIBRARY
+  27:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   * @{
+  28:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   */
+  29:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+  30:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** /** @addtogroup SpeednPosFdbk
+  31:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   * @{
+  32:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   */
+  33:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+  34:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** /** @defgroup VirtualSpeedSensor Virtual Speed & Position Feedback
+  35:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   * @brief Virtual Speed Speed & Position Feedback implementation
+  36:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   *
+  37:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   * This component provides a "virtual" implementation of the speed and position feedback features.
+  38:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   * This implementation provides a theoretical estimation of the speed and position of the rotor of
+  39:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   * the motor based on a mechanical acceleration and an initial angle set by the application.
+  40:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   *
+  41:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   * This component is used during the revup phases of the motor in a sensorless subsystem.
+  42:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   *
+  43:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   * @todo Document the Virtual Speed Sensor "module".
+  44:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   *
+  45:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   * @{
+  46:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   */
+  47:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+  48:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** /**
+  49:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** * @brief  Software initialization of VirtualSpeedSensor component
+  50:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** * @param  pHandle: handler of the current instance of the VirtualSpeedSensor component
+  51:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** * @retval none
+  52:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** */
+  53:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** __weak void VSS_Init( VirtualSpeedSensor_Handle_t * pHandle )
+  54:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** {
+  82              		.loc 1 54 1
+  83              		.cfi_startproc
+  84              		@ args = 0, pretend = 0, frame = 8
+  85              		@ frame_needed = 0, uses_anonymous_args = 0
+  86 0000 00B5     		push	{lr}
+  87              		.cfi_def_cfa_offset 4
+  88              		.cfi_offset 14, -4
+  89 0002 83B0     		sub	sp, sp, #12
+  90              		.cfi_def_cfa_offset 16
+  91 0004 0190     		str	r0, [sp, #4]
+  55:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** #ifdef FASTDIV
+  56:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   FD_Init( &( pHandle->fd ) );
+  57:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** #endif
+  58:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+  59:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   VSS_Clear( pHandle );
+  92              		.loc 1 59 3
+  93 0006 0198     		ldr	r0, [sp, #4]
+  94 0008 FFF7FEFF 		bl	VSS_Clear
+  60:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** }
+  95              		.loc 1 60 1
+  96 000c 00BF     		nop
+  97 000e 03B0     		add	sp, sp, #12
+  98              		.cfi_def_cfa_offset 4
+  99              		@ sp needed
+ 100 0010 5DF804FB 		ldr	pc, [sp], #4
+ 101              		.cfi_endproc
+ 102              	.LFE1248:
+ 104              		.section	.text.VSS_Clear,"ax",%progbits
+ 105              		.align	1
+ 106              		.p2align 4,,15
+ 107              		.weak	VSS_Clear
+ 108              		.syntax unified
+ 109              		.thumb
+ 110              		.thumb_func
+ 112              	VSS_Clear:
+ 113              	.LFB1249:
+  61:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+  62:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** /**
+  63:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** * @brief  Software initialization of VSS object to be performed at each restart
+  64:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** *         of the motor.
+  65:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** * @param  pHandle: handler of the current instance of the VirtualSpeedSensor component
+  66:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** * @retval none
+  67:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** */
+  68:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** __weak void VSS_Clear( VirtualSpeedSensor_Handle_t * pHandle )
+  69:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** {
+ 114              		.loc 1 69 1
+ 115              		.cfi_startproc
+ 116              		@ args = 0, pretend = 0, frame = 8
+ 117              		@ frame_needed = 0, uses_anonymous_args = 0
+ 118              		@ link register save eliminated.
+ 119 0000 82B0     		sub	sp, sp, #8
+ 120              		.cfi_def_cfa_offset 8
+ 121 0002 0190     		str	r0, [sp, #4]
+  70:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+  71:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   pHandle->_Super.bSpeedErrorNumber = 0u;
+ 122              		.loc 1 71 37
+ 123 0004 019B     		ldr	r3, [sp, #4]
+ 124 0006 0022     		movs	r2, #0
+ 125 0008 1A70     		strb	r2, [r3]
+  72:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   pHandle->_Super.hElAngle = 0;
+ 126              		.loc 1 72 28
+ 127 000a 019B     		ldr	r3, [sp, #4]
+ 128 000c 0022     		movs	r2, #0
+ 129 000e 9A80     		strh	r2, [r3, #4]	@ movhi
+  73:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   pHandle->_Super.hMecAngle = 0;
+ 130              		.loc 1 73 29
+ 131 0010 019B     		ldr	r3, [sp, #4]
+ 132 0012 0022     		movs	r2, #0
+ 133 0014 DA80     		strh	r2, [r3, #6]	@ movhi
+  74:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   pHandle->_Super.hAvrMecSpeedUnit = 0;
+ 134              		.loc 1 74 36
+ 135 0016 019B     		ldr	r3, [sp, #4]
+ 136 0018 0022     		movs	r2, #0
+ 137 001a 9A81     		strh	r2, [r3, #12]	@ movhi
+  75:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   pHandle->_Super.hElSpeedDpp = 0;
+ 138              		.loc 1 75 31
+ 139 001c 019B     		ldr	r3, [sp, #4]
+ 140 001e 0022     		movs	r2, #0
+ 141 0020 DA81     		strh	r2, [r3, #14]	@ movhi
+  76:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   pHandle->_Super.hMecAccelUnitP = 0;
+ 142              		.loc 1 76 34
+ 143 0022 019B     		ldr	r3, [sp, #4]
+ 144 0024 0022     		movs	r2, #0
+ 145 0026 5A82     		strh	r2, [r3, #18]	@ movhi
+  77:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   pHandle->_Super.bSpeedErrorNumber = 0u;
+ 146              		.loc 1 77 37
+ 147 0028 019B     		ldr	r3, [sp, #4]
+ 148 002a 0022     		movs	r2, #0
+ 149 002c 1A70     		strb	r2, [r3]
+  78:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+  79:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   pHandle->wElAccDppP32 = 0;
+ 150              		.loc 1 79 25
+ 151 002e 019B     		ldr	r3, [sp, #4]
+ 152 0030 0022     		movs	r2, #0
+ 153 0032 1A62     		str	r2, [r3, #32]
+  80:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   pHandle->wElSpeedDpp32 = 0;
+ 154              		.loc 1 80 26
+ 155 0034 019B     		ldr	r3, [sp, #4]
+ 156 0036 0022     		movs	r2, #0
+ 157 0038 5A62     		str	r2, [r3, #36]
+  81:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   pHandle->hRemainingStep = 0u;
+ 158              		.loc 1 81 27
+ 159 003a 019B     		ldr	r3, [sp, #4]
+ 160 003c 0022     		movs	r2, #0
+ 161 003e 1A85     		strh	r2, [r3, #40]	@ movhi
+  82:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   pHandle->hElAngleAccu = 0;
+ 162              		.loc 1 82 25
+ 163 0040 019B     		ldr	r3, [sp, #4]
+ 164 0042 0022     		movs	r2, #0
+ 165 0044 1A86     		strh	r2, [r3, #48]	@ movhi
+  83:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+  84:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   pHandle->bTransitionStarted = false;
+ 166              		.loc 1 84 31
+ 167 0046 019B     		ldr	r3, [sp, #4]
+ 168 0048 0022     		movs	r2, #0
+ 169 004a 83F82C20 		strb	r2, [r3, #44]
+  85:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   pHandle->bTransitionEnded = false;
+ 170              		.loc 1 85 29
+ 171 004e 019B     		ldr	r3, [sp, #4]
+ 172 0050 0022     		movs	r2, #0
+ 173 0052 83F82D20 		strb	r2, [r3, #45]
+  86:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   pHandle->hTransitionRemainingSteps = pHandle->hTransitionSteps;
+ 174              		.loc 1 86 47
+ 175 0056 019B     		ldr	r3, [sp, #4]
+ 176 0058 B3F93620 		ldrsh	r2, [r3, #54]
+ 177              		.loc 1 86 38
+ 178 005c 019B     		ldr	r3, [sp, #4]
+ 179 005e DA85     		strh	r2, [r3, #46]	@ movhi
+  87:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   pHandle->bTransitionLocked = false;
+ 180              		.loc 1 87 30
+ 181 0060 019B     		ldr	r3, [sp, #4]
+ 182 0062 0022     		movs	r2, #0
+ 183 0064 83F83220 		strb	r2, [r3, #50]
+  88:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+  89:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   pHandle->bCopyObserver = false;
+ 184              		.loc 1 89 26
+ 185 0068 019B     		ldr	r3, [sp, #4]
+ 186 006a 0022     		movs	r2, #0
+ 187 006c 83F83320 		strb	r2, [r3, #51]
+  90:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+  91:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** #ifdef FASTDIV
+  92:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   /* (Fast division optimization for cortex-M0 micros)*/
+  93:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   /* Dummy division to speed up next executions */
+  94:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   FD_FastDiv( &( pHandle->fd ), 1, ( int32_t )( pHandle->_Super.bElToMecRatio ) );
+  95:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   FD_FastDiv( &( pHandle->fd ), 1, ( int32_t )( pHandle->hTransitionSteps ) );
+  96:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** #endif
+  97:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** }
+ 188              		.loc 1 97 1
+ 189 0070 00BF     		nop
+ 190 0072 02B0     		add	sp, sp, #8
+ 191              		.cfi_def_cfa_offset 0
+ 192              		@ sp needed
+ 193 0074 7047     		bx	lr
+ 194              		.cfi_endproc
+ 195              	.LFE1249:
+ 197 0076 00BF     		.section	.itcm,"ax",%progbits
+ 198              		.align	1
+ 199              		.p2align 4,,15
+ 200              		.weak	VSS_CalcElAngle
+ 201              		.syntax unified
+ 202              		.thumb
+ 203              		.thumb_func
+ 205              	VSS_CalcElAngle:
+ 206              	.LFB1250:
+  98:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+  99:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** /**
+ 100:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** * @brief  Update the rotor electrical angle integrating the last setled
+ 101:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** *         instantaneous electrical speed express in dpp.
+ 102:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** * @param  pHandle: handler of the current instance of the VirtualSpeedSensor component
+ 103:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** * @retval int16_t Measured electrical angle in s16degree format.
+ 104:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** */
+ 105:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** #if defined (MCTK_ITCM)
+ 106:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** __weak int16_t __attribute__((section(".itcm"))) VSS_CalcElAngle( VirtualSpeedSensor_Handle_t * pHa
+ 107:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** #else
+ 108:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** __weak int16_t VSS_CalcElAngle( VirtualSpeedSensor_Handle_t * pHandle, void * pInputVars_str )
+ 109:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** #endif
+ 110:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** {
+ 207              		.loc 1 110 1
+ 208              		.cfi_startproc
+ 209              		@ args = 0, pretend = 0, frame = 24
+ 210              		@ frame_needed = 0, uses_anonymous_args = 0
+ 211              		@ link register save eliminated.
+ 212 0000 86B0     		sub	sp, sp, #24
+ 213              		.cfi_def_cfa_offset 24
+ 214 0002 0190     		str	r0, [sp, #4]
+ 215 0004 0091     		str	r1, [sp]
+ 111:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 112:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   int16_t hRetAngle;
+ 113:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   int16_t hAngleDiff;
+ 114:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   int16_t hAngleCorr;
+ 115:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   int32_t wAux;
+ 116:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   int16_t hSignCorr = 1;
+ 216              		.loc 1 116 11
+ 217 0006 0123     		movs	r3, #1
+ 218 0008 ADF81230 		strh	r3, [sp, #18]	@ movhi
+ 117:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 118:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   if ( pHandle->bCopyObserver == true )
+ 219              		.loc 1 118 15
+ 220 000c 019B     		ldr	r3, [sp, #4]
+ 221 000e 93F83330 		ldrb	r3, [r3, #51]	@ zero_extendqisi2
+ 222              		.loc 1 118 6
+ 223 0012 002B     		cmp	r3, #0
+ 224 0014 04D0     		beq	.L4
+ 119:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   {
+ 120:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****     hRetAngle = *( int16_t * )pInputVars_str;
+ 225              		.loc 1 120 15
+ 226 0016 009B     		ldr	r3, [sp]
+ 227 0018 1B88     		ldrh	r3, [r3]	@ movhi
+ 228 001a ADF81630 		strh	r3, [sp, #22]	@ movhi
+ 229 001e A9E0     		b	.L5
+ 230              	.L4:
+ 121:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   }
+ 122:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   else
+ 123:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   {
+ 124:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****     pHandle->hElAngleAccu += pHandle->_Super.hElSpeedDpp;
+ 231              		.loc 1 124 12
+ 232 0020 019B     		ldr	r3, [sp, #4]
+ 233 0022 B3F93030 		ldrsh	r3, [r3, #48]
+ 234 0026 9AB2     		uxth	r2, r3
+ 235              		.loc 1 124 45
+ 236 0028 019B     		ldr	r3, [sp, #4]
+ 237 002a B3F90E30 		ldrsh	r3, [r3, #14]
+ 238 002e 9BB2     		uxth	r3, r3
+ 239              		.loc 1 124 27
+ 240 0030 1344     		add	r3, r3, r2
+ 241 0032 9BB2     		uxth	r3, r3
+ 242 0034 1AB2     		sxth	r2, r3
+ 243 0036 019B     		ldr	r3, [sp, #4]
+ 244 0038 1A86     		strh	r2, [r3, #48]	@ movhi
+ 125:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 126:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** #ifdef FASTDIV
+ 127:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****     pHandle->_Super.hMecAngle += ( int16_t )( FD_FastDiv( &( pHandle->fd ),
+ 128:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****                                  ( int32_t )pHandle->_Super.hElSpeedDpp,
+ 129:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****                                  ( int32_t )pHandle->_Super.bElToMecRatio ) );
+ 130:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** #else
+ 131:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****     pHandle->_Super.hMecAngle += pHandle->_Super.hElSpeedDpp /
+ 245              		.loc 1 131 20
+ 246 003a 019B     		ldr	r3, [sp, #4]
+ 247 003c B3F90630 		ldrsh	r3, [r3, #6]
+ 248 0040 9AB2     		uxth	r2, r3
+ 249              		.loc 1 131 49
+ 250 0042 019B     		ldr	r3, [sp, #4]
+ 251 0044 B3F90E30 		ldrsh	r3, [r3, #14]
+ 252 0048 1946     		mov	r1, r3
+ 132:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****                                  ( int16_t )pHandle->_Super.bElToMecRatio;
+ 253              		.loc 1 132 60
+ 254 004a 019B     		ldr	r3, [sp, #4]
+ 255 004c 5B78     		ldrb	r3, [r3, #1]	@ zero_extendqisi2
+ 131:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****                                  ( int16_t )pHandle->_Super.bElToMecRatio;
+ 256              		.loc 1 131 62
+ 257 004e 91FBF3F3 		sdiv	r3, r1, r3
+ 131:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****                                  ( int16_t )pHandle->_Super.bElToMecRatio;
+ 258              		.loc 1 131 31
+ 259 0052 9BB2     		uxth	r3, r3
+ 260 0054 1344     		add	r3, r3, r2
+ 261 0056 9BB2     		uxth	r3, r3
+ 262 0058 1AB2     		sxth	r2, r3
+ 263 005a 019B     		ldr	r3, [sp, #4]
+ 264 005c DA80     		strh	r2, [r3, #6]	@ movhi
+ 133:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** #endif
+ 134:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 135:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****     if ( pHandle->bTransitionStarted == true )
+ 265              		.loc 1 135 17
+ 266 005e 019B     		ldr	r3, [sp, #4]
+ 267 0060 93F82C30 		ldrb	r3, [r3, #44]	@ zero_extendqisi2
+ 268              		.loc 1 135 8
+ 269 0064 002B     		cmp	r3, #0
+ 270 0066 00F08180 		beq	.L6
+ 136:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****     {
+ 137:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****       if ( pHandle->hTransitionRemainingSteps == 0 )
+ 271              		.loc 1 137 19
+ 272 006a 019B     		ldr	r3, [sp, #4]
+ 273 006c B3F92E30 		ldrsh	r3, [r3, #46]
+ 274              		.loc 1 137 10
+ 275 0070 002B     		cmp	r3, #0
+ 276 0072 0BD1     		bne	.L7
+ 138:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****       {
+ 139:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****         hRetAngle = *( int16_t * )pInputVars_str;
+ 277              		.loc 1 139 19
+ 278 0074 009B     		ldr	r3, [sp]
+ 279 0076 1B88     		ldrh	r3, [r3]	@ movhi
+ 280 0078 ADF81630 		strh	r3, [sp, #22]	@ movhi
+ 140:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****         pHandle->bTransitionEnded = true;
+ 281              		.loc 1 140 35
+ 282 007c 019B     		ldr	r3, [sp, #4]
+ 283 007e 0122     		movs	r2, #1
+ 284 0080 83F82D20 		strb	r2, [r3, #45]
+ 141:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****         pHandle->_Super.bSpeedErrorNumber = 0u;
+ 285              		.loc 1 141 43
+ 286 0084 019B     		ldr	r3, [sp, #4]
+ 287 0086 0022     		movs	r2, #0
+ 288 0088 1A70     		strb	r2, [r3]
+ 289 008a 73E0     		b	.L5
+ 290              	.L7:
+ 142:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****       }
+ 143:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****       else
+ 144:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****       {
+ 145:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****         pHandle->hTransitionRemainingSteps--;
+ 291              		.loc 1 145 16
+ 292 008c 019B     		ldr	r3, [sp, #4]
+ 293 008e B3F92E30 		ldrsh	r3, [r3, #46]
+ 294              		.loc 1 145 43
+ 295 0092 9BB2     		uxth	r3, r3
+ 296 0094 013B     		subs	r3, r3, #1
+ 297 0096 9BB2     		uxth	r3, r3
+ 298 0098 1AB2     		sxth	r2, r3
+ 299 009a 019B     		ldr	r3, [sp, #4]
+ 300 009c DA85     		strh	r2, [r3, #46]	@ movhi
+ 146:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 147:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****         if ( pHandle->_Super.hElSpeedDpp >= 0 )
+ 301              		.loc 1 147 29
+ 302 009e 019B     		ldr	r3, [sp, #4]
+ 303 00a0 B3F90E30 		ldrsh	r3, [r3, #14]
+ 304              		.loc 1 147 12
+ 305 00a4 002B     		cmp	r3, #0
+ 306 00a6 0CDB     		blt	.L8
+ 148:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****         {
+ 149:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****           hAngleDiff = *( int16_t * )pInputVars_str - pHandle->hElAngleAccu;
+ 307              		.loc 1 149 24
+ 308 00a8 009B     		ldr	r3, [sp]
+ 309 00aa B3F90030 		ldrsh	r3, [r3]
+ 310 00ae 9AB2     		uxth	r2, r3
+ 311              		.loc 1 149 62
+ 312 00b0 019B     		ldr	r3, [sp, #4]
+ 313 00b2 B3F93030 		ldrsh	r3, [r3, #48]
+ 314 00b6 9BB2     		uxth	r3, r3
+ 315              		.loc 1 149 53
+ 316 00b8 D31A     		subs	r3, r2, r3
+ 317 00ba 9BB2     		uxth	r3, r3
+ 318              		.loc 1 149 22
+ 319 00bc ADF81430 		strh	r3, [sp, #20]	@ movhi
+ 320 00c0 0FE0     		b	.L9
+ 321              	.L8:
+ 150:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****         }
+ 151:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****         else
+ 152:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****         {
+ 153:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****           hAngleDiff = pHandle->hElAngleAccu - *( int16_t * )pInputVars_str;
+ 322              		.loc 1 153 31
+ 323 00c2 019B     		ldr	r3, [sp, #4]
+ 324 00c4 B3F93030 		ldrsh	r3, [r3, #48]
+ 325 00c8 9AB2     		uxth	r2, r3
+ 326              		.loc 1 153 48
+ 327 00ca 009B     		ldr	r3, [sp]
+ 328 00cc B3F90030 		ldrsh	r3, [r3]
+ 329 00d0 9BB2     		uxth	r3, r3
+ 330              		.loc 1 153 46
+ 331 00d2 D31A     		subs	r3, r2, r3
+ 332 00d4 9BB2     		uxth	r3, r3
+ 333              		.loc 1 153 22
+ 334 00d6 ADF81430 		strh	r3, [sp, #20]	@ movhi
+ 154:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****           hSignCorr = -1;
+ 335              		.loc 1 154 21
+ 336 00da 4FF6FF73 		movw	r3, #65535
+ 337 00de ADF81230 		strh	r3, [sp, #18]	@ movhi
+ 338              	.L9:
+ 155:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****         }
+ 156:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 157:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****         wAux = ( int32_t )hAngleDiff * pHandle->hTransitionRemainingSteps;
+ 339              		.loc 1 157 16
+ 340 00e2 BDF91430 		ldrsh	r3, [sp, #20]
+ 341              		.loc 1 157 47
+ 342 00e6 019A     		ldr	r2, [sp, #4]
+ 343 00e8 B2F92E20 		ldrsh	r2, [r2, #46]
+ 344              		.loc 1 157 14
+ 345 00ec 02FB03F3 		mul	r3, r2, r3
+ 346 00f0 0393     		str	r3, [sp, #12]
+ 158:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 159:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** #ifdef FASTDIV
+ 160:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****         hAngleCorr = ( int16_t )( FD_FastDiv( &( pHandle->fd ),
+ 161:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****                                               wAux,
+ 162:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****                                               ( int32_t )( pHandle->hTransitionSteps ) ) );
+ 163:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** #else
+ 164:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****         hAngleCorr = ( int16_t )( wAux / pHandle->hTransitionSteps );
+ 347              		.loc 1 164 49
+ 348 00f2 019B     		ldr	r3, [sp, #4]
+ 349 00f4 B3F93630 		ldrsh	r3, [r3, #54]
+ 350 00f8 1A46     		mov	r2, r3
+ 351              		.loc 1 164 40
+ 352 00fa 039B     		ldr	r3, [sp, #12]
+ 353 00fc 93FBF2F3 		sdiv	r3, r3, r2
+ 354              		.loc 1 164 20
+ 355 0100 ADF80A30 		strh	r3, [sp, #10]	@ movhi
+ 165:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** #endif
+ 166:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 167:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****         hAngleCorr *= hSignCorr;
+ 356              		.loc 1 167 20
+ 357 0104 BDF80A20 		ldrh	r2, [sp, #10]
+ 358 0108 BDF81230 		ldrh	r3, [sp, #18]
+ 359 010c 12FB03F3 		smulbb	r3, r2, r3
+ 360 0110 9BB2     		uxth	r3, r3
+ 361 0112 ADF80A30 		strh	r3, [sp, #10]	@ movhi
+ 168:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 169:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****         if ( hAngleDiff >= 0 )
+ 362              		.loc 1 169 12
+ 363 0116 BDF91430 		ldrsh	r3, [sp, #20]
+ 364 011a 002B     		cmp	r3, #0
+ 365 011c 0EDB     		blt	.L10
+ 170:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****         {
+ 171:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****           pHandle->bTransitionLocked = true;
+ 366              		.loc 1 171 38
+ 367 011e 019B     		ldr	r3, [sp, #4]
+ 368 0120 0122     		movs	r2, #1
+ 369 0122 83F83220 		strb	r2, [r3, #50]
+ 172:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****           hRetAngle = *( int16_t * )pInputVars_str - hAngleCorr;
+ 370              		.loc 1 172 23
+ 371 0126 009B     		ldr	r3, [sp]
+ 372 0128 B3F90030 		ldrsh	r3, [r3]
+ 373 012c 9AB2     		uxth	r2, r3
+ 374              		.loc 1 172 52
+ 375 012e BDF80A30 		ldrh	r3, [sp, #10]
+ 376 0132 D31A     		subs	r3, r2, r3
+ 377 0134 9BB2     		uxth	r3, r3
+ 378              		.loc 1 172 21
+ 379 0136 ADF81630 		strh	r3, [sp, #22]	@ movhi
+ 380 013a 1BE0     		b	.L5
+ 381              	.L10:
+ 173:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****         }
+ 174:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****         else
+ 175:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****         {
+ 176:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****           if ( pHandle->bTransitionLocked == false )
+ 382              		.loc 1 176 23
+ 383 013c 019B     		ldr	r3, [sp, #4]
+ 384 013e 93F83230 		ldrb	r3, [r3, #50]	@ zero_extendqisi2
+ 385              		.loc 1 176 43
+ 386 0142 83F00103 		eor	r3, r3, #1
+ 387 0146 DBB2     		uxtb	r3, r3
+ 388              		.loc 1 176 14
+ 389 0148 002B     		cmp	r3, #0
+ 390 014a 04D0     		beq	.L11
+ 177:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****           {
+ 178:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****             hRetAngle = pHandle->hElAngleAccu;
+ 391              		.loc 1 178 23
+ 392 014c 019B     		ldr	r3, [sp, #4]
+ 393 014e 1B8E     		ldrh	r3, [r3, #48]	@ movhi
+ 394 0150 ADF81630 		strh	r3, [sp, #22]	@ movhi
+ 395 0154 0EE0     		b	.L5
+ 396              	.L11:
+ 179:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****           }
+ 180:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****           else
+ 181:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****           {
+ 182:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****             hRetAngle = *( int16_t * )pInputVars_str + hAngleCorr;
+ 397              		.loc 1 182 25
+ 398 0156 009B     		ldr	r3, [sp]
+ 399 0158 B3F90030 		ldrsh	r3, [r3]
+ 400 015c 9AB2     		uxth	r2, r3
+ 401              		.loc 1 182 54
+ 402 015e BDF80A30 		ldrh	r3, [sp, #10]
+ 403 0162 1344     		add	r3, r3, r2
+ 404 0164 9BB2     		uxth	r3, r3
+ 405              		.loc 1 182 23
+ 406 0166 ADF81630 		strh	r3, [sp, #22]	@ movhi
+ 407 016a 03E0     		b	.L5
+ 408              	.L6:
+ 183:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****           }
+ 184:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****         }
+ 185:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****       }
+ 186:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****     }
+ 187:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****     else
+ 188:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****     {
+ 189:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****       hRetAngle = pHandle->hElAngleAccu;
+ 409              		.loc 1 189 17
+ 410 016c 019B     		ldr	r3, [sp, #4]
+ 411 016e 1B8E     		ldrh	r3, [r3, #48]	@ movhi
+ 412 0170 ADF81630 		strh	r3, [sp, #22]	@ movhi
+ 413              	.L5:
+ 190:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****     }
+ 191:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   }
+ 192:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 193:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   pHandle->_Super.hElAngle = hRetAngle;
+ 414              		.loc 1 193 28
+ 415 0174 019B     		ldr	r3, [sp, #4]
+ 416 0176 BDF81620 		ldrh	r2, [sp, #22]	@ movhi
+ 417 017a 9A80     		strh	r2, [r3, #4]	@ movhi
+ 194:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   return hRetAngle;
+ 418              		.loc 1 194 10
+ 419 017c BDF91630 		ldrsh	r3, [sp, #22]
+ 195:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** }
+ 420              		.loc 1 195 1
+ 421 0180 1846     		mov	r0, r3
+ 422 0182 06B0     		add	sp, sp, #24
+ 423              		.cfi_def_cfa_offset 0
+ 424              		@ sp needed
+ 425 0184 7047     		bx	lr
+ 426              		.cfi_endproc
+ 427              	.LFE1250:
+ 429 0186 00BF     		.section	.text.VSS_CalcAvrgMecSpeedUnit,"ax",%progbits
+ 430              		.align	1
+ 431              		.p2align 4,,15
+ 432              		.weak	VSS_CalcAvrgMecSpeedUnit
+ 433              		.syntax unified
+ 434              		.thumb
+ 435              		.thumb_func
+ 437              	VSS_CalcAvrgMecSpeedUnit:
+ 438              	.LFB1251:
+ 196:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 197:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** /**
+ 198:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   * @brief  This method must be called with the same periodicity
+ 199:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   *         on which speed control is executed.
+ 200:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   *         This method computes and stores rotor instantaneous el speed (express
+ 201:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   *         in dpp considering the measurement frequency) in order to provide it
+ 202:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   *         to SPD_CalcElAngle function and SPD_GetElAngle.
+ 203:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   *         Then compute store and return - through parameter
+ 204:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   *         hMecSpeedUnit - the rotor average mech speed, expressed in the unit
+ 205:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   *         defined by #SPEED_UNIT. Then return the reliability state of the
+ 206:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   *         sensor (always true).
+ 207:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   * @param  pHandle: handler of the current instance of the VirtualSpeedSensor component
+ 208:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   * @param  hMecSpeedUnit pointer to int16_t, used to return the rotor average
+ 209:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   *         mechanical speed (SPED_UNIT)
+ 210:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   * @retval true = sensor information is reliable
+ 211:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   *         false = sensor information is not reliable
+ 212:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   */
+ 213:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** __weak bool VSS_CalcAvrgMecSpeedUnit( VirtualSpeedSensor_Handle_t * pHandle, int16_t * hMecSpeedUni
+ 214:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** {
+ 439              		.loc 1 214 1
+ 440              		.cfi_startproc
+ 441              		@ args = 0, pretend = 0, frame = 16
+ 442              		@ frame_needed = 0, uses_anonymous_args = 0
+ 443 0000 00B5     		push	{lr}
+ 444              		.cfi_def_cfa_offset 4
+ 445              		.cfi_offset 14, -4
+ 446 0002 85B0     		sub	sp, sp, #20
+ 447              		.cfi_def_cfa_offset 24
+ 448 0004 0190     		str	r0, [sp, #4]
+ 449 0006 0091     		str	r1, [sp]
+ 215:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   bool SpeedSensorReliability = false;
+ 450              		.loc 1 215 8
+ 451 0008 0023     		movs	r3, #0
+ 452 000a 8DF80F30 		strb	r3, [sp, #15]
+ 216:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 217:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   if ( pHandle->hRemainingStep > 1u )
+ 453              		.loc 1 217 15
+ 454 000e 019B     		ldr	r3, [sp, #4]
+ 455 0010 1B8D     		ldrh	r3, [r3, #40]
+ 456              		.loc 1 217 6
+ 457 0012 012B     		cmp	r3, #1
+ 458 0014 37D9     		bls	.L14
+ 218:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   {
+ 219:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****     pHandle->wElSpeedDpp32 += pHandle->wElAccDppP32;
+ 459              		.loc 1 219 12
+ 460 0016 019B     		ldr	r3, [sp, #4]
+ 461 0018 5A6A     		ldr	r2, [r3, #36]
+ 462              		.loc 1 219 38
+ 463 001a 019B     		ldr	r3, [sp, #4]
+ 464 001c 1B6A     		ldr	r3, [r3, #32]
+ 465              		.loc 1 219 28
+ 466 001e 1A44     		add	r2, r2, r3
+ 467 0020 019B     		ldr	r3, [sp, #4]
+ 468 0022 5A62     		str	r2, [r3, #36]
+ 220:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****     pHandle->_Super.hElSpeedDpp = ( int16_t )( pHandle->wElSpeedDpp32 / 65536 );
+ 469              		.loc 1 220 55
+ 470 0024 019B     		ldr	r3, [sp, #4]
+ 471 0026 5B6A     		ldr	r3, [r3, #36]
+ 472              		.loc 1 220 71
+ 473 0028 002B     		cmp	r3, #0
+ 474 002a 03DA     		bge	.L15
+ 475 002c 4FF6FF72 		movw	r2, #65535
+ 476 0030 1A44     		add	r2, r2, r3
+ 477 0032 1346     		mov	r3, r2
+ 478              	.L15:
+ 479 0034 1B14     		asrs	r3, r3, #16
+ 480              		.loc 1 220 35
+ 481 0036 1AB2     		sxth	r2, r3
+ 482              		.loc 1 220 33
+ 483 0038 019B     		ldr	r3, [sp, #4]
+ 484 003a DA81     		strh	r2, [r3, #14]	@ movhi
+ 221:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 222:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****     /* Convert dpp into MecUnit */
+ 223:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****     *hMecSpeedUnit = ( int16_t )( ( ( int32_t )pHandle->_Super.hElSpeedDpp *
+ 485              		.loc 1 223 63
+ 486 003c 019B     		ldr	r3, [sp, #4]
+ 487 003e B3F90E30 		ldrsh	r3, [r3, #14]
+ 488              		.loc 1 223 37
+ 489 0042 1A46     		mov	r2, r3
+ 224:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****                                     ( int32_t )pHandle->_Super.hMeasurementFrequency * SPEED_UNIT )
+ 490              		.loc 1 224 63
+ 491 0044 019B     		ldr	r3, [sp, #4]
+ 492 0046 5B8B     		ldrh	r3, [r3, #26]
+ 223:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****                                     ( int32_t )pHandle->_Super.hMeasurementFrequency * SPEED_UNIT )
+ 493              		.loc 1 223 76
+ 494 0048 03FB02F2 		mul	r2, r3, r2
+ 495              		.loc 1 224 86
+ 496 004c 1346     		mov	r3, r2
+ 497 004e 9B00     		lsls	r3, r3, #2
+ 498 0050 1344     		add	r3, r3, r2
+ 499 0052 5B00     		lsls	r3, r3, #1
+ 500 0054 1A46     		mov	r2, r3
+ 225:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****                                   ( ( int32_t )pHandle->_Super.DPPConvFactor * ( int32_t )pHandle->
+ 501              		.loc 1 225 63
+ 502 0056 019B     		ldr	r3, [sp, #4]
+ 503 0058 DB69     		ldr	r3, [r3, #28]
+ 504              		.loc 1 225 37
+ 505 005a 1946     		mov	r1, r3
+ 506              		.loc 1 225 106
+ 507 005c 019B     		ldr	r3, [sp, #4]
+ 508 005e 5B78     		ldrb	r3, [r3, #1]	@ zero_extendqisi2
+ 509              		.loc 1 225 78
+ 510 0060 01FB03F3 		mul	r3, r1, r3
+ 224:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****                                     ( int32_t )pHandle->_Super.hMeasurementFrequency * SPEED_UNIT )
+ 511              		.loc 1 224 101
+ 512 0064 92FBF3F3 		sdiv	r3, r2, r3
+ 223:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****                                     ( int32_t )pHandle->_Super.hMeasurementFrequency * SPEED_UNIT )
+ 513              		.loc 1 223 22
+ 514 0068 1AB2     		sxth	r2, r3
+ 223:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****                                     ( int32_t )pHandle->_Super.hMeasurementFrequency * SPEED_UNIT )
+ 515              		.loc 1 223 20
+ 516 006a 009B     		ldr	r3, [sp]
+ 517 006c 1A80     		strh	r2, [r3]	@ movhi
+ 226:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 227:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****     pHandle->_Super.hAvrMecSpeedUnit = *hMecSpeedUnit;
+ 518              		.loc 1 227 40
+ 519 006e 009B     		ldr	r3, [sp]
+ 520 0070 B3F90020 		ldrsh	r2, [r3]
+ 521              		.loc 1 227 38
+ 522 0074 019B     		ldr	r3, [sp, #4]
+ 523 0076 9A81     		strh	r2, [r3, #12]	@ movhi
+ 228:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 229:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****     pHandle->hRemainingStep--;
+ 524              		.loc 1 229 12
+ 525 0078 019B     		ldr	r3, [sp, #4]
+ 526 007a 1B8D     		ldrh	r3, [r3, #40]
+ 527              		.loc 1 229 28
+ 528 007c 013B     		subs	r3, r3, #1
+ 529 007e 9AB2     		uxth	r2, r3
+ 530 0080 019B     		ldr	r3, [sp, #4]
+ 531 0082 1A85     		strh	r2, [r3, #40]	@ movhi
+ 532 0084 36E0     		b	.L16
+ 533              	.L14:
+ 230:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   }
+ 231:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   else if ( pHandle->hRemainingStep == 1u )
+ 534              		.loc 1 231 20
+ 535 0086 019B     		ldr	r3, [sp, #4]
+ 536 0088 1B8D     		ldrh	r3, [r3, #40]
+ 537              		.loc 1 231 11
+ 538 008a 012B     		cmp	r3, #1
+ 539 008c 2DD1     		bne	.L17
+ 232:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   {
+ 233:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****     *hMecSpeedUnit = pHandle->hFinalMecSpeedUnit;
+ 540              		.loc 1 233 29
+ 541 008e 019B     		ldr	r3, [sp, #4]
+ 542 0090 B3F92A20 		ldrsh	r2, [r3, #42]
+ 543              		.loc 1 233 20
+ 544 0094 009B     		ldr	r3, [sp]
+ 545 0096 1A80     		strh	r2, [r3]	@ movhi
+ 234:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 235:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****     pHandle->_Super.hAvrMecSpeedUnit = *hMecSpeedUnit;
+ 546              		.loc 1 235 40
+ 547 0098 009B     		ldr	r3, [sp]
+ 548 009a B3F90020 		ldrsh	r2, [r3]
+ 549              		.loc 1 235 38
+ 550 009e 019B     		ldr	r3, [sp, #4]
+ 551 00a0 9A81     		strh	r2, [r3, #12]	@ movhi
+ 236:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 237:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****     pHandle->_Super.hElSpeedDpp = ( int16_t )( ( ( int32_t )( *hMecSpeedUnit ) *
+ 552              		.loc 1 237 63
+ 553 00a2 009B     		ldr	r3, [sp]
+ 554 00a4 B3F90030 		ldrsh	r3, [r3]
+ 555              		.loc 1 237 50
+ 556 00a8 1A46     		mov	r2, r3
+ 238:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****                                   ( int32_t ) ( pHandle->_Super.DPPConvFactor) ) /
+ 557              		.loc 1 238 64
+ 558 00aa 019B     		ldr	r3, [sp, #4]
+ 559 00ac DB69     		ldr	r3, [r3, #28]
+ 237:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****                                   ( int32_t ) ( pHandle->_Super.DPPConvFactor) ) /
+ 560              		.loc 1 237 80
+ 561 00ae 03FB02F2 		mul	r2, r3, r2
+ 239:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****                                   ( ( int32_t )SPEED_UNIT * ( int32_t )pHandle->_Super.hMeasurement
+ 562              		.loc 1 239 87
+ 563 00b2 019B     		ldr	r3, [sp, #4]
+ 564 00b4 5B8B     		ldrh	r3, [r3, #26]
+ 565              		.loc 1 239 61
+ 566 00b6 1946     		mov	r1, r3
+ 567              		.loc 1 239 59
+ 568 00b8 0B46     		mov	r3, r1
+ 569 00ba 9B00     		lsls	r3, r3, #2
+ 570 00bc 0B44     		add	r3, r3, r1
+ 571 00be 5B00     		lsls	r3, r3, #1
+ 238:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****                                   ( int32_t ) ( pHandle->_Super.DPPConvFactor) ) /
+ 572              		.loc 1 238 82
+ 573 00c0 92FBF3F3 		sdiv	r3, r2, r3
+ 237:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****                                   ( int32_t ) ( pHandle->_Super.DPPConvFactor) ) /
+ 574              		.loc 1 237 35
+ 575 00c4 1AB2     		sxth	r2, r3
+ 237:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****                                   ( int32_t ) ( pHandle->_Super.DPPConvFactor) ) /
+ 576              		.loc 1 237 33
+ 577 00c6 019B     		ldr	r3, [sp, #4]
+ 578 00c8 DA81     		strh	r2, [r3, #14]	@ movhi
+ 240:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 241:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****     pHandle->_Super.hElSpeedDpp *= ( int16_t )( pHandle->_Super.bElToMecRatio );
+ 579              		.loc 1 241 20
+ 580 00ca 019B     		ldr	r3, [sp, #4]
+ 581 00cc B3F90E30 		ldrsh	r3, [r3, #14]
+ 582              		.loc 1 241 33
+ 583 00d0 9BB2     		uxth	r3, r3
+ 584              		.loc 1 241 64
+ 585 00d2 019A     		ldr	r2, [sp, #4]
+ 586 00d4 5278     		ldrb	r2, [r2, #1]	@ zero_extendqisi2
+ 587              		.loc 1 241 33
+ 588 00d6 13FB02F3 		smulbb	r3, r3, r2
+ 589 00da 9BB2     		uxth	r3, r3
+ 590 00dc 1AB2     		sxth	r2, r3
+ 591 00de 019B     		ldr	r3, [sp, #4]
+ 592 00e0 DA81     		strh	r2, [r3, #14]	@ movhi
+ 242:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 243:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****     pHandle->hRemainingStep = 0u;
+ 593              		.loc 1 243 29
+ 594 00e2 019B     		ldr	r3, [sp, #4]
+ 595 00e4 0022     		movs	r2, #0
+ 596 00e6 1A85     		strh	r2, [r3, #40]	@ movhi
+ 597 00e8 04E0     		b	.L16
+ 598              	.L17:
+ 244:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   }
+ 245:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   else
+ 246:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   {
+ 247:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****     *hMecSpeedUnit = pHandle->_Super.hAvrMecSpeedUnit;
+ 599              		.loc 1 247 37
+ 600 00ea 019B     		ldr	r3, [sp, #4]
+ 601 00ec B3F90C20 		ldrsh	r2, [r3, #12]
+ 602              		.loc 1 247 20
+ 603 00f0 009B     		ldr	r3, [sp]
+ 604 00f2 1A80     		strh	r2, [r3]	@ movhi
+ 605              	.L16:
+ 248:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   }
+ 249:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   /* If the transition is not done yet, we already know that speed is not reliable */
+ 250:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   if ( pHandle->bTransitionEnded == false )
+ 606              		.loc 1 250 15
+ 607 00f4 019B     		ldr	r3, [sp, #4]
+ 608 00f6 93F82D30 		ldrb	r3, [r3, #45]	@ zero_extendqisi2
+ 609              		.loc 1 250 34
+ 610 00fa 83F00103 		eor	r3, r3, #1
+ 611 00fe DBB2     		uxtb	r3, r3
+ 612              		.loc 1 250 6
+ 613 0100 002B     		cmp	r3, #0
+ 614 0102 07D0     		beq	.L18
+ 251:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   {
+ 252:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****     pHandle->_Super.bSpeedErrorNumber = pHandle->_Super.bMaximumSpeedErrorsNumber;
+ 615              		.loc 1 252 56
+ 616 0104 019B     		ldr	r3, [sp, #4]
+ 617 0106 DA78     		ldrb	r2, [r3, #3]	@ zero_extendqisi2
+ 618              		.loc 1 252 39
+ 619 0108 019B     		ldr	r3, [sp, #4]
+ 620 010a 1A70     		strb	r2, [r3]
+ 253:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****     SpeedSensorReliability = false;
+ 621              		.loc 1 253 28
+ 622 010c 0023     		movs	r3, #0
+ 623 010e 8DF80F30 		strb	r3, [sp, #15]
+ 624 0112 07E0     		b	.L19
+ 625              	.L18:
+ 254:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   }
+ 255:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   else
+ 256:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   {
+ 257:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****     SpeedSensorReliability = SPD_IsMecSpeedReliable ( &pHandle->_Super, hMecSpeedUnit );
+ 626              		.loc 1 257 30
+ 627 0114 019B     		ldr	r3, [sp, #4]
+ 628 0116 0099     		ldr	r1, [sp]
+ 629 0118 1846     		mov	r0, r3
+ 630 011a FFF7FEFF 		bl	SPD_IsMecSpeedReliable
+ 631 011e 0346     		mov	r3, r0
+ 632 0120 8DF80F30 		strb	r3, [sp, #15]
+ 633              	.L19:
+ 258:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   }
+ 259:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 260:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   return ( SpeedSensorReliability );
+ 634              		.loc 1 260 10
+ 635 0124 9DF80F30 		ldrb	r3, [sp, #15]	@ zero_extendqisi2
+ 261:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** }
+ 636              		.loc 1 261 1
+ 637 0128 1846     		mov	r0, r3
+ 638 012a 05B0     		add	sp, sp, #20
+ 639              		.cfi_def_cfa_offset 4
+ 640              		@ sp needed
+ 641 012c 5DF804FB 		ldr	pc, [sp], #4
+ 642              		.cfi_endproc
+ 643              	.LFE1251:
+ 645              		.section	.text.VSS_SetMecAngle,"ax",%progbits
+ 646              		.align	1
+ 647              		.p2align 4,,15
+ 648              		.weak	VSS_SetMecAngle
+ 649              		.syntax unified
+ 650              		.thumb
+ 651              		.thumb_func
+ 653              	VSS_SetMecAngle:
+ 654              	.LFB1252:
+ 262:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 263:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** /**
+ 264:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   * @brief  It is used to set istantaneous information on VSS mechanical and
+ 265:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   *         electrical angle.
+ 266:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   * @param  pHandle: handler of the current instance of the VirtualSpeedSensor component
+ 267:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   * @param  hMecAngle istantaneous measure of rotor mechanical angle
+ 268:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   * @retval none
+ 269:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   */
+ 270:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** __weak void VSS_SetMecAngle( VirtualSpeedSensor_Handle_t * pHandle, int16_t hMecAngle )
+ 271:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** {
+ 655              		.loc 1 271 1
+ 656              		.cfi_startproc
+ 657              		@ args = 0, pretend = 0, frame = 8
+ 658              		@ frame_needed = 0, uses_anonymous_args = 0
+ 659              		@ link register save eliminated.
+ 660 0000 82B0     		sub	sp, sp, #8
+ 661              		.cfi_def_cfa_offset 8
+ 662 0002 0190     		str	r0, [sp, #4]
+ 663 0004 0B46     		mov	r3, r1
+ 664 0006 ADF80230 		strh	r3, [sp, #2]	@ movhi
+ 272:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 273:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   pHandle->hElAngleAccu = hMecAngle;
+ 665              		.loc 1 273 25
+ 666 000a 019B     		ldr	r3, [sp, #4]
+ 667 000c BDF80220 		ldrh	r2, [sp, #2]	@ movhi
+ 668 0010 1A86     		strh	r2, [r3, #48]	@ movhi
+ 274:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   pHandle->_Super.hMecAngle = pHandle->hElAngleAccu / ( int16_t )pHandle->_Super.bElToMecRatio;
+ 669              		.loc 1 274 38
+ 670 0012 019B     		ldr	r3, [sp, #4]
+ 671 0014 B3F93030 		ldrsh	r3, [r3, #48]
+ 672 0018 1A46     		mov	r2, r3
+ 673              		.loc 1 274 81
+ 674 001a 019B     		ldr	r3, [sp, #4]
+ 675 001c 5B78     		ldrb	r3, [r3, #1]	@ zero_extendqisi2
+ 676              		.loc 1 274 53
+ 677 001e 92FBF3F3 		sdiv	r3, r2, r3
+ 678              		.loc 1 274 29
+ 679 0022 1AB2     		sxth	r2, r3
+ 680 0024 019B     		ldr	r3, [sp, #4]
+ 681 0026 DA80     		strh	r2, [r3, #6]	@ movhi
+ 275:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   pHandle->_Super.hElAngle = hMecAngle;
+ 682              		.loc 1 275 28
+ 683 0028 019B     		ldr	r3, [sp, #4]
+ 684 002a BDF80220 		ldrh	r2, [sp, #2]	@ movhi
+ 685 002e 9A80     		strh	r2, [r3, #4]	@ movhi
+ 276:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** }
+ 686              		.loc 1 276 1
+ 687 0030 00BF     		nop
+ 688 0032 02B0     		add	sp, sp, #8
+ 689              		.cfi_def_cfa_offset 0
+ 690              		@ sp needed
+ 691 0034 7047     		bx	lr
+ 692              		.cfi_endproc
+ 693              	.LFE1252:
+ 695 0036 00BF     		.section	.text.VSS_SetMecAcceleration,"ax",%progbits
+ 696              		.align	1
+ 697              		.p2align 4,,15
+ 698              		.weak	VSS_SetMecAcceleration
+ 699              		.syntax unified
+ 700              		.thumb
+ 701              		.thumb_func
+ 703              	VSS_SetMecAcceleration:
+ 704              	.LFB1253:
+ 277:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 278:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** /**
+ 279:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   * @brief  Set the mechanical acceleration of virtual sensor. This acceleration
+ 280:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****             is defined starting from current mechanical speed, final mechanical
+ 281:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****             speed expressed in 0.1Hz and duration expressed in milliseconds.
+ 282:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   * @param  pHandle: handler of the current instance of the VirtualSpeedSensor component
+ 283:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   * @param  hFinalMecSpeedUnit mechanical speed  assumed by
+ 284:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****             the virtual sensor at the end of the duration. Expressed in the unit defined
+ 285:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****             by #SPEED_UNIT.
+ 286:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   * @param  hDurationms Duration expressed in ms. It can be 0 to apply
+ 287:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****             instantaneous the final speed.
+ 288:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   * @retval none
+ 289:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   */
+ 290:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** __weak void  VSS_SetMecAcceleration( VirtualSpeedSensor_Handle_t * pHandle, int16_t  hFinalMecSpeed
+ 291:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****                               uint16_t hDurationms )
+ 292:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** {
+ 705              		.loc 1 292 1
+ 706              		.cfi_startproc
+ 707              		@ args = 0, pretend = 0, frame = 24
+ 708              		@ frame_needed = 0, uses_anonymous_args = 0
+ 709              		@ link register save eliminated.
+ 710 0000 86B0     		sub	sp, sp, #24
+ 711              		.cfi_def_cfa_offset 24
+ 712 0002 0190     		str	r0, [sp, #4]
+ 713 0004 0B46     		mov	r3, r1
+ 714 0006 ADF80230 		strh	r3, [sp, #2]	@ movhi
+ 715 000a 1346     		mov	r3, r2	@ movhi
+ 716 000c ADF80030 		strh	r3, [sp]	@ movhi
+ 293:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 294:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   uint16_t hNbrStep;
+ 295:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   int16_t hCurrentMecSpeedDpp;
+ 296:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   int32_t wMecAccDppP32;
+ 297:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   int16_t hFinalMecSpeedDpp;
+ 298:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 299:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   if ( pHandle->bTransitionStarted == false )
+ 717              		.loc 1 299 15
+ 718 0010 019B     		ldr	r3, [sp, #4]
+ 719 0012 93F82C30 		ldrb	r3, [r3, #44]	@ zero_extendqisi2
+ 720              		.loc 1 299 36
+ 721 0016 83F00103 		eor	r3, r3, #1
+ 722 001a DBB2     		uxtb	r3, r3
+ 723              		.loc 1 299 6
+ 724 001c 002B     		cmp	r3, #0
+ 725 001e 7AD0     		beq	.L25
+ 300:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   {
+ 301:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****     if ( hDurationms == 0u )
+ 726              		.loc 1 301 8
+ 727 0020 BDF80030 		ldrh	r3, [sp]
+ 728 0024 002B     		cmp	r3, #0
+ 729 0026 29D1     		bne	.L24
+ 302:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****     {
+ 303:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****       pHandle->_Super.hAvrMecSpeedUnit = hFinalMecSpeedUnit;
+ 730              		.loc 1 303 40
+ 731 0028 019B     		ldr	r3, [sp, #4]
+ 732 002a BDF80220 		ldrh	r2, [sp, #2]	@ movhi
+ 733 002e 9A81     		strh	r2, [r3, #12]	@ movhi
+ 304:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 305:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****       pHandle->_Super.hElSpeedDpp = ( int16_t )( ( ( int32_t )( hFinalMecSpeedUnit ) *
+ 734              		.loc 1 305 52
+ 735 0030 BDF90230 		ldrsh	r3, [sp, #2]
+ 306:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****                                     ( int32_t )( pHandle->_Super.DPPConvFactor) ) /
+ 736              		.loc 1 306 65
+ 737 0034 019A     		ldr	r2, [sp, #4]
+ 738 0036 D269     		ldr	r2, [r2, #28]
+ 305:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****                                     ( int32_t )( pHandle->_Super.DPPConvFactor) ) /
+ 739              		.loc 1 305 86
+ 740 0038 03FB02F2 		mul	r2, r3, r2
+ 307:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****                                     ( ( int32_t )SPEED_UNIT * ( int32_t )pHandle->_Super.hMeasureme
+ 741              		.loc 1 307 89
+ 742 003c 019B     		ldr	r3, [sp, #4]
+ 743 003e 5B8B     		ldrh	r3, [r3, #26]
+ 744              		.loc 1 307 63
+ 745 0040 1946     		mov	r1, r3
+ 746              		.loc 1 307 61
+ 747 0042 0B46     		mov	r3, r1
+ 748 0044 9B00     		lsls	r3, r3, #2
+ 749 0046 0B44     		add	r3, r3, r1
+ 750 0048 5B00     		lsls	r3, r3, #1
+ 306:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****                                     ( int32_t )( pHandle->_Super.DPPConvFactor) ) /
+ 751              		.loc 1 306 83
+ 752 004a 92FBF3F3 		sdiv	r3, r2, r3
+ 305:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****                                     ( int32_t )( pHandle->_Super.DPPConvFactor) ) /
+ 753              		.loc 1 305 37
+ 754 004e 1AB2     		sxth	r2, r3
+ 305:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****                                     ( int32_t )( pHandle->_Super.DPPConvFactor) ) /
+ 755              		.loc 1 305 35
+ 756 0050 019B     		ldr	r3, [sp, #4]
+ 757 0052 DA81     		strh	r2, [r3, #14]	@ movhi
+ 308:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 309:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****       pHandle->_Super.hElSpeedDpp *= ( int16_t )( pHandle->_Super.bElToMecRatio );
+ 758              		.loc 1 309 22
+ 759 0054 019B     		ldr	r3, [sp, #4]
+ 760 0056 B3F90E30 		ldrsh	r3, [r3, #14]
+ 761              		.loc 1 309 35
+ 762 005a 9BB2     		uxth	r3, r3
+ 763              		.loc 1 309 66
+ 764 005c 019A     		ldr	r2, [sp, #4]
+ 765 005e 5278     		ldrb	r2, [r2, #1]	@ zero_extendqisi2
+ 766              		.loc 1 309 35
+ 767 0060 13FB02F3 		smulbb	r3, r3, r2
+ 768 0064 9BB2     		uxth	r3, r3
+ 769 0066 1AB2     		sxth	r2, r3
+ 770 0068 019B     		ldr	r3, [sp, #4]
+ 771 006a DA81     		strh	r2, [r3, #14]	@ movhi
+ 310:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 311:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****       pHandle->hRemainingStep = 0u;
+ 772              		.loc 1 311 31
+ 773 006c 019B     		ldr	r3, [sp, #4]
+ 774 006e 0022     		movs	r2, #0
+ 775 0070 1A85     		strh	r2, [r3, #40]	@ movhi
+ 312:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 313:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****       pHandle->hFinalMecSpeedUnit = hFinalMecSpeedUnit;
+ 776              		.loc 1 313 35
+ 777 0072 019B     		ldr	r3, [sp, #4]
+ 778 0074 BDF80220 		ldrh	r2, [sp, #2]	@ movhi
+ 779 0078 5A85     		strh	r2, [r3, #42]	@ movhi
+ 314:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****     }
+ 315:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****     else
+ 316:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****     {
+ 317:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****       hNbrStep = ( uint16_t )( ( ( uint32_t )hDurationms *
+ 318:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****                                  ( uint32_t )pHandle->hSpeedSamplingFreqHz ) /
+ 319:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****                                1000u );
+ 320:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 321:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****       hNbrStep++;
+ 322:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 323:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****       pHandle->hRemainingStep = hNbrStep;
+ 324:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 325:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****       hCurrentMecSpeedDpp = pHandle->_Super.hElSpeedDpp /
+ 326:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****                             ( int16_t )pHandle->_Super.bElToMecRatio;
+ 327:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 328:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****       hFinalMecSpeedDpp = ( int16_t )( ( ( int32_t )hFinalMecSpeedUnit * ( int32_t )( pHandle->_Sup
+ 329:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****                                        ( ( int32_t )SPEED_UNIT * ( int32_t )pHandle->_Super.hMeasur
+ 330:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 331:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****       wMecAccDppP32 = ( ( ( int32_t )hFinalMecSpeedDpp - ( int32_t )hCurrentMecSpeedDpp ) *
+ 332:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****                         ( int32_t )65536 ) / ( int32_t )hNbrStep;
+ 333:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 334:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****       pHandle->wElAccDppP32 = wMecAccDppP32 * ( int16_t )pHandle->_Super.bElToMecRatio;
+ 335:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 336:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****       pHandle->hFinalMecSpeedUnit = hFinalMecSpeedUnit;
+ 337:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 338:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****       pHandle->wElSpeedDpp32 = ( int32_t )pHandle->_Super.hElSpeedDpp * ( int32_t )65536;
+ 339:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****     }
+ 340:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   }
+ 341:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** }
+ 780              		.loc 1 341 1
+ 781 007a 4CE0     		b	.L25
+ 782              	.L24:
+ 317:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****                                  ( uint32_t )pHandle->hSpeedSamplingFreqHz ) /
+ 783              		.loc 1 317 34
+ 784 007c BDF80030 		ldrh	r3, [sp]
+ 318:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****                                1000u );
+ 785              		.loc 1 318 53
+ 786 0080 019A     		ldr	r2, [sp, #4]
+ 787 0082 928E     		ldrh	r2, [r2, #52]
+ 317:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****                                  ( uint32_t )pHandle->hSpeedSamplingFreqHz ) /
+ 788              		.loc 1 317 58
+ 789 0084 02FB03F3 		mul	r3, r2, r3
+ 318:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****                                1000u );
+ 790              		.loc 1 318 78
+ 791 0088 244A     		ldr	r2, .L26
+ 792 008a A2FB0323 		umull	r2, r3, r2, r3
+ 793 008e 9B09     		lsrs	r3, r3, #6
+ 317:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****                                  ( uint32_t )pHandle->hSpeedSamplingFreqHz ) /
+ 794              		.loc 1 317 16
+ 795 0090 ADF81630 		strh	r3, [sp, #22]	@ movhi
+ 321:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 796              		.loc 1 321 15
+ 797 0094 BDF81630 		ldrh	r3, [sp, #22]
+ 798 0098 0133     		adds	r3, r3, #1
+ 799 009a ADF81630 		strh	r3, [sp, #22]	@ movhi
+ 323:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 800              		.loc 1 323 31
+ 801 009e 019B     		ldr	r3, [sp, #4]
+ 802 00a0 BDF81620 		ldrh	r2, [sp, #22]	@ movhi
+ 803 00a4 1A85     		strh	r2, [r3, #40]	@ movhi
+ 325:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****                             ( int16_t )pHandle->_Super.bElToMecRatio;
+ 804              		.loc 1 325 44
+ 805 00a6 019B     		ldr	r3, [sp, #4]
+ 806 00a8 B3F90E30 		ldrsh	r3, [r3, #14]
+ 807 00ac 1A46     		mov	r2, r3
+ 326:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 808              		.loc 1 326 55
+ 809 00ae 019B     		ldr	r3, [sp, #4]
+ 810 00b0 5B78     		ldrb	r3, [r3, #1]	@ zero_extendqisi2
+ 325:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****                             ( int16_t )pHandle->_Super.bElToMecRatio;
+ 811              		.loc 1 325 57
+ 812 00b2 92FBF3F3 		sdiv	r3, r2, r3
+ 325:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****                             ( int16_t )pHandle->_Super.bElToMecRatio;
+ 813              		.loc 1 325 27
+ 814 00b6 ADF81430 		strh	r3, [sp, #20]	@ movhi
+ 328:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****                                        ( ( int32_t )SPEED_UNIT * ( int32_t )pHandle->_Super.hMeasur
+ 815              		.loc 1 328 42
+ 816 00ba BDF90230 		ldrsh	r3, [sp, #2]
+ 328:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****                                        ( ( int32_t )SPEED_UNIT * ( int32_t )pHandle->_Super.hMeasur
+ 817              		.loc 1 328 102
+ 818 00be 019A     		ldr	r2, [sp, #4]
+ 819 00c0 D269     		ldr	r2, [r2, #28]
+ 328:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****                                        ( ( int32_t )SPEED_UNIT * ( int32_t )pHandle->_Super.hMeasur
+ 820              		.loc 1 328 72
+ 821 00c2 03FB02F2 		mul	r2, r3, r2
+ 329:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 822              		.loc 1 329 92
+ 823 00c6 019B     		ldr	r3, [sp, #4]
+ 824 00c8 5B8B     		ldrh	r3, [r3, #26]
+ 329:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 825              		.loc 1 329 66
+ 826 00ca 1946     		mov	r1, r3
+ 329:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 827              		.loc 1 329 64
+ 828 00cc 0B46     		mov	r3, r1
+ 829 00ce 9B00     		lsls	r3, r3, #2
+ 830 00d0 0B44     		add	r3, r3, r1
+ 831 00d2 5B00     		lsls	r3, r3, #1
+ 328:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****                                        ( ( int32_t )SPEED_UNIT * ( int32_t )pHandle->_Super.hMeasur
+ 832              		.loc 1 328 120
+ 833 00d4 92FBF3F3 		sdiv	r3, r2, r3
+ 328:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****                                        ( ( int32_t )SPEED_UNIT * ( int32_t )pHandle->_Super.hMeasur
+ 834              		.loc 1 328 25
+ 835 00d8 ADF81230 		strh	r3, [sp, #18]	@ movhi
+ 331:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****                         ( int32_t )65536 ) / ( int32_t )hNbrStep;
+ 836              		.loc 1 331 27
+ 837 00dc BDF91220 		ldrsh	r2, [sp, #18]
+ 331:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****                         ( int32_t )65536 ) / ( int32_t )hNbrStep;
+ 838              		.loc 1 331 58
+ 839 00e0 BDF91430 		ldrsh	r3, [sp, #20]
+ 331:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****                         ( int32_t )65536 ) / ( int32_t )hNbrStep;
+ 840              		.loc 1 331 56
+ 841 00e4 D31A     		subs	r3, r2, r3
+ 331:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****                         ( int32_t )65536 ) / ( int32_t )hNbrStep;
+ 842              		.loc 1 331 91
+ 843 00e6 1A04     		lsls	r2, r3, #16
+ 332:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 844              		.loc 1 332 46
+ 845 00e8 BDF81630 		ldrh	r3, [sp, #22]
+ 331:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****                         ( int32_t )65536 ) / ( int32_t )hNbrStep;
+ 846              		.loc 1 331 21
+ 847 00ec 92FBF3F3 		sdiv	r3, r2, r3
+ 848 00f0 0393     		str	r3, [sp, #12]
+ 334:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 849              		.loc 1 334 73
+ 850 00f2 019B     		ldr	r3, [sp, #4]
+ 851 00f4 5B78     		ldrb	r3, [r3, #1]	@ zero_extendqisi2
+ 334:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 852              		.loc 1 334 47
+ 853 00f6 1A46     		mov	r2, r3
+ 334:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 854              		.loc 1 334 45
+ 855 00f8 039B     		ldr	r3, [sp, #12]
+ 856 00fa 03FB02F2 		mul	r2, r3, r2
+ 334:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 857              		.loc 1 334 29
+ 858 00fe 019B     		ldr	r3, [sp, #4]
+ 859 0100 1A62     		str	r2, [r3, #32]
+ 336:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 860              		.loc 1 336 35
+ 861 0102 019B     		ldr	r3, [sp, #4]
+ 862 0104 BDF80220 		ldrh	r2, [sp, #2]	@ movhi
+ 863 0108 5A85     		strh	r2, [r3, #42]	@ movhi
+ 338:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****     }
+ 864              		.loc 1 338 58
+ 865 010a 019B     		ldr	r3, [sp, #4]
+ 866 010c B3F90E30 		ldrsh	r3, [r3, #14]
+ 338:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****     }
+ 867              		.loc 1 338 71
+ 868 0110 1A04     		lsls	r2, r3, #16
+ 338:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****     }
+ 869              		.loc 1 338 30
+ 870 0112 019B     		ldr	r3, [sp, #4]
+ 871 0114 5A62     		str	r2, [r3, #36]
+ 872              	.L25:
+ 873              		.loc 1 341 1
+ 874 0116 00BF     		nop
+ 875 0118 06B0     		add	sp, sp, #24
+ 876              		.cfi_def_cfa_offset 0
+ 877              		@ sp needed
+ 878 011a 7047     		bx	lr
+ 879              	.L27:
+ 880              		.align	2
+ 881              	.L26:
+ 882 011c D34D6210 		.word	274877907
+ 883              		.cfi_endproc
+ 884              	.LFE1253:
+ 886              		.section	.text.VSS_RampCompleted,"ax",%progbits
+ 887              		.align	1
+ 888              		.p2align 4,,15
+ 889              		.weak	VSS_RampCompleted
+ 890              		.syntax unified
+ 891              		.thumb
+ 892              		.thumb_func
+ 894              	VSS_RampCompleted:
+ 895              	.LFB1254:
+ 342:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 343:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** /**
+ 344:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   * @brief  Checks if the ramp executed after a VSPD_SetMecAcceleration command
+ 345:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   *         has been completed.
+ 346:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   * @param  pHandle: handler of the current instance of the VirtualSpeedSensor component
+ 347:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   * @retval bool true if the ramp is completed, otherwise false.
+ 348:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   */
+ 349:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** __weak bool VSS_RampCompleted( VirtualSpeedSensor_Handle_t * pHandle )
+ 350:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** {
+ 896              		.loc 1 350 1
+ 897              		.cfi_startproc
+ 898              		@ args = 0, pretend = 0, frame = 16
+ 899              		@ frame_needed = 0, uses_anonymous_args = 0
+ 900              		@ link register save eliminated.
+ 901 0000 84B0     		sub	sp, sp, #16
+ 902              		.cfi_def_cfa_offset 16
+ 903 0002 0190     		str	r0, [sp, #4]
+ 351:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   bool retVal = false;
+ 904              		.loc 1 351 8
+ 905 0004 0023     		movs	r3, #0
+ 906 0006 8DF80F30 		strb	r3, [sp, #15]
+ 352:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   if ( pHandle->hRemainingStep == 0u )
+ 907              		.loc 1 352 15
+ 908 000a 019B     		ldr	r3, [sp, #4]
+ 909 000c 1B8D     		ldrh	r3, [r3, #40]
+ 910              		.loc 1 352 6
+ 911 000e 002B     		cmp	r3, #0
+ 912 0010 02D1     		bne	.L29
+ 353:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   {
+ 354:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****     retVal = true;
+ 913              		.loc 1 354 12
+ 914 0012 0123     		movs	r3, #1
+ 915 0014 8DF80F30 		strb	r3, [sp, #15]
+ 916              	.L29:
+ 355:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   }
+ 356:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   return retVal;
+ 917              		.loc 1 356 10
+ 918 0018 9DF80F30 		ldrb	r3, [sp, #15]	@ zero_extendqisi2
+ 357:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** }
+ 919              		.loc 1 357 1
+ 920 001c 1846     		mov	r0, r3
+ 921 001e 04B0     		add	sp, sp, #16
+ 922              		.cfi_def_cfa_offset 0
+ 923              		@ sp needed
+ 924 0020 7047     		bx	lr
+ 925              		.cfi_endproc
+ 926              	.LFE1254:
+ 928 0022 00BF     		.section	.text.VSS_GetLastRampFinalSpeed,"ax",%progbits
+ 929              		.align	1
+ 930              		.p2align 4,,15
+ 931              		.weak	VSS_GetLastRampFinalSpeed
+ 932              		.syntax unified
+ 933              		.thumb
+ 934              		.thumb_func
+ 936              	VSS_GetLastRampFinalSpeed:
+ 937              	.LFB1255:
+ 358:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 359:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** /**
+ 360:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   * @brief  Get the final speed of last setled ramp of virtual sensor expressed
+ 361:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****             in 0.1Hz.
+ 362:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   * @param  pHandle: handler of the current instance of the VirtualSpeedSensor component
+ 363:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   * @retval none
+ 364:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   */
+ 365:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** __weak int16_t  VSS_GetLastRampFinalSpeed( VirtualSpeedSensor_Handle_t * pHandle )
+ 366:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** {
+ 938              		.loc 1 366 1
+ 939              		.cfi_startproc
+ 940              		@ args = 0, pretend = 0, frame = 8
+ 941              		@ frame_needed = 0, uses_anonymous_args = 0
+ 942              		@ link register save eliminated.
+ 943 0000 82B0     		sub	sp, sp, #8
+ 944              		.cfi_def_cfa_offset 8
+ 945 0002 0190     		str	r0, [sp, #4]
+ 367:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   return pHandle->hFinalMecSpeedUnit;
+ 946              		.loc 1 367 17
+ 947 0004 019B     		ldr	r3, [sp, #4]
+ 948 0006 B3F92A30 		ldrsh	r3, [r3, #42]
+ 368:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** }
+ 949              		.loc 1 368 1
+ 950 000a 1846     		mov	r0, r3
+ 951 000c 02B0     		add	sp, sp, #8
+ 952              		.cfi_def_cfa_offset 0
+ 953              		@ sp needed
+ 954 000e 7047     		bx	lr
+ 955              		.cfi_endproc
+ 956              	.LFE1255:
+ 958              		.section	.text.VSS_SetStartTransition,"ax",%progbits
+ 959              		.align	1
+ 960              		.p2align 4,,15
+ 961              		.weak	VSS_SetStartTransition
+ 962              		.syntax unified
+ 963              		.thumb
+ 964              		.thumb_func
+ 966              	VSS_SetStartTransition:
+ 967              	.LFB1256:
+ 369:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 370:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** /**
+ 371:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   * @brief  Set the command to Start the transition phase from VirtualSpeedSensor
+ 372:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****             to other SpeedSensor.
+ 373:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****             Transition is to be considered ended when Sensor information is
+ 374:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****             declared 'Reliable' or if function returned value is false
+ 375:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   * @param  pHandle: handler of the current instance of the VirtualSpeedSensor component
+ 376:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   * @param  bool true to Start the transition phase, false has no effect
+ 377:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   * @retval bool true if Transition phase is enabled (started or not), false if
+ 378:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****             transition has been triggered but it's actually disabled
+ 379:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****             (parameter hTransitionSteps = 0)
+ 380:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   */
+ 381:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** __weak bool VSS_SetStartTransition( VirtualSpeedSensor_Handle_t * pHandle, bool bCommand )
+ 382:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** {
+ 968              		.loc 1 382 1
+ 969              		.cfi_startproc
+ 970              		@ args = 0, pretend = 0, frame = 16
+ 971              		@ frame_needed = 0, uses_anonymous_args = 0
+ 972              		@ link register save eliminated.
+ 973 0000 84B0     		sub	sp, sp, #16
+ 974              		.cfi_def_cfa_offset 16
+ 975 0002 0190     		str	r0, [sp, #4]
+ 976 0004 0B46     		mov	r3, r1
+ 977 0006 8DF80330 		strb	r3, [sp, #3]
+ 383:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   bool bAux = true;
+ 978              		.loc 1 383 8
+ 979 000a 0123     		movs	r3, #1
+ 980 000c 8DF80F30 		strb	r3, [sp, #15]
+ 384:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   if ( bCommand == true )
+ 981              		.loc 1 384 6
+ 982 0010 9DF80330 		ldrb	r3, [sp, #3]	@ zero_extendqisi2
+ 983 0014 002B     		cmp	r3, #0
+ 984 0016 12D0     		beq	.L34
+ 385:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   {
+ 386:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****     pHandle->bTransitionStarted = true;
+ 985              		.loc 1 386 33
+ 986 0018 019B     		ldr	r3, [sp, #4]
+ 987 001a 0122     		movs	r2, #1
+ 988 001c 83F82C20 		strb	r2, [r3, #44]
+ 387:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 388:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****     if ( pHandle->hTransitionSteps == 0 )
+ 989              		.loc 1 388 17
+ 990 0020 019B     		ldr	r3, [sp, #4]
+ 991 0022 B3F93630 		ldrsh	r3, [r3, #54]
+ 992              		.loc 1 388 8
+ 993 0026 002B     		cmp	r3, #0
+ 994 0028 09D1     		bne	.L34
+ 389:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****     {
+ 390:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****       pHandle->bTransitionEnded = true;
+ 995              		.loc 1 390 33
+ 996 002a 019B     		ldr	r3, [sp, #4]
+ 997 002c 0122     		movs	r2, #1
+ 998 002e 83F82D20 		strb	r2, [r3, #45]
+ 391:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****       pHandle->_Super.bSpeedErrorNumber = 0u;
+ 999              		.loc 1 391 41
+ 1000 0032 019B     		ldr	r3, [sp, #4]
+ 1001 0034 0022     		movs	r2, #0
+ 1002 0036 1A70     		strb	r2, [r3]
+ 392:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****       bAux = false;
+ 1003              		.loc 1 392 12
+ 1004 0038 0023     		movs	r3, #0
+ 1005 003a 8DF80F30 		strb	r3, [sp, #15]
+ 1006              	.L34:
+ 393:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****     }
+ 394:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   }
+ 395:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   return bAux;
+ 1007              		.loc 1 395 10
+ 1008 003e 9DF80F30 		ldrb	r3, [sp, #15]	@ zero_extendqisi2
+ 396:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** }
+ 1009              		.loc 1 396 1
+ 1010 0042 1846     		mov	r0, r3
+ 1011 0044 04B0     		add	sp, sp, #16
+ 1012              		.cfi_def_cfa_offset 0
+ 1013              		@ sp needed
+ 1014 0046 7047     		bx	lr
+ 1015              		.cfi_endproc
+ 1016              	.LFE1256:
+ 1018              		.section	.text.VSS_IsTransitionOngoing,"ax",%progbits
+ 1019              		.align	1
+ 1020              		.p2align 4,,15
+ 1021              		.weak	VSS_IsTransitionOngoing
+ 1022              		.syntax unified
+ 1023              		.thumb
+ 1024              		.thumb_func
+ 1026              	VSS_IsTransitionOngoing:
+ 1027              	.LFB1257:
+ 397:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 398:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** /**
+ 399:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   * @brief  Return the status of the transition phase.
+ 400:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   * @param  pHandle: handler of the current instance of the VirtualSpeedSensor component
+ 401:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   * @retval bool true if Transition phase is ongoing, false otherwise.
+ 402:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   */
+ 403:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** __weak bool VSS_IsTransitionOngoing( VirtualSpeedSensor_Handle_t * pHandle )
+ 404:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** {
+ 1028              		.loc 1 404 1
+ 1029              		.cfi_startproc
+ 1030              		@ args = 0, pretend = 0, frame = 16
+ 1031              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1032              		@ link register save eliminated.
+ 1033 0000 84B0     		sub	sp, sp, #16
+ 1034              		.cfi_def_cfa_offset 16
+ 1035 0002 0190     		str	r0, [sp, #4]
+ 405:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   uint16_t hTS = 0u, hTE = 0u, hAux;
+ 1036              		.loc 1 405 12
+ 1037 0004 0023     		movs	r3, #0
+ 1038 0006 ADF80E30 		strh	r3, [sp, #14]	@ movhi
+ 1039              		.loc 1 405 22
+ 1040 000a 0023     		movs	r3, #0
+ 1041 000c ADF80C30 		strh	r3, [sp, #12]	@ movhi
+ 406:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   bool retVal = false;
+ 1042              		.loc 1 406 8
+ 1043 0010 0023     		movs	r3, #0
+ 1044 0012 8DF80B30 		strb	r3, [sp, #11]
+ 407:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   if ( pHandle->bTransitionStarted == true )
+ 1045              		.loc 1 407 15
+ 1046 0016 019B     		ldr	r3, [sp, #4]
+ 1047 0018 93F82C30 		ldrb	r3, [r3, #44]	@ zero_extendqisi2
+ 1048              		.loc 1 407 6
+ 1049 001c 002B     		cmp	r3, #0
+ 1050 001e 02D0     		beq	.L37
+ 408:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   {
+ 409:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****     hTS = 1u;
+ 1051              		.loc 1 409 9
+ 1052 0020 0123     		movs	r3, #1
+ 1053 0022 ADF80E30 		strh	r3, [sp, #14]	@ movhi
+ 1054              	.L37:
+ 410:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   }
+ 411:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   if ( pHandle->bTransitionEnded == true )
+ 1055              		.loc 1 411 15
+ 1056 0026 019B     		ldr	r3, [sp, #4]
+ 1057 0028 93F82D30 		ldrb	r3, [r3, #45]	@ zero_extendqisi2
+ 1058              		.loc 1 411 6
+ 1059 002c 002B     		cmp	r3, #0
+ 1060 002e 02D0     		beq	.L38
+ 412:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   {
+ 413:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****     hTE = 1u;
+ 1061              		.loc 1 413 9
+ 1062 0030 0123     		movs	r3, #1
+ 1063 0032 ADF80C30 		strh	r3, [sp, #12]	@ movhi
+ 1064              	.L38:
+ 414:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   }
+ 415:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   hAux = hTS ^ hTE;
+ 1065              		.loc 1 415 8
+ 1066 0036 BDF80E20 		ldrh	r2, [sp, #14]	@ movhi
+ 1067 003a BDF80C30 		ldrh	r3, [sp, #12]	@ movhi
+ 1068 003e 5340     		eors	r3, r3, r2
+ 1069 0040 ADF80830 		strh	r3, [sp, #8]	@ movhi
+ 416:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   if ( hAux != 0u )
+ 1070              		.loc 1 416 6
+ 1071 0044 BDF80830 		ldrh	r3, [sp, #8]
+ 1072 0048 002B     		cmp	r3, #0
+ 1073 004a 02D0     		beq	.L39
+ 417:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   {
+ 418:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****     retVal = true;
+ 1074              		.loc 1 418 12
+ 1075 004c 0123     		movs	r3, #1
+ 1076 004e 8DF80B30 		strb	r3, [sp, #11]
+ 1077              	.L39:
+ 419:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   }
+ 420:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   return ( retVal );
+ 1078              		.loc 1 420 10
+ 1079 0052 9DF80B30 		ldrb	r3, [sp, #11]	@ zero_extendqisi2
+ 421:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** }
+ 1080              		.loc 1 421 1
+ 1081 0056 1846     		mov	r0, r3
+ 1082 0058 04B0     		add	sp, sp, #16
+ 1083              		.cfi_def_cfa_offset 0
+ 1084              		@ sp needed
+ 1085 005a 7047     		bx	lr
+ 1086              		.cfi_endproc
+ 1087              	.LFE1257:
+ 1089              		.section	.text.VSS_TransitionEnded,"ax",%progbits
+ 1090              		.align	1
+ 1091              		.p2align 4,,15
+ 1092              		.weak	VSS_TransitionEnded
+ 1093              		.syntax unified
+ 1094              		.thumb
+ 1095              		.thumb_func
+ 1097              	VSS_TransitionEnded:
+ 1098              	.LFB1258:
+ 422:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 423:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** __weak bool VSS_TransitionEnded( VirtualSpeedSensor_Handle_t * pHandle )
+ 424:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** {
+ 1099              		.loc 1 424 1
+ 1100              		.cfi_startproc
+ 1101              		@ args = 0, pretend = 0, frame = 8
+ 1102              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1103              		@ link register save eliminated.
+ 1104 0000 82B0     		sub	sp, sp, #8
+ 1105              		.cfi_def_cfa_offset 8
+ 1106 0002 0190     		str	r0, [sp, #4]
+ 425:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****     return pHandle->bTransitionEnded;
+ 1107              		.loc 1 425 19
+ 1108 0004 019B     		ldr	r3, [sp, #4]
+ 1109 0006 93F82D30 		ldrb	r3, [r3, #45]	@ zero_extendqisi2
+ 426:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** }
+ 1110              		.loc 1 426 1
+ 1111 000a 1846     		mov	r0, r3
+ 1112 000c 02B0     		add	sp, sp, #8
+ 1113              		.cfi_def_cfa_offset 0
+ 1114              		@ sp needed
+ 1115 000e 7047     		bx	lr
+ 1116              		.cfi_endproc
+ 1117              	.LFE1258:
+ 1119              		.section	.text.VSS_SetCopyObserver,"ax",%progbits
+ 1120              		.align	1
+ 1121              		.p2align 4,,15
+ 1122              		.weak	VSS_SetCopyObserver
+ 1123              		.syntax unified
+ 1124              		.thumb
+ 1125              		.thumb_func
+ 1127              	VSS_SetCopyObserver:
+ 1128              	.LFB1259:
+ 427:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 428:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** /**
+ 429:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   * @brief  It set istantaneous information on rotor electrical angle copied by state observer;
+ 430:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   * @param  pHandle: handler of the current instance of the VirtualSpeedSensor component
+ 431:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   * @retval none
+ 432:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   */
+ 433:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** __weak void VSS_SetCopyObserver( VirtualSpeedSensor_Handle_t * pHandle )
+ 434:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** {
+ 1129              		.loc 1 434 1
+ 1130              		.cfi_startproc
+ 1131              		@ args = 0, pretend = 0, frame = 8
+ 1132              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1133              		@ link register save eliminated.
+ 1134 0000 82B0     		sub	sp, sp, #8
+ 1135              		.cfi_def_cfa_offset 8
+ 1136 0002 0190     		str	r0, [sp, #4]
+ 435:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   pHandle->bCopyObserver = true;
+ 1137              		.loc 1 435 26
+ 1138 0004 019B     		ldr	r3, [sp, #4]
+ 1139 0006 0122     		movs	r2, #1
+ 1140 0008 83F83320 		strb	r2, [r3, #51]
+ 436:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** }
+ 1141              		.loc 1 436 1
+ 1142 000c 00BF     		nop
+ 1143 000e 02B0     		add	sp, sp, #8
+ 1144              		.cfi_def_cfa_offset 0
+ 1145              		@ sp needed
+ 1146 0010 7047     		bx	lr
+ 1147              		.cfi_endproc
+ 1148              	.LFE1259:
+ 1150 0012 00BF     		.section	.text.VSS_SetElAngle,"ax",%progbits
+ 1151              		.align	1
+ 1152              		.p2align 4,,15
+ 1153              		.weak	VSS_SetElAngle
+ 1154              		.syntax unified
+ 1155              		.thumb
+ 1156              		.thumb_func
+ 1158              	VSS_SetElAngle:
+ 1159              	.LFB1260:
+ 437:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** 
+ 438:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** /**
+ 439:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   * @brief  It  set istantaneous information on rotor electrical angle.
+ 440:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   * @param  pHandle: handler of the current instance of the VirtualSpeedSensor component
+ 441:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   * @param  hElAngle istantaneous measure of rotor electrical angle (s16degrees)
+ 442:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   * @retval none
+ 443:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   */
+ 444:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** __weak void VSS_SetElAngle( VirtualSpeedSensor_Handle_t * pHandle, int16_t hElAngle )
+ 445:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** {
+ 1160              		.loc 1 445 1
+ 1161              		.cfi_startproc
+ 1162              		@ args = 0, pretend = 0, frame = 8
+ 1163              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1164              		@ link register save eliminated.
+ 1165 0000 82B0     		sub	sp, sp, #8
+ 1166              		.cfi_def_cfa_offset 8
+ 1167 0002 0190     		str	r0, [sp, #4]
+ 1168 0004 0B46     		mov	r3, r1
+ 1169 0006 ADF80230 		strh	r3, [sp, #2]	@ movhi
+ 446:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   pHandle->hElAngleAccu = hElAngle;
+ 1170              		.loc 1 446 25
+ 1171 000a 019B     		ldr	r3, [sp, #4]
+ 1172 000c BDF80220 		ldrh	r2, [sp, #2]	@ movhi
+ 1173 0010 1A86     		strh	r2, [r3, #48]	@ movhi
+ 447:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c ****   pHandle->_Super.hElAngle = hElAngle;
+ 1174              		.loc 1 447 28
+ 1175 0012 019B     		ldr	r3, [sp, #4]
+ 1176 0014 BDF80220 		ldrh	r2, [sp, #2]	@ movhi
+ 1177 0018 9A80     		strh	r2, [r3, #4]	@ movhi
+ 448:.sdk/SR5E1_MCTK-1.3.0/src/MotorControl/virtual_speed_sensor.c **** }
+ 1178              		.loc 1 448 1
+ 1179 001a 00BF     		nop
+ 1180 001c 02B0     		add	sp, sp, #8
+ 1181              		.cfi_def_cfa_offset 0
+ 1182              		@ sp needed
+ 1183 001e 7047     		bx	lr
+ 1184              		.cfi_endproc
+ 1185              	.LFE1260:
+ 1187              		.text
+ 1188              	.Letext0:
+ 1189              		.file 2 "C:/StellarStudio-9.2/SDKS/TOOLS/Toolchain/ARM/MINGW64_NT/13.3.1-2024.06/arm-none-eabi/inc
+ 1190              		.file 3 "C:/StellarStudio-9.2/SDKS/TOOLS/Toolchain/ARM/MINGW64_NT/13.3.1-2024.06/arm-none-eabi/inc
+ 1191              		.file 4 ".sdk/SR5E1_MCTK-1.3.0/include/LL_Library/sr5e1_ll_tim.h"
+ 1192              		.file 5 ".sdk/SR5E1_MCTK-1.3.0/include/LL_Library/sr5e1_ll_usart.h"
+ 1193              		.file 6 ".sdk/SR5E1_MCTK-1.3.0/include/LL_Library/sr5e1_ll_dma.h"
+ 1194              		.file 7 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/speed_pos_fdbk.h"
+ 1195              		.file 8 ".sdk/SR5E1_MCTK-1.3.0/include/MotorControl/virtual_speed_sensor.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 virtual_speed_sensor.c
+C:\Users\ttqpe\AppData\Local\Temp\ccIqncQY.s:20     .rodata.OFFSET_TAB_CCMRx:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccIqncQY.s:23     .rodata.OFFSET_TAB_CCMRx:00000000 OFFSET_TAB_CCMRx
+C:\Users\ttqpe\AppData\Local\Temp\ccIqncQY.s:26     .rodata.SHIFT_TAB_OCxx:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccIqncQY.s:29     .rodata.SHIFT_TAB_OCxx:00000000 SHIFT_TAB_OCxx
+C:\Users\ttqpe\AppData\Local\Temp\ccIqncQY.s:32     .rodata.SHIFT_TAB_ICxx:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccIqncQY.s:35     .rodata.SHIFT_TAB_ICxx:00000000 SHIFT_TAB_ICxx
+C:\Users\ttqpe\AppData\Local\Temp\ccIqncQY.s:38     .rodata.SHIFT_TAB_CCxP:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccIqncQY.s:41     .rodata.SHIFT_TAB_CCxP:00000000 SHIFT_TAB_CCxP
+C:\Users\ttqpe\AppData\Local\Temp\ccIqncQY.s:44     .rodata.SHIFT_TAB_OISx:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccIqncQY.s:47     .rodata.SHIFT_TAB_OISx:00000000 SHIFT_TAB_OISx
+C:\Users\ttqpe\AppData\Local\Temp\ccIqncQY.s:50     .rodata.USART_PRESCALER_TAB:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccIqncQY.s:53     .rodata.USART_PRESCALER_TAB:00000000 USART_PRESCALER_TAB
+C:\Users\ttqpe\AppData\Local\Temp\ccIqncQY.s:67     .rodata.LL_DMA_STR_OFFSET_TAB:00000000 $d
+C:\Users\ttqpe\AppData\Local\Temp\ccIqncQY.s:70     .rodata.LL_DMA_STR_OFFSET_TAB:00000000 LL_DMA_STR_OFFSET_TAB
+C:\Users\ttqpe\AppData\Local\Temp\ccIqncQY.s:73     .text.VSS_Init:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccIqncQY.s:80     .text.VSS_Init:00000000 VSS_Init
+C:\Users\ttqpe\AppData\Local\Temp\ccIqncQY.s:112    .text.VSS_Clear:00000000 VSS_Clear
+C:\Users\ttqpe\AppData\Local\Temp\ccIqncQY.s:105    .text.VSS_Clear:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccIqncQY.s:198    .itcm:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccIqncQY.s:205    .itcm:00000000 VSS_CalcElAngle
+C:\Users\ttqpe\AppData\Local\Temp\ccIqncQY.s:430    .text.VSS_CalcAvrgMecSpeedUnit:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccIqncQY.s:437    .text.VSS_CalcAvrgMecSpeedUnit:00000000 VSS_CalcAvrgMecSpeedUnit
+C:\Users\ttqpe\AppData\Local\Temp\ccIqncQY.s:646    .text.VSS_SetMecAngle:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccIqncQY.s:653    .text.VSS_SetMecAngle:00000000 VSS_SetMecAngle
+C:\Users\ttqpe\AppData\Local\Temp\ccIqncQY.s:696    .text.VSS_SetMecAcceleration:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccIqncQY.s:703    .text.VSS_SetMecAcceleration:00000000 VSS_SetMecAcceleration
+C:\Users\ttqpe\AppData\Local\Temp\ccIqncQY.s:882    .text.VSS_SetMecAcceleration:0000011c $d
+C:\Users\ttqpe\AppData\Local\Temp\ccIqncQY.s:887    .text.VSS_RampCompleted:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccIqncQY.s:894    .text.VSS_RampCompleted:00000000 VSS_RampCompleted
+C:\Users\ttqpe\AppData\Local\Temp\ccIqncQY.s:929    .text.VSS_GetLastRampFinalSpeed:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccIqncQY.s:936    .text.VSS_GetLastRampFinalSpeed:00000000 VSS_GetLastRampFinalSpeed
+C:\Users\ttqpe\AppData\Local\Temp\ccIqncQY.s:959    .text.VSS_SetStartTransition:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccIqncQY.s:966    .text.VSS_SetStartTransition:00000000 VSS_SetStartTransition
+C:\Users\ttqpe\AppData\Local\Temp\ccIqncQY.s:1019   .text.VSS_IsTransitionOngoing:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccIqncQY.s:1026   .text.VSS_IsTransitionOngoing:00000000 VSS_IsTransitionOngoing
+C:\Users\ttqpe\AppData\Local\Temp\ccIqncQY.s:1090   .text.VSS_TransitionEnded:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccIqncQY.s:1097   .text.VSS_TransitionEnded:00000000 VSS_TransitionEnded
+C:\Users\ttqpe\AppData\Local\Temp\ccIqncQY.s:1120   .text.VSS_SetCopyObserver:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccIqncQY.s:1127   .text.VSS_SetCopyObserver:00000000 VSS_SetCopyObserver
+C:\Users\ttqpe\AppData\Local\Temp\ccIqncQY.s:1151   .text.VSS_SetElAngle:00000000 $t
+C:\Users\ttqpe\AppData\Local\Temp\ccIqncQY.s:1158   .text.VSS_SetElAngle:00000000 VSS_SetElAngle
+                           .group:00000000 wm4.0.6093079fab0af1ca2c5a0ad5709343e3
+                           .group:00000000 wm4._newlib_version.h.4.411db44ea2338a62eca2f0777f81481b
+                           .group:00000000 wm4.features.h.33.5ea28ceb8be6621901b9d58b4c3ee651
+                           .group:00000000 wm4._default_types.h.15.247e5cd201eca3442cbf5404108c4935
+                           .group:00000000 wm4._intsup.h.10.48bafbb683905c4daa4565a85aeeb264
+                           .group:00000000 wm4._stdint.h.10.c24fa3af3bc1706662bb5593a907e841
+                           .group:00000000 wm4.stdint.h.23.d53047a68f4a85177f80b422d52785ed
+                           .group:00000000 wm4.stdbool.h.29.c08aa3eec75cf5b9b5003883f43253f0
+                           .group:00000000 wm4.mc_stm_types.h.20.2d7d6ac163527ff5d1947d422c918f78
+                           .group:00000000 wm4.sr5e1xx.h.22.e5c808533cc52ed19fb0830cd7d98924
+                           .group:00000000 wm4.cmsis_version.h.32.0f826810625204eca22a19868bdc7586
+                           .group:00000000 wm4.core_cm7.h.66.8ab2de36917d6fcae18019067fda13e0
+                           .group:00000000 wm4.cmsis_gcc.h.26.498d0ad17a45fc9ef20fdc01caf02259
+                           .group:00000000 wm4.core_cm7.h.174.43edb295ecdaadad738f48ba6011ffad
+                           .group:00000000 wm4.mpu_armv7.h.32.83326921a797fa9d6f70449916b4b839
+                           .group:00000000 wm4.cachel1_armv7.h.32.abd77761a989e008b0c60891114a33c7
+                           .group:00000000 wm4.SR5E1_ADC.h.14.21608e6aff125ba995dd767d6d8dc311
+                           .group:00000000 wm4.SR5E1_CEM.h.14.01fe5742c8f1ae35b1f3af05932f702e
+                           .group:00000000 wm4.SR5E1_CMU.h.14.2617b38b159abe38028862394531e06d
+                           .group:00000000 wm4.SR5E1_COMP.h.14.4b6fdfe4f5f7fd9bedf3a99b98bdf4cd
+                           .group:00000000 wm4.SR5E1_CORDIC.h.14.354fbf7c9eaf6963d38eaa25cf28ffe8
+                           .group:00000000 wm4.SR5E1_CRC.h.14.c64d0f7767671ddb92e9ead0a1162100
+                           .group:00000000 wm4.SR5E1_DAC.h.14.8c26a0ff04b0cfeb55306cc3f22187b8
+                           .group:00000000 wm4.SR5E1_DBGMCU.h.14.427df893d53a8044654f017ba01c25ed
+                           .group:00000000 wm4.SR5E1_DMA.h.14.a7f9a92f844b40a86965798c2e64240b
+                           .group:00000000 wm4.SR5E1_DMAMUX.h.14.471b3b4dfd4d41515f1df49493698866
+                           .group:00000000 wm4.SR5E1_EXTI.h.14.a325ea3fe89cd84894660551c33241ea
+                           .group:00000000 wm4.SR5E1_FCCU.h.14.0ebf0f0f36e079d28613ad2c80e17e23
+                           .group:00000000 wm4.SR5E1_FDCAN.h.14.ac57101fad5dbc798bfb93f34c899de7
+                           .group:00000000 wm4.SR5E1_FLASH_REG_ITF.h.14.d23d1d44923f9b20b8c8fdb51d66aefd
+                           .group:00000000 wm4.SR5E1_GPIO.h.14.1c84071e130d7c64b62470ab0e18a1f1
+                           .group:00000000 wm4.SR5E1_HRTIM.h.24.03932387d2522e6bd5c772a4edaf2f5d
+                           .group:00000000 wm4.SR5E1_HSEM.h.14.cbe70eee519f01b16452c3f8c99d8df1
+                           .group:00000000 wm4.SR5E1_I2C.h.14.350ba3e0f4fd57828457efa80135c36c
+                           .group:00000000 wm4.SR5E1_IMA.h.14.62b7088985ab2b7ce9b030a02daa1f7d
+                           .group:00000000 wm4.SR5E1_IWDG.h.14.20b7c5f05cf7ae94464c360d7af3660d
+                           .group:00000000 wm4.SR5E1_MEMU.h.14.04bad7ae4c52ce334a4fc900aad2ae5b
+                           .group:00000000 wm4.SR5E1_NVM_CTRL.h.14.5f442617f0628d4f16258f211c614ef9
+                           .group:00000000 wm4.SR5E1_PLLDIG.h.14.bd87a8e6917eee17dae2f312c8e5fa53
+                           .group:00000000 wm4.SR5E1_PMC_DIG.h.14.54173b566c6656344766ec4ef46c9281
+                           .group:00000000 wm4.SR5E1_RCC.h.14.56734803c71534de286e793a53649740
+                           .group:00000000 wm4.SR5E1_RTC.h.14.47037cbc7d8175dbf2be1dc0bb955e3f
+                           .group:00000000 wm4.SR5E1_SD_ADC.h.14.552b97d0b8f3c1fd4df6d8964b2f1a80
+                           .group:00000000 wm4.SR5E1_SMPU.h.14.8ce5bb6d5d7c579cd725f492f46e9085
+                           .group:00000000 wm4.SR5E1_SPI.h.14.42d52112e540f85ade4d9135f8b87d72
+                           .group:00000000 wm4.SR5E1_SSCM.h.14.8e6a2ad0ce5fca422fc3d69939b6125b
+                           .group:00000000 wm4.SR5E1_SYSCFG.h.14.02b969490118ce4069914b5e94f7ca65
+                           .group:00000000 wm4.SR5E1_TDM.h.14.a40ed7928cad243a57fd233fccf01ad2
+                           .group:00000000 wm4.SR5E1_TIM.h.14.05b8efc5395873619642d61a4b0b5a54
+                           .group:00000000 wm4.SR5E1_UART.h.14.eec3ab82b02b3bdb3de500483675b83f
+                           .group:00000000 wm4.SR5E1_WWDG.h.14.59b45efc70e442cc6ef03702aad4ad88
+                           .group:00000000 wm4.stddef.h.39.38eb7ec030421799c657b13be5aa21c7
+                           .group:00000000 wm4.typedefs.h.36.07fe3956b4e751037cfee70edcd0b397
+                           .group:00000000 wm4.irq_numbers.h.38.6294b95aed1bf7b3a2cda0eed8ce8f57
+                           .group:00000000 wm4.regs.h.23.2ac145b4f57126d16daed5fbd86d99c6
+                           .group:00000000 wm4.sr5e1_wrapper.h.20.64eb3ae8ac9b19f101ec010f065b27e0
+                           .group:00000000 wm4.sr5e1_macros.h.48.23238fd8be149bfd93a4b06f4d1d3e48
+                           .group:00000000 wm4.sr5e1_ll_system.h.75.323fef6699ff2ef93649a75fbc3b9dc0
+                           .group:00000000 wm4.sr5e1_ll_tim.h.21.35d0409c49249d40ffa0621f7fd1e49f
+                           .group:00000000 wm4.sr5e1_ll_adc.h.21.a09418770aae8e8540b1ce15e5fd6881
+                           .group:00000000 wm4.sr5e1_ll_dac.h.21.e617f768d26181c75ac38760d82ada91
+                           .group:00000000 wm4.sr5e1_ll_cordic.h.21.601660824250c93d03fb6b7dd46d0750
+                           .group:00000000 wm4.sr5e1_ll_usart.h.21.edc232fc61ffb518b3051f74f786aac1
+                           .group:00000000 wm4.sr5e1_ll_dmamux.h.21.e0f20dc23ecc4be39502f49d8383668f
+                           .group:00000000 wm4.sr5e1_ll_dma.h.74.155fcc98e704261e48b273dd9cbd510c
+                           .group:00000000 wm4.mc_stm_types.h.52.4cccb248a2fcd7dfda158e1610af49bf
+                           .group:00000000 wm4.mc_type.h.47.50da95e050e3bfbddab14d990c2d05af
+                           .group:00000000 wm4.pwm_curr_fdbk.h.25.8b72d58784715ceca81111ec103a103d
+                           .group:00000000 wm4.motor_power_measurement.h.29.8342149da3785e7815d1120573fd9cfb
+                           .group:00000000 wm4.digital_output.h.25.02fba90b0f6ba87331476d93a103f49e
+                           .group:00000000 wm4.mp_self_com_ctrl.h.49.e6dcc6aedc61e25d555994ebab97d8b3
+                           .group:00000000 wm4.mc_math.h.24.97493115228829e070d95a4855b66df8
+                           .group:00000000 wm4.pmsm_motor_parameters.h.23.867a6fd3770391a9f66bba183e9e75b3
+                           .group:00000000 wm4.drive_parameters.h.23.dbf96a4337bbb9088dab9827bb0ccc4b
+                           .group:00000000 wm4.power_stage_parameters.h.22.736335d2c78f651593d5c3a7eabd2f7e
+                           .group:00000000 wm4.parameters_conversion_SR5E1.h.29.eabcdfadd7af4fdc121c865f8fc2acbd
+                           .group:00000000 wm4.parameters_conversion.h.29.c695296455e156423051d03c26fc218c
+                           .group:00000000 wm4.encoder_speed_pos_fdbk.h.54.a7b391f390958238bafe12d9ec286eba
+                           .group:00000000 wm4.trajectory_ctrl.h.36.88ccddbc168ae81030ff0d853fd72660
+                           .group:00000000 wm4.user_interface.h.220.79f4987d3bb68b2ddc49cbd0ba2c5f63
+                           .group:00000000 wm4.frame_communication_protocol.h.23.41250e506dcaa9b3bb0fb3b62addffac
+                           .group:00000000 wm4.dac_common_ui.h.26.3857a0f796702d55fc08b1c9fba1ab0f
+                           .group:00000000 wm4.dac_ui.h.48.4302a85d070412e322de9cfee8982dc0
+                           .group:00000000 wm4.can_frame_communication_protocol.h.22.33ba1ca3757fdb135afcb321b74128f5
+                           .group:00000000 wm4.dac_rctimer_ui.h.26.502751ff603279109795a0a74dd8775c
+                           .group:00000000 wm4.ics_SR5E1_pwm_curr_fdbk.h.25.0077b176383d68ec03d55e3ef8c6c349
+                           .group:00000000 wm4.gpio.h.25.d41a0c19fda8c2de42e666afb48ec15a
+                           .group:00000000 wm4.hall_speed_pos_fdbk.h.47.c079bfc346ef7d5d51093236881f5a4c
+                           .group:00000000 wm4.mc_config.h.84.9f66d495ae5fdd9c09aa66372a42b3d9
+
+UNDEFINED SYMBOLS
+SPD_IsMecSpeedReliable
