@@ -1,2 +1,4 @@
-./build
+build/
+Release/
+*.lst
 c_objs.lst
